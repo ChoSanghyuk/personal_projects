@@ -1,0 +1,25 @@
+server:
+  port: 8012
+
+spring:
+  application:
+    name: config-service
+  cloud:
+    config:
+      server:
+        git:
+          uri: file:///C:\Users\Public\msa-practice
+          default-label: master
+      enabled: true
+#        native:
+#          search-locations: file:///C:\Users\icore\Desktop\dowon\lge-msa\git-local-repo
+
+# management:
+#   endpoints:
+#     web:
+#       exposure:
+#         include: health, busrefresh, refresh, metrics
+
+health:
+  config:
+    enabled=false:

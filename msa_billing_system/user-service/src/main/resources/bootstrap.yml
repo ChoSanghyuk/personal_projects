@@ -1,0 +1,5 @@
+spring:
+  cloud:
+    config:
+      uri: http://127.0.0.1:8012 # config 서버 ip 주소
+      name: user-service

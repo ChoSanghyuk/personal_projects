@@ -1,0 +1,30 @@
+.caption-font {
+	margin-bottom : 10px;
+	font-size : 32px;
+}
+
+.button-shape {
+/*	border-radius:50%;*/
+	width : 40px;
+	height : 40px;
+	text-align : center;
+}
+
+.time-button-shape {
+	border-radius:12px;
+	text-align : center;
+}
+
+.list-box{
+	overflow:auto;
+	height:410px;
+}
+
+td > button:focus{
+	background-color:red;
+}
+
+td > button:visited{
+	background-color:red;
+}
+	
