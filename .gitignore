@@ -1,2 +1,3 @@
 # config yaml files
-**/config/*.yaml
+invest/config/*.yaml
+invest/*.xlsx

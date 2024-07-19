@@ -96,6 +96,7 @@ func Crawl() (gp string) {
 	if err != nil {
 		log.Fatal(err)
 	}
+	fmt.Println(doc.Text())
 
 	// Find the elements by the CSS selector
 	doc.Find(cssPath).Each(func(i int, s *goquery.Selection) {
