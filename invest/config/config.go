@@ -11,10 +11,24 @@ import (
 var configByte []byte
 
 type Config struct {
-	GoldConfig struct {
+	Gold struct {
 		API   apiConfig   `yaml:"api"`
 		Crawl crawlConfig `yaml:"crawl"`
 	} `yaml:"gold"`
+	Bitcoin struct {
+		API   apiConfig   `yaml:"api"`
+		Crawl crawlConfig `yaml:"crawl"`
+	} `yaml:"bitcoin"`
+
+	Email struct {
+		SMTP struct {
+			Server   string `yaml:"server"`
+			Port     string `yaml:"port"`
+			User     string `yaml:"user"`
+			Password string `yaml:"password"`
+		} `yaml:"smtp"`
+		Target string `yaml:"target"`
+	} `yaml:"email"`
 }
 
 type apiConfig struct {

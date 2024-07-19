@@ -1,8 +1,7 @@
-package gold
+package crawl
 
 import (
 	"fmt"
-	"invest/config"
 	"io"
 	"log"
 	"net/http"
@@ -70,41 +69,6 @@ func Crawl_Backup() {
 		// Extract and print the data
 		fmt.Println(s.Text())
 	})
-}
-
-func Crawl() (gp string) {
-
-	url := config.ConfigInfo.GoldConfig.Crawl.Url
-	cssPath := config.ConfigInfo.GoldConfig.Crawl.CssPath
-
-	// Send the request
-	res, err := http.Get(url)
-	if err != nil {
-		fmt.Println("Error making request:", err)
-		return
-	}
-
-	defer res.Body.Close()
-
-	// Check the response status
-	if res.StatusCode != 200 {
-		log.Fatalf("status code error: %d %s", res.StatusCode, res.Status)
-	}
-
-	// Create a goquery document from the response body
-	doc, err := goquery.NewDocumentFromReader(res.Body)
-	if err != nil {
-		log.Fatal(err)
-	}
-	fmt.Println(doc.Text())
-
-	// Find the elements by the CSS selector
-	doc.Find(cssPath).Each(func(i int, s *goquery.Selection) {
-		// Extract and print the data
-		gp = s.Text()
-	})
-
-	return
 }
 
 func SampleCrawl() {
