@@ -14,19 +14,16 @@ type Config struct {
 	Gold struct {
 		API   apiConfig   `yaml:"api"`
 		Crawl crawlConfig `yaml:"crawl"`
+		Bound bound       `yaml:"bound"`
 	} `yaml:"gold"`
 	Bitcoin struct {
 		API   apiConfig   `yaml:"api"`
 		Crawl crawlConfig `yaml:"crawl"`
+		Bound bound       `yaml:"bound"`
 	} `yaml:"bitcoin"`
 
 	Email struct {
-		SMTP struct {
-			Server   string `yaml:"server"`
-			Port     string `yaml:"port"`
-			User     string `yaml:"user"`
-			Password string `yaml:"password"`
-		} `yaml:"smtp"`
+		SMTP   SMTP   `yaml:"smtp"`
 		Target string `yaml:"target"`
 	} `yaml:"email"`
 }
@@ -41,6 +38,18 @@ type crawlConfig struct {
 	CssPath string `yaml:"css-path"`
 }
 
+type bound struct {
+	Lower float64 `yaml:"lower"`
+	Upper float64 `yaml:"upper"`
+}
+
+type SMTP struct {
+	ServerI   string `yaml:"server"`
+	PortI     string `yaml:"port"`
+	UserI     string `yaml:"user"`
+	PasswordI string `yaml:"password"`
+}
+
 var ConfigInfo Config = Config{}
 
 func init() {
@@ -49,4 +58,20 @@ func init() {
 	if err != nil {
 		fmt.Println(err)
 	}
+}
+
+func (s SMTP) Server() string {
+	return s.ServerI
+}
+
+func (s SMTP) Port() string {
+	return s.PortI
+}
+
+func (s SMTP) User() string {
+	return s.UserI
+}
+
+func (s SMTP) Password() string {
+	return s.PasswordI
 }

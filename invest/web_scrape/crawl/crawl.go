@@ -30,7 +30,7 @@ func Crawl(url string, cssPath string) (gp string, _ error) {
 		return "", fmt.Errorf("error creating document\n%w", err)
 	}
 
-	fmt.Println(doc.Text())
+	// fmt.Println(doc.Text())
 
 	// Find the elements by the CSS selector
 	doc.Find(cssPath).Each(func(i int, s *goquery.Selection) {
