@@ -23,3 +23,9 @@ func TestCompare2(t *testing.T) {
 	assert.Equal(t, path1, path2, "path should be equal")
 
 }
+
+func TestDecoded(t *testing.T) {
+
+	t.Log(ConfigInfo.Gold.API.ApiKey)
+
+}

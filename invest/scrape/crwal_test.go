@@ -1,4 +1,4 @@
-package crawl
+package scrape
 
 import (
 	"invest/config"
@@ -7,12 +7,14 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestGold(t *testing.T) {
+func TestGoldCrwal(t *testing.T) {
+
+	s := Scraper{}
 
 	url := config.ConfigInfo.Gold.Crawl.Url
 	cssPath := config.ConfigInfo.Gold.Crawl.CssPath
 	// CallGoldApi()
-	rtn, err := Crawl(url, cssPath)
+	rtn, err := s.Crawl(url, cssPath)
 	if err != nil {
 		t.Error(err)
 	}
@@ -22,13 +24,16 @@ func TestGold(t *testing.T) {
 	t.Log(rtn)
 }
 
-func TestBitcoin(t *testing.T) {
+func TestBitcoinCrwal(t *testing.T) {
+
+	s := Scraper{}
 
 	t.Run("Crwal", func(t *testing.T) {
 		url := config.ConfigInfo.Bitcoin.Crawl.Url
 		cssPath := config.ConfigInfo.Bitcoin.Crawl.CssPath
+
 		// CallGoldApi()
-		rtn, err := Crawl(url, cssPath)
+		rtn, err := s.Crawl(url, cssPath)
 		if err != nil {
 			t.Error(err)
 		}
@@ -54,4 +59,24 @@ func TestBitcoin(t *testing.T) {
 	// 	t.Log(rtn)
 	// })
 
+}
+
+func TestEstateCrwal(t *testing.T) {
+
+	s := Scraper{}
+
+	t.Run("Crwal", func(t *testing.T) {
+		url := config.ConfigInfo.RealEstate.Crawl.Url
+		cssPath := config.ConfigInfo.RealEstate.Crawl.CssPath
+
+		// CallGoldApi()
+		rtn, err := s.Crawl(url, cssPath)
+		if err != nil {
+			t.Error(err)
+		}
+
+		assert.NotEmpty(t, rtn)
+		assert.Equal(t, "예정지구 지정", rtn)
+		t.Log(rtn)
+	})
 }

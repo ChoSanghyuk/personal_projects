@@ -3,6 +3,7 @@ package config
 import (
 	_ "embed"
 	"fmt"
+	"invest/util"
 
 	"gopkg.in/yaml.v3"
 )
@@ -21,6 +22,9 @@ type Config struct {
 		Crawl crawlConfig `yaml:"crawl"`
 		Bound bound       `yaml:"bound"`
 	} `yaml:"bitcoin"`
+	RealEstate struct {
+		Crawl crawlConfig `yaml:"crawl"`
+	} `yaml:"estate"`
 
 	Email struct {
 		SMTP   SMTP   `yaml:"smtp"`
@@ -30,6 +34,7 @@ type Config struct {
 
 type apiConfig struct {
 	Url    string `yaml:"url"`
+	ID     string `yaml:"id"`
 	ApiKey string `yaml:"api-key"`
 }
 
@@ -58,10 +63,20 @@ func init() {
 	if err != nil {
 		fmt.Println(err)
 	}
+
+	util.Decode(&ConfigInfo.Email.SMTP.PasswordI)
+	util.Decode(&ConfigInfo.Gold.API.ApiKey)
+	util.Decode(&ConfigInfo.Bitcoin.API.ID)
+	util.Decode(&ConfigInfo.Bitcoin.API.ApiKey)
+
 }
 
 func (s SMTP) Server() string {
 	return s.ServerI
+}
+
+func NewConfigInfo() *Config {
+	return &ConfigInfo
 }
 
 func (s SMTP) Port() string {

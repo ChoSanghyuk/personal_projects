@@ -1,4 +1,4 @@
-package crawl
+package scrape
 
 import (
 	"fmt"
@@ -8,7 +8,7 @@ import (
 	"github.com/PuerkitoBio/goquery"
 )
 
-func Crawl(url string, cssPath string) (gp string, _ error) {
+func (s Scraper) Crawl(url string, cssPath string) (string, error) {
 
 	// Send the request
 	res, err := http.Get(url)
@@ -32,13 +32,14 @@ func Crawl(url string, cssPath string) (gp string, _ error) {
 
 	// fmt.Println(doc.Text())
 
+	var v string
 	// Find the elements by the CSS selector
 	doc.Find(cssPath).Each(func(i int, s *goquery.Selection) {
 		// Extract and print the data
-		gp = s.Text()
+		v = s.Text()
 	})
 
-	return gp, nil
+	return v, nil
 }
 
 // func CrawlChrome(url string, id string) (string, error) {

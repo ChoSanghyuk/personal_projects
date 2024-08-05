@@ -1,4 +1,4 @@
-package api
+package scrape
 
 import (
 	"fmt"
@@ -6,10 +6,10 @@ import (
 	"net/http"
 )
 
-// config.ConfigInfo.GoldConfig.API.Url
-// config.ConfigInfo.GoldConfig.API.ApiKey
+type Scraper struct {
+}
 
-func CallApi(url string, key string) (string, error) {
+func (s Scraper) CallApi(url string, header map[string]string) (string, error) {
 
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
@@ -17,7 +17,9 @@ func CallApi(url string, key string) (string, error) {
 	}
 
 	// Add headers to the request
-	req.Header.Add("x-access-token", key)
+	for k, v := range header {
+		req.Header.Add(k, v)
+	}
 
 	// Send the request
 	client := &http.Client{}
