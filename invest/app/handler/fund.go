@@ -7,21 +7,22 @@ import (
 )
 
 type FundHandler struct {
-	db FundRetriever
+	r FundRetriever
 }
 
-func (f *FundHandler) InitRoute(app *fiber.App) {
+func (h *FundHandler) InitRoute(app *fiber.App) {
 
-	router := app.Group("/fund")
-	router.Get("", f.TotalFunds)
-	router.Get("/:id", f.Fund)
-	router.Get("/assets", f.TotalFundAssets)
-	router.Get("/assets/:id", f.FundAsset)
+	router := app.Group("/funds")
+
+	router.Get("/assets", h.TotalFundAssets)
+	router.Get("/:id/assets", h.FundAsset)
+	router.Get("/", h.TotalFunds)
+	router.Get("/:id", h.Fund) // routing 포함 위치 중요. /assets보다 아래에 있어야 함.
 }
 
-func (f *FundHandler) TotalFunds(c *fiber.Ctx) error {
+func (h *FundHandler) TotalFunds(c *fiber.Ctx) error {
 
-	funds, err := f.db.RetrieveFundAmount()
+	funds, err := h.r.RetrieveFundAmount()
 	if err != nil {
 		return fmt.Errorf("retrieveFundAmount시 오류 발생. %w", err)
 	}
@@ -29,14 +30,14 @@ func (f *FundHandler) TotalFunds(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(funds)
 }
 
-func (f *FundHandler) Fund(c *fiber.Ctx) error {
+func (h *FundHandler) Fund(c *fiber.Ctx) error {
 
 	id, err := c.ParamsInt("id")
 	if err != nil {
 		return fmt.Errorf("파라미터 id 조회 시 오류 발생. %w", err)
 	}
 
-	fund, err := f.db.RetrieveFundAmountById(uint(id))
+	fund, err := h.r.RetrieveFundAmountById(uint(id))
 	if err != nil {
 		return fmt.Errorf("retrieveFundAmount시 오류 발생. %w", err)
 	}
@@ -44,9 +45,9 @@ func (f *FundHandler) Fund(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(fund)
 }
 
-func (f *FundHandler) TotalFundAssets(c *fiber.Ctx) error {
+func (h *FundHandler) TotalFundAssets(c *fiber.Ctx) error {
 
-	funds, err := f.db.RetreiveAssetOfFund()
+	funds, err := h.r.RetreiveAssetOfFund()
 	if err != nil {
 		return fmt.Errorf("retreiveAssetOfFund 시 오류 발생. %w", err)
 	}
@@ -54,14 +55,14 @@ func (f *FundHandler) TotalFundAssets(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(funds)
 }
 
-func (f *FundHandler) FundAsset(c *fiber.Ctx) error {
+func (h *FundHandler) FundAsset(c *fiber.Ctx) error {
 
 	id, err := c.ParamsInt("id")
 	if err != nil {
 		return fmt.Errorf("파라미터 id 조회 시 오류 발생. %w", err)
 	}
 
-	fund, err := f.db.RetreiveAssetOfFundById(uint(id))
+	fund, err := h.r.RetreiveAssetOfFundById(uint(id))
 	if err != nil {
 		return fmt.Errorf("retreiveAssetOfFundById 시 오류 발생. %w", err)
 	}

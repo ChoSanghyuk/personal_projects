@@ -19,13 +19,13 @@ type MaketRetriever interface {
 }
 
 type InvestSaver interface {
-	SaveHist(map[string]any) (any, error)
+	SaveHist(map[string]any) error
 }
 
 type AssetInfoSaver interface {
-	SaveAssetInfo(map[string]any) (any, error)
+	SaveAssetInfo(any) error
 }
 
 type MarketInfoSaver interface {
-	SaveMakreSitutation() (any, error)
+	SaveMakreSitutation() error
 }

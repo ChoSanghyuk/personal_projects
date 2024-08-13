@@ -2,6 +2,8 @@ package db
 
 import (
 	"database/sql"
+	"fmt"
+	"invest/app/handler"
 	"log"
 	"testing"
 
@@ -44,4 +46,22 @@ func TestCreate(t *testing.T) {
 	}
 	t.Log("ID", fund.Id)
 	t.Log("Rows Affected", result.RowsAffected)
+}
+
+func TestCreateOtherPkg(t *testing.T) {
+
+	sample := handler.Asset{
+		Name: "HELLO",
+	}
+
+	createAny(sample)
+}
+
+func createAny(t any) {
+
+	result := db.Model(Asset).Create(&r)
+
+	if result.Error != nil {
+		fmt.Println(result.Error)
+	}
 }
