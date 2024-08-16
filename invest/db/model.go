@@ -41,15 +41,16 @@ type FundStatus struct {
 }
 
 type InvestHistory struct {
-	Id      uint
-	FundId  uint
-	AssetId uint
-	Price   float64
-	Count   uint
+	Id       uint
+	FundId   uint
+	AssetId  uint
+	Price    float64
+	Currency string
+	Count    uint
 }
 
 type Market struct {
-	CreatedAt    time.Time `gorm:"primaryKey, type:date"`
+	CreatedAt    datatypes.Date `gorm:"primaryKey"`
 	Nasdaq       float64
 	GreedFearIdx uint
 	IndexID      uint
@@ -57,8 +58,8 @@ type Market struct {
 }
 
 type CliIdx struct {
-	Id        uint      `gorm:"primaryKey"`
-	CreatedAt time.Time `gorm:"type:date"`
+	Id        uint `gorm:"primaryKey"`
+	CreatedAt datatypes.Date
 	Idx       float64
 }
 
