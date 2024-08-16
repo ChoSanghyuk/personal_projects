@@ -15,7 +15,11 @@ type AssetRetriever interface {
 }
 
 type MaketRetriever interface {
-	RetrieveMarketSituation() (any, error)
+	RetrieveMarketSituation(date string) (any, error)
+}
+
+type InvestRetriever interface {
+	RetrieveInvestHist(fundId string, assetId string, start string, end string) (any, error)
 }
 
 type InvestSaver interface {
@@ -23,9 +27,5 @@ type InvestSaver interface {
 }
 
 type AssetInfoSaver interface {
-	SaveAssetInfo(any) error
-}
-
-type MarketInfoSaver interface {
-	SaveMakreSitutation() error
+	SaveAssetInfo(name string, division string, peak float64, bottom float64) error
 }

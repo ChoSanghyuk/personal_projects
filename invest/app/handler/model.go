@@ -1,10 +1,13 @@
 package handler
 
-type Asset struct {
+type SaveAssetParam struct {
 	Id       uint
-	Name     string
+	Name     string `validate:"required"`
 	Division string
-	// DangerLevel DangerLevel
-	Peak   float64
-	Bottom float64
+	Peak     float64
+	Bottom   float64
+}
+
+type GetMarketParam struct {
+	Date string `validate:"date"`
 }

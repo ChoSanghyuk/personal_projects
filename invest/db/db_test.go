@@ -2,11 +2,11 @@ package db
 
 import (
 	"database/sql"
-	"fmt"
-	"invest/app/handler"
 	"log"
 	"testing"
+	"time"
 
+	"gorm.io/datatypes"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
@@ -30,7 +30,7 @@ func init() {
 }
 
 func TestMigration(t *testing.T) {
-	db.AutoMigrate(&Fund{}, &Asset{}, &FundStatus{}, &InvestHistory{})
+	db.AutoMigrate(&Fund{}, &Asset{}, &FundStatus{}, &InvestHistory{}, &CliIdx{}, &Market{})
 }
 
 func TestCreate(t *testing.T) {
@@ -48,20 +48,20 @@ func TestCreate(t *testing.T) {
 	t.Log("Rows Affected", result.RowsAffected)
 }
 
-func TestCreateOtherPkg(t *testing.T) {
+/*
+결국은 time.Time 객체인 것이 중요한게 아닌, string형 변환했을 때 DB 타입과 일치하는지가 중요함
+time.Time{}.Local() => '0000-00-00 00:00:00' 라서 Date 타입 및 Timestamp 실패
+time.Now() => '2024-08-16 08:47:20.346' Date 타입 및 Timestamp 성공
+*/
+func TestTime(t *testing.T) {
+	db.AutoMigrate(&Sample{})
 
-	sample := handler.Asset{
-		Name: "HELLO",
+	// date, _ := time.Parse("2006-01-02", "2021-11-22")
+
+	d := Sample{
+		Date: datatypes.Date(time.Now()),
+		Time: time.Now(),
 	}
 
-	createAny(sample)
-}
-
-func createAny(t any) {
-
-	result := db.Model(Asset).Create(&r)
-
-	if result.Error != nil {
-		fmt.Println(result.Error)
-	}
+	db.Debug().Create(&d)
 }

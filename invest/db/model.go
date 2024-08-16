@@ -1,23 +1,21 @@
 package db
 
-// type DivisionCode uint
+import (
+	"time"
+
+	"gorm.io/datatypes"
+	"gorm.io/gorm"
+)
+
+// type DangerLevel uint
 
 // const (
-// 	cash DivisionCode = iota+1
-// 	growth
-// 	dividend
-
+// 	no DangerLevel = iota + 1
+// 	low
+// 	moderate
+// 	high
+// 	extremeHigh
 // )
-
-type DangerLevel uint
-
-const (
-	no DangerLevel = iota + 1
-	low
-	moderate
-	high
-	extremeHigh
-)
 
 type Fund struct {
 	Id     uint
@@ -26,12 +24,13 @@ type Fund struct {
 }
 
 type Asset struct {
-	Id       uint
-	Name     string
-	Division string
-	// DangerLevel DangerLevel
-	Peak   float64
-	Bottom float64
+	Id           uint
+	Name         string
+	Division     string
+	Volatility   uint
+	Peak         float64
+	RecentPeak   float64
+	RecentBottom float64
 }
 
 type FundStatus struct {
@@ -47,4 +46,25 @@ type InvestHistory struct {
 	AssetId uint
 	Price   float64
 	Count   uint
+}
+
+type Market struct {
+	CreatedAt    time.Time `gorm:"primaryKey, type:date"`
+	Nasdaq       float64
+	GreedFearIdx uint
+	IndexID      uint
+	PreCliIdx    CliIdx `gorm:"foreignKey:IndexID"`
+}
+
+type CliIdx struct {
+	Id        uint      `gorm:"primaryKey"`
+	CreatedAt time.Time `gorm:"type:date"`
+	Idx       float64
+}
+
+type Sample struct {
+	Id   uint `gorm:"primaryKey"`
+	Date datatypes.Date
+	Time time.Time
+	gorm.Model
 }
