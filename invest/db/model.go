@@ -34,10 +34,11 @@ type Asset struct {
 }
 
 type FundStatus struct {
-	Id      uint
-	FundId  uint
-	AssetId uint
-	Amount  uint
+	Id          uint
+	Fund        Fund  `gorm:"foreignKey:FundID"`
+	Asset       Asset `gorm:"foreignKey:AssetID"`
+	MarketValue float64
+	Currency    string
 }
 
 type InvestHistory struct {
