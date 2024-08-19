@@ -8,17 +8,54 @@ import (
 	mock "github.com/stretchr/testify/mock"
 )
 
-func TestAssetHandler(t *testing.T) {
+func TestAssetGetHandler(t *testing.T) {
 
 	app := fiber.New()
 
 	readerMock := NewMockAssetRetriever(t)
-	setFundRetrieverMock(readerMock)
-	writerMock := NewMockAssetInfoSaver(t)
-	setFundRetrieverMock(writerMock)
+	setAssetRetrieverMock(readerMock)
 
 	f := AssetHandler{
 		r: readerMock,
+		w: nil,
+	}
+	f.InitRoute(app)
+	go func() {
+		app.Listen(":3000")
+	}()
+
+	t.Run("Assets", func(t *testing.T) {
+		err := sendReqeust(app, "/assets", "GET", nil)
+		assert.NoError(t, err)
+	})
+
+	t.Run("AssetInfo", func(t *testing.T) {
+		err := sendReqeust(app, "/assets/1", "GET", nil)
+		assert.NoError(t, err)
+	})
+
+	t.Run("AssetAmount", func(t *testing.T) {
+		err := sendReqeust(app, "/assets/1/amount", "GET", nil)
+		assert.NoError(t, err)
+	})
+
+	t.Run("AssetHist", func(t *testing.T) {
+		err := sendReqeust(app, "/assets/1/hist", "GET", nil)
+		assert.NoError(t, err)
+	})
+
+	app.Shutdown()
+}
+
+func TestAssetPostHandler(t *testing.T) {
+
+	app := fiber.New()
+
+	writerMock := NewMockAssetInfoSaver(t)
+	setAssetSaverMock(writerMock)
+
+	f := AssetHandler{
+		r: nil,
 		w: writerMock,
 	}
 	f.InitRoute(app)
@@ -26,40 +63,40 @@ func TestAssetHandler(t *testing.T) {
 		app.Listen(":3000")
 	}()
 
-	t.Run("TotalFunds", func(t *testing.T) {
-		err := sendReqeust(app, "/funds", nil)
+	t.Run("SaveAssets", func(t *testing.T) {
+		reqBody := SaveAssetParam{
+			Name:     "test",
+			Division: "stock",
+			Peak:     500,
+			Bottom:   400,
+		}
+		err := sendReqeust(app, "/assets", "POST", reqBody)
 		assert.NoError(t, err)
 	})
 
-	t.Run("Fund", func(t *testing.T) {
-		err := sendReqeust(app, "/funds/1", nil)
-		assert.NoError(t, err)
+	t.Run("SaveAssets_InvalidReq", func(t *testing.T) {
+		reqBody := SaveAssetParam{
+			// Name:     "test",
+			Division: "stock",
+			Peak:     500,
+			Bottom:   400,
+		}
+		err := sendReqeust(app, "/assets", "POST", reqBody)
+		assert.Error(t, err)
 	})
-
-	t.Run("TotalFundAssets", func(t *testing.T) {
-		err := sendReqeust(app, "/funds/assets", nil)
-		assert.NoError(t, err)
-	})
-
-	t.Run("FundAsset", func(t *testing.T) {
-		err := sendReqeust(app, "/funds/1/assets", nil)
-		assert.NoError(t, err)
-	})
-
-	app.Shutdown()
 }
 
 func setAssetRetrieverMock(m *MockAssetRetriever) error {
 
-	m.On("RetrieveAssetAmount").Return("hello1", nil)
-	m.On("RetrieveAssetHist", mock.AnythingOfType("uint")).Return("hello2", nil)
-	m.On("RetrieveAssetInfo").Return("hello3", nil)
-	m.On("RetrieveAssetList", mock.AnythingOfType("uint")).Return("hello4", nil)
+	m.On("RetrieveAssetList").Return("RetrieveAssetList Called", nil)
+	m.On("RetrieveAssetInfo", mock.AnythingOfType("uint")).Return("RetrieveAssetInfo Called", nil)
+	m.On("RetrieveAssetAmount", mock.AnythingOfType("uint")).Return("RetrieveAssetAmount Called", nil)
+	m.On("RetrieveAssetHist", mock.AnythingOfType("uint")).Return("RetrieveAssetHist Called", nil)
 
 	return nil
 }
 
 func setAssetSaverMock(m *MockAssetInfoSaver) error {
-	m.On("SaveAssetInfo").Return("hello1", nil)
+	m.On("SaveAssetInfo", mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("float64"), mock.AnythingOfType("float64")).Return(nil)
 	return nil
 }

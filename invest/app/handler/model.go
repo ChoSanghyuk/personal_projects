@@ -1,8 +1,7 @@
 package handler
 
 type SaveAssetParam struct {
-	Id       uint    `json:"id"`
-	Name     string  `validate:"required"`
+	Name     string  `json:"name" validate:"required"`
 	Division string  `json:"division"`
 	Peak     float64 `json:"peak"`
 	Bottom   float64 `json:"bottom"`

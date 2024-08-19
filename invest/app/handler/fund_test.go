@@ -29,22 +29,22 @@ func TestFundHandler(t *testing.T) {
 	}()
 
 	t.Run("TotalFunds", func(t *testing.T) {
-		err := sendReqeust(app, "/funds", nil)
+		err := sendReqeust(app, "/funds", "GET", nil)
 		assert.NoError(t, err)
 	})
 
 	t.Run("Fund", func(t *testing.T) {
-		err := sendReqeust(app, "/funds/1", nil)
+		err := sendReqeust(app, "/funds/1", "GET", nil)
 		assert.NoError(t, err)
 	})
 
 	t.Run("TotalFundAssets", func(t *testing.T) {
-		err := sendReqeust(app, "/funds/assets", nil)
+		err := sendReqeust(app, "/funds/assets", "GET", nil)
 		assert.NoError(t, err)
 	})
 
 	t.Run("FundAsset", func(t *testing.T) {
-		err := sendReqeust(app, "/funds/1/assets", nil)
+		err := sendReqeust(app, "/funds/1/assets", "GET", nil)
 		assert.NoError(t, err)
 	})
 
@@ -56,20 +56,27 @@ func TestFundHandler(t *testing.T) {
 Inner Function
 *************************************************
 */
-func sendReqeust(app *fiber.App, url string, reqBody any) error {
+func sendReqeust(app *fiber.App, url string, method string, reqBody any) error {
 
 	bodyBytes, err := json.Marshal(reqBody)
 	if err != nil {
 		return fmt.Errorf("Error Occurred %w", err)
 	}
-	req, _ := http.NewRequest(http.MethodGet, url, bytes.NewBuffer(bodyBytes))
 
+	var req *http.Request
+	switch method {
+	case "POST":
+		req, _ = http.NewRequest(http.MethodPost, url, bytes.NewBuffer(bodyBytes))
+	default:
+		req, _ = http.NewRequest(http.MethodGet, url, bytes.NewBuffer(bodyBytes))
+	}
+	req.Header.Set("Content-Type", "application/json") // 중요!!. 생략 시, 파싱 오류 발생
 	resp, err := app.Test(req, -1)
 	if err != nil {
 		return fmt.Errorf("Error Occurred %w", err)
 	}
 	if resp.StatusCode != fiber.StatusOK {
-		return fmt.Errorf("Response status should be 200")
+		return fmt.Errorf("Response status should be 200. Status: %d", resp.StatusCode)
 	}
 
 	respBody, _ := io.ReadAll(resp.Body)
@@ -85,10 +92,10 @@ Mock
 
 func setFundRetrieverMock(m *MockFundRetriever) error {
 
-	m.On("RetrieveFundAmount").Return("hello1", nil)
-	m.On("RetrieveFundAmountById", mock.AnythingOfType("uint")).Return("hello2", nil)
-	m.On("RetreiveAssetOfFund").Return("hello3", nil)
-	m.On("RetreiveAssetOfFundById", mock.AnythingOfType("uint")).Return("hello4", nil)
+	m.On("RetrieveFundAmount").Return("RetrieveFundAmount Called", nil)
+	m.On("RetrieveFundAmountById", mock.AnythingOfType("uint")).Return("RetrieveFundAmountById Called", nil)
+	m.On("RetreiveAssetOfFund").Return("RetreiveAssetOfFund Called", nil)
+	m.On("RetreiveAssetOfFundById", mock.AnythingOfType("uint")).Return("RetreiveAssetOfFundById Called", nil)
 
 	return nil
 }

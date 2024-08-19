@@ -80,14 +80,15 @@ func (h *AssetHandler) AssetHist(c *fiber.Ctx) error {
 
 func (h *AssetHandler) SaveAssets(c *fiber.Ctx) error {
 
-	param := SaveAssetParam{}
+	var param SaveAssetParam
 	err := c.BodyParser(&param)
 	if err != nil {
 		return fmt.Errorf("파라미터 BodyParse 시 오류 발생. %w", err)
 	}
-
-	validCheck(&param) // 포인터로 들어가도 validation 체크 되는지 확인
-
+	err = validCheck(param) // 포인터로 들어가도 validation 체크 되는지 확인
+	if err != nil {
+		return fmt.Errorf("파라미터 유효성 검사 시 오류 발생. %w", err)
+	}
 	err = h.w.SaveAssetInfo(param.Name, param.Division, param.Peak, param.Bottom)
 	if err != nil {
 		return fmt.Errorf("SaveAssetInfo 시 오류 발생. %w", err)

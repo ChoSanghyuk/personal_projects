@@ -15,19 +15,22 @@ func (h *InvestHandler) InitRoute(app *fiber.App) {
 
 	router := app.Group("/invest")
 
-	router.Get("/hist", nil)
-	router.Post("/", nil)
+	router.Get("/hist", h.InvestHist)
+	router.Post("/", h.SaveInvest)
 }
 
 func (h *InvestHandler) InvestHist(c *fiber.Ctx) error {
 
-	param := GetInvestHistParam{}
+	var param GetInvestHistParam
 	err := c.BodyParser(&param)
 	if err != nil {
 		return fmt.Errorf("파라미터 BodyParse 시 오류 발생. %w", err)
 	}
 
-	validCheck(&param)
+	err = validCheck(&param)
+	if err != nil {
+		return fmt.Errorf("파라미터 유효성 검사 시 오류 발생. %w", err)
+	}
 
 	investHist, err := h.r.RetrieveInvestHist(param.FundId, param.AssetId, param.StartDate, param.EndDate)
 	if err != nil {

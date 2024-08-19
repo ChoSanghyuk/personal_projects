@@ -21,9 +21,11 @@ var myValidator = validator.New()
 func init() {
 	myValidator.RegisterValidation("date", func(fl validator.FieldLevel) bool {
 
-		regexp.MatchString(fl.Field().String(), `^(\d{4}-\d{2}-\d{2})?$`)
-		//
-		return fl.Field().Int() >= 12 && fl.Field().Int() <= 18
+		isDate, err := regexp.MatchString(fl.Field().String(), `^(\d{4}-\d{2}-\d{2})?$`)
+		if err != nil {
+			return false
+		}
+		return isDate
 	})
 }
 
