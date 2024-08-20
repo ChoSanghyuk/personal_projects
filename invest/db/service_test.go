@@ -63,3 +63,18 @@ func TestRetrieveAssetList(t *testing.T) {
 	fmt.Println(string(j))
 
 }
+
+func TestRetreiveInvestHistOfFund(t *testing.T) {
+
+	rst, err := stg.RetreiveInvestHistOfFund()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	j, err := json.Marshal(rst)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	fmt.Println(string(j))
+}

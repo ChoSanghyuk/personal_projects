@@ -32,28 +32,28 @@ func (s Storage) RetrieveFundAmountById(id uint) (any, error) {
 	return fund, nil
 }
 
-func (s Storage) RetreiveAssetOfFund() (any, error) {
+func (s Storage) RetreiveInvestHistOfFund() (any, error) {
 
-	var fundsStatus []FundStatus
+	var funds []Fund
 
-	result := s.db.Find(&fundsStatus)
+	result := s.db.Model(&Fund{}).Preload("Hist").Find(&funds)
 	if result.Error != nil {
 		return nil, result.Error
 	}
 
-	return fundsStatus, nil
+	return funds, nil
 }
 
 func (s Storage) RetreiveAssetOfFundById(id uint) (any, error) {
 
-	var fundStatus FundStatus
+	var fund Fund
 
-	result := s.db.Where("fund_id = ?", id).First(&fundStatus)
+	result := s.db.Model(&Fund{}).Preload("InvestHistorys").Find(&fund, id)
 	if result.Error != nil {
 		return nil, result.Error
 	}
 
-	return fundStatus, nil
+	return fund, nil
 }
 
 func (s Storage) RetrieveAssetList() (any, error) {
@@ -143,10 +143,9 @@ func (s Storage) RetrieveInvestHist(fundId uint, assetId uint, start string, end
 func (s Storage) SaveInvest(fundId uint, assetId uint, price float64, currency string, count uint) error {
 
 	result := s.db.Create(&InvestHistory{
-		FundId:       fundId,
-		AssetId:      assetId,
+		FundID:       fundId,
+		AssetID:      assetId,
 		CurrentPrice: price,
-		Currency:     currency,
 		Count:        count,
 	})
 

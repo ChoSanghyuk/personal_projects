@@ -30,7 +30,8 @@ func init() {
 }
 
 func TestMigration(t *testing.T) {
-	db.AutoMigrate(&Fund{}, &Asset{}, &FundStatus{}, &InvestHistory{}, &CliIdx{}, &Market{})
+
+	db.AutoMigrate(&Fund{}, &Asset{}, &InvestHistory{}, &CliIdx{}, &Market{})
 }
 
 func TestCreate(t *testing.T) {
@@ -44,7 +45,7 @@ func TestCreate(t *testing.T) {
 	if result.Error != nil {
 		t.Fatal(result.Error)
 	}
-	t.Log("ID", fund.Id)
+	t.Log("ID", fund.ID)
 	t.Log("Rows Affected", result.RowsAffected)
 }
 
