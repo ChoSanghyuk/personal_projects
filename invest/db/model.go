@@ -18,9 +18,9 @@ import (
 // )
 
 type Fund struct {
-	Id     uint
-	Name   string
-	Amount uint
+	Id          uint
+	Name        string
+	MarketValue uint
 }
 
 type Asset struct {
@@ -28,34 +28,25 @@ type Asset struct {
 	Name         string
 	Division     string
 	Volatility   uint
+	Currency     string
 	Peak         float64
 	RecentPeak   float64
 	RecentBottom float64
 }
 
-type FundStatus struct {
-	Id          uint
-	Fund        Fund  `gorm:"foreignKey:FundID"`
-	Asset       Asset `gorm:"foreignKey:AssetID"`
-	MarketValue float64
-	Currency    string
-}
-
 type InvestHistory struct {
-	Id       uint
-	FundId   uint
-	AssetId  uint
-	Price    float64
-	Currency string
-	Count    uint
+	Id           uint
+	FundId       Fund  `gorm:"foreignKey:FundID"`
+	AssetId      Asset `gorm:"foreignKey:AssetID"`
+	CurrentPrice float64
+	Count        uint
+	gorm.Model
 }
 
 type Market struct {
 	CreatedAt    datatypes.Date `gorm:"primaryKey"`
 	Nasdaq       float64
 	GreedFearIdx uint
-	IndexID      uint
-	PreCliIdx    CliIdx `gorm:"foreignKey:IndexID"`
 }
 
 type CliIdx struct {

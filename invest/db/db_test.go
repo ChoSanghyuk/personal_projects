@@ -35,8 +35,8 @@ func TestMigration(t *testing.T) {
 
 func TestCreate(t *testing.T) {
 	fund := Fund{
-		Name:   "개인",
-		Amount: 1000000,
+		Name:        "개인",
+		MarketValue: 1000000,
 	}
 
 	result := db.Create(&fund)
