@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"invest/model"
 	"testing"
 
 	"github.com/gofiber/fiber/v2"
@@ -64,7 +65,7 @@ func TestAssetPostHandler(t *testing.T) {
 	}()
 
 	t.Run("SaveAssets", func(t *testing.T) {
-		reqBody := SaveAssetParam{
+		reqBody := model.SaveAssetParam{
 			Name:     "test",
 			Division: "stock",
 			Peak:     500,
@@ -75,7 +76,7 @@ func TestAssetPostHandler(t *testing.T) {
 	})
 
 	t.Run("SaveAssets_InvalidReq", func(t *testing.T) {
-		reqBody := SaveAssetParam{
+		reqBody := model.SaveAssetParam{
 			// Name:     "test",
 			Division: "stock",
 			Peak:     500,

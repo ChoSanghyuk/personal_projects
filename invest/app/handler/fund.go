@@ -47,7 +47,7 @@ func (h *FundHandler) Fund(c *fiber.Ctx) error {
 
 func (h *FundHandler) TotalFundAssets(c *fiber.Ctx) error {
 
-	funds, err := h.r.RetreiveAssetOfFund()
+	funds, err := h.r.RetreiveInvestHistOfFund()
 	if err != nil {
 		return fmt.Errorf("retreiveAssetOfFund 시 오류 발생. %w", err)
 	}

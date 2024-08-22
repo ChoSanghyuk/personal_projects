@@ -2,6 +2,7 @@ package handler
 
 import (
 	"fmt"
+	m "invest/model"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -17,7 +18,7 @@ func (h *AssetHandler) InitRoute(app *fiber.App) {
 
 	router.Get("/", h.Assets)
 	router.Get("/:id", h.AssetInfo)
-	router.Get("/:id/amount", h.AssetAmount)
+	// router.Get("/:id/amount", h.AssetAmount)
 	router.Get("/:id/hist", h.AssetHist)
 	router.Post("/", h.SaveAssets)
 }
@@ -47,21 +48,21 @@ func (h *AssetHandler) AssetInfo(c *fiber.Ctx) error {
 
 }
 
-func (h *AssetHandler) AssetAmount(c *fiber.Ctx) error {
+// func (h *AssetHandler) AssetAmount(c *fiber.Ctx) error {
 
-	id, err := c.ParamsInt("id")
-	if err != nil {
-		return fmt.Errorf("파라미터 id 조회 시 오류 발생. %w", err)
-	}
+// 	id, err := c.ParamsInt("id")
+// 	if err != nil {
+// 		return fmt.Errorf("파라미터 id 조회 시 오류 발생. %w", err)
+// 	}
 
-	fund, err := h.r.RetrieveAssetAmount(uint(id))
-	if err != nil {
-		return fmt.Errorf("RetrieveAssetAmount 오류 발생. %w", err)
-	}
+// 	fund, err := h.r.RetrieveAssetAmount(uint(id))
+// 	if err != nil {
+// 		return fmt.Errorf("RetrieveAssetAmount 오류 발생. %w", err)
+// 	}
 
-	return c.Status(fiber.StatusOK).JSON(fund)
+// 	return c.Status(fiber.StatusOK).JSON(fund)
 
-}
+// }
 
 func (h *AssetHandler) AssetHist(c *fiber.Ctx) error {
 	id, err := c.ParamsInt("id")
@@ -80,7 +81,7 @@ func (h *AssetHandler) AssetHist(c *fiber.Ctx) error {
 
 func (h *AssetHandler) SaveAssets(c *fiber.Ctx) error {
 
-	var param SaveAssetParam
+	var param m.SaveAssetParam
 	err := c.BodyParser(&param)
 	if err != nil {
 		return fmt.Errorf("파라미터 BodyParse 시 오류 발생. %w", err)
@@ -89,7 +90,7 @@ func (h *AssetHandler) SaveAssets(c *fiber.Ctx) error {
 	if err != nil {
 		return fmt.Errorf("파라미터 유효성 검사 시 오류 발생. %w", err)
 	}
-	err = h.w.SaveAssetInfo(param.Name, param.Division, param.Peak, param.Bottom)
+	err = h.w.SaveAssetInfo(param.Name, param.Division, 0, "", param.Peak, 100, param.Bottom) // TODO ASSET 정보 계산
 	if err != nil {
 		return fmt.Errorf("SaveAssetInfo 시 오류 발생. %w", err)
 	}

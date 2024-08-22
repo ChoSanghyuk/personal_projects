@@ -2,6 +2,7 @@ package handler
 
 import (
 	"fmt"
+	"invest/model"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -18,7 +19,7 @@ func (h *MarketHandler) InitRoute(app *fiber.App) {
 
 func (h *MarketHandler) Market(c *fiber.Ctx) error {
 
-	var param GetMarketParam
+	var param model.GetMarketParam
 	err := c.BodyParser(&param)
 	if err != nil {
 		return fmt.Errorf("파라미터 BodyParse 시 오류 발생. %w", err)

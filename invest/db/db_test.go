@@ -2,6 +2,7 @@ package db
 
 import (
 	"database/sql"
+	m "invest/model"
 	"log"
 	"testing"
 	"time"
@@ -31,11 +32,11 @@ func init() {
 
 func TestMigration(t *testing.T) {
 
-	db.AutoMigrate(&Fund{}, &Asset{}, &InvestHistory{}, &CliIdx{}, &Market{})
+	db.AutoMigrate(&m.Fund{}, &m.Asset{}, &m.InvestHistory{}, &m.CliIdx{}, &m.Market{})
 }
 
 func TestCreate(t *testing.T) {
-	fund := Fund{
+	fund := m.Fund{
 		Name:        "개인",
 		MarketValue: 1000000,
 	}
@@ -55,11 +56,11 @@ time.Time{}.Local() => '0000-00-00 00:00:00' 라서 Date 타입 및 Timestamp �
 time.Now() => '2024-08-16 08:47:20.346' Date 타입 및 Timestamp 성공
 */
 func TestTime(t *testing.T) {
-	db.AutoMigrate(&Sample{})
+	db.AutoMigrate(&m.Sample{})
 
 	// date, _ := time.Parse("2006-01-02", "2021-11-22")
 
-	d := Sample{
+	d := m.Sample{
 		Date: datatypes.Date(time.Now()),
 		Time: time.Now(),
 	}
