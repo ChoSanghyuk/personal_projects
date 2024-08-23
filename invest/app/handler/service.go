@@ -5,8 +5,8 @@ import m "invest/model"
 //go:generate mockery --name FundRetriever --case underscore --inpackage
 type FundRetriever interface {
 	RetrieveFundAmount() ([]m.Fund, error)
-	RetrieveFundHistById(id uint) (*m.Fund, error)
-	RetreiveInvestHistOfFund() ([]m.Fund, error)
+	RetreiveInvestHistOfFundById(id uint) (*m.Fund, error)
+	RetreiveInvestHistOfFunds() ([]m.Fund, error)
 	RetreiveAssetOfFundById(id uint) (*m.Fund, error)
 }
 
@@ -30,7 +30,7 @@ type InvestRetriever interface {
 
 //go:generate mockery --name InvestSaver --case underscore --inpackage
 type InvestSaver interface {
-	SaveInvest(fundId uint, assetId uint, price float64, currency string, count uint) error
+	SaveInvest(fundId uint, assetId uint, price float64, count uint) error
 }
 
 //go:generate mockery --name AssetInfoSaver --case underscore --inpackage

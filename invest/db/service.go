@@ -10,6 +10,7 @@ type Storage struct {
 	db *gorm.DB
 }
 
+// 자금별 총 금액
 func (s Storage) RetrieveFundAmount() ([]m.Fund, error) {
 
 	var funds []m.Fund
@@ -22,7 +23,8 @@ func (s Storage) RetrieveFundAmount() ([]m.Fund, error) {
 	return funds, nil
 }
 
-func (s Storage) RetrieveFundHistById(id uint) (*m.Fund, error) {
+// 자금의 투자 목록
+func (s Storage) RetreiveInvestHistOfFundById(id uint) (*m.Fund, error) {
 
 	var fund m.Fund
 
@@ -34,7 +36,8 @@ func (s Storage) RetrieveFundHistById(id uint) (*m.Fund, error) {
 	return &fund, nil
 }
 
-func (s Storage) RetreiveInvestHistOfFund() ([]m.Fund, error) {
+// 자금별 투자 목록
+func (s Storage) RetreiveInvestHistOfFunds() ([]m.Fund, error) {
 
 	var funds []m.Fund
 
@@ -47,6 +50,7 @@ func (s Storage) RetreiveInvestHistOfFund() ([]m.Fund, error) {
 	return funds, nil
 }
 
+// 자금의 종목별 정보
 func (s Storage) RetreiveAssetOfFundById(id uint) (*m.Fund, error) {
 
 	var fund m.Fund
@@ -132,13 +136,13 @@ func (s Storage) RetrieveInvestHist(fundId uint, assetId uint, start string, end
 	return investHist, nil
 }
 
-func (s Storage) SaveInvest(fundId uint, assetId uint, price float64, currency string, count uint) error {
+func (s Storage) SaveInvest(fundId uint, assetId uint, price float64, count uint) error {
 
 	result := s.db.Create(&m.InvestHistory{
-		FundID:       fundId,
-		AssetID:      assetId,
-		CurrentPrice: price,
-		Count:        count,
+		FundID:  fundId,
+		AssetID: assetId,
+		Price:   price,
+		Count:   count,
 	})
 
 	if result.Error != nil {

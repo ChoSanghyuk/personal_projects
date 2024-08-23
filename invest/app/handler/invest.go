@@ -51,7 +51,7 @@ func (h *InvestHandler) SaveInvest(c *fiber.Ctx) error {
 
 	validCheck(&param)
 
-	err = h.w.SaveInvest(param.FundId, param.AssetId, param.Price, param.Currency, param.Count)
+	err = h.w.SaveInvest(param.FundId, param.AssetId, param.Price, param.Count)
 	if err != nil {
 		return fmt.Errorf("RetrieveMarketSituation 오류 발생. %w", err)
 	}

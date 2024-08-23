@@ -55,11 +55,10 @@ func TestInvestPostHandler(t *testing.T) {
 
 	t.Run("SaveInvest", func(t *testing.T) {
 		reqBody := model.SaveInvestParam{
-			FundId:   1,
-			AssetId:  1,
-			Price:    100,
-			Currency: "WON",
-			Count:    5,
+			FundId:  1,
+			AssetId: 1,
+			Price:   100,
+			Count:   5,
 		}
 		err := sendReqeust(app, "/invest", "POST", reqBody)
 		assert.NoError(t, err)
@@ -73,5 +72,5 @@ func setInvestRetrieverMock(m *MockInvestRetriever) {
 }
 
 func setInvestSaverMock(m *MockInvestSaver) {
-	m.On("SaveInvest", mock.AnythingOfType("uint"), mock.AnythingOfType("uint"), mock.AnythingOfType("float64"), mock.AnythingOfType("string"), mock.AnythingOfType("uint")).Return(nil)
+	m.On("SaveInvest", mock.AnythingOfType("uint"), mock.AnythingOfType("uint"), mock.AnythingOfType("float64"), mock.AnythingOfType("uint")).Return(nil)
 }

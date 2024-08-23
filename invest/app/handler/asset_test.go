@@ -65,22 +65,22 @@ func TestAssetPostHandler(t *testing.T) {
 	}()
 
 	t.Run("SaveAssets", func(t *testing.T) {
-		reqBody := model.SaveAssetParam{
-			Name:     "test",
-			Division: "stock",
-			Peak:     500,
-			Bottom:   400,
+		reqBody := model.Asset{
+			Name:         "test",
+			Division:     "stock",
+			Peak:         500,
+			RecentBottom: 400,
 		}
 		err := sendReqeust(app, "/assets", "POST", reqBody)
 		assert.NoError(t, err)
 	})
 
 	t.Run("SaveAssets_InvalidReq", func(t *testing.T) {
-		reqBody := model.SaveAssetParam{
+		reqBody := model.Asset{
 			// Name:     "test",
-			Division: "stock",
-			Peak:     500,
-			Bottom:   400,
+			Division:     "stock",
+			Peak:         500,
+			RecentBottom: 400,
 		}
 		err := sendReqeust(app, "/assets", "POST", reqBody)
 		assert.Error(t, err)
@@ -98,6 +98,6 @@ func setAssetRetrieverMock(m *MockAssetRetriever) error {
 }
 
 func setAssetSaverMock(m *MockAssetInfoSaver) error {
-	m.On("SaveAssetInfo", mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("float64"), mock.AnythingOfType("float64")).Return(nil)
+	m.On("SaveAssetInfo", mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("uint"), mock.AnythingOfType("string"), mock.AnythingOfType("float64"), mock.AnythingOfType("float64"), mock.AnythingOfType("float64")).Return(nil)
 	return nil
 }

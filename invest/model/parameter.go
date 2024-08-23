@@ -1,12 +1,5 @@
 package model
 
-type SaveAssetParam struct {
-	Name     string  `json:"name" validate:"required"`
-	Division string  `json:"division"`
-	Peak     float64 `json:"peak"`
-	Bottom   float64 `json:"bottom"`
-}
-
 type GetMarketParam struct {
 	Date string `json:"date" validate:"date"`
 }
@@ -19,9 +12,8 @@ type GetInvestHistParam struct {
 }
 
 type SaveInvestParam struct {
-	FundId   uint    `json:"fund_id"`
-	AssetId  uint    `json:"asset_id"`
-	Price    float64 `json:"price"`
-	Currency string  `json:"currency"`
-	Count    uint    `json:"count"`
+	FundId  uint    `json:"fund_id"`
+	AssetId uint    `json:"asset_id"`
+	Price   float64 `json:"price"`
+	Count   uint    `json:"count"`
 }

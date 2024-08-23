@@ -49,9 +49,9 @@ func TestRetrieveFundAmount(t *testing.T) {
 
 }
 
-func TestRetrieveFundHistById(t *testing.T) {
+func TestRetreiveInvestHistOfFundById(t *testing.T) {
 
-	rst, err := stg.RetrieveFundHistById(1)
+	rst, err := stg.RetreiveInvestHistOfFundById(1)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -65,9 +65,9 @@ func TestRetrieveFundHistById(t *testing.T) {
 
 }
 
-func TestRetreiveInvestHistOfFund(t *testing.T) {
+func TestRetreiveInvestHistOfFunds(t *testing.T) {
 
-	rst, err := stg.RetreiveInvestHistOfFund()
+	rst, err := stg.RetreiveInvestHistOfFunds()
 	if err != nil {
 		t.Fatal(err)
 	}

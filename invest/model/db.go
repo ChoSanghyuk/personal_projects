@@ -27,23 +27,23 @@ type Fund struct {
 
 type Asset struct {
 	ID           uint
-	Name         string
-	Division     string
-	Volatility   uint
-	Currency     string
-	Peak         float64
-	RecentPeak   float64
-	RecentBottom float64
-	Hist         []InvestHistory
+	Name         string          `json:"name" validate:"required"`
+	Division     string          `json:"division"`
+	Volatility   uint            `json:"volatility"`
+	Currency     string          `json:"currency"`
+	Peak         float64         `json:"peak"`
+	RecentPeak   float64         `json:"recent_peak"`
+	RecentBottom float64         `json:"bottom"`
+	Hist         []InvestHistory `json:"hist"`
 }
 
 type InvestHistory struct {
-	ID           uint
-	FundID       uint
-	AssetID      uint
-	Asset        Asset
-	CurrentPrice float64
-	Count        uint
+	ID      uint
+	FundID  uint `json:"fund_id"`
+	AssetID uint `json:"asset_id"`
+	Asset   Asset
+	Price   float64 `json:"price"`
+	Count   uint    `json:"count"`
 	gorm.Model
 }
 

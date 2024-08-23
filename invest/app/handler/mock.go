@@ -188,7 +188,7 @@ func (_m *MockFundRetriever) RetreiveAssetOfFundById(id uint) (*model.Fund, erro
 }
 
 // RetreiveInvestHistOfFund provides a mock function with given fields:
-func (_m *MockFundRetriever) RetreiveInvestHistOfFund() ([]model.Fund, error) {
+func (_m *MockFundRetriever) RetreiveInvestHistOfFunds() ([]model.Fund, error) {
 	ret := _m.Called()
 
 	if len(ret) == 0 {
@@ -247,12 +247,12 @@ func (_m *MockFundRetriever) RetrieveFundAmount() ([]model.Fund, error) {
 	return r0, r1
 }
 
-// RetrieveFundHistById provides a mock function with given fields: id
-func (_m *MockFundRetriever) RetrieveFundHistById(id uint) (*model.Fund, error) {
+// RetreiveInvestHistOfFundById provides a mock function with given fields: id
+func (_m *MockFundRetriever) RetreiveInvestHistOfFundById(id uint) (*model.Fund, error) {
 	ret := _m.Called(id)
 
 	if len(ret) == 0 {
-		panic("no return value specified for RetrieveFundHistById")
+		panic("no return value specified for RetreiveInvestHistOfFundById")
 	}
 
 	var r0 *model.Fund
@@ -346,16 +346,16 @@ type MockInvestSaver struct {
 }
 
 // SaveInvest provides a mock function with given fields: fundId, assetId, price, currency, count
-func (_m *MockInvestSaver) SaveInvest(fundId uint, assetId uint, price float64, currency string, count uint) error {
-	ret := _m.Called(fundId, assetId, price, currency, count)
+func (_m *MockInvestSaver) SaveInvest(fundId uint, assetId uint, price float64, count uint) error {
+	ret := _m.Called(fundId, assetId, price, count)
 
 	if len(ret) == 0 {
 		panic("no return value specified for SaveInvest")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(uint, uint, float64, string, uint) error); ok {
-		r0 = rf(fundId, assetId, price, currency, count)
+	if rf, ok := ret.Get(0).(func(uint, uint, float64, uint) error); ok {
+		r0 = rf(fundId, assetId, price, count)
 	} else {
 		r0 = ret.Error(0)
 	}

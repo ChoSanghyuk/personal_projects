@@ -34,11 +34,6 @@ func TestFundHandler(t *testing.T) {
 		assert.NoError(t, err)
 	})
 
-	t.Run("Fund", func(t *testing.T) {
-		err := sendReqeust(app, "/funds/1", "GET", nil)
-		assert.NoError(t, err)
-	})
-
 	t.Run("TotalFundAssets", func(t *testing.T) {
 		err := sendReqeust(app, "/funds/assets", "GET", nil)
 		assert.NoError(t, err)
@@ -96,7 +91,7 @@ func setFundRetrieverMock(m *MockFundRetriever) error {
 	m.On("RetreiveAssetOfFundById", mock.AnythingOfType("uint")).Return(&model.Fund{ID: 3, Name: "개인"}, nil)
 	m.On("RetreiveInvestHistOfFund").Return([]model.Fund{}, nil)
 	m.On("RetrieveFundAmount").Return([]model.Fund{{ID: 3, Name: "개인"}}, nil)
-	m.On("RetrieveFundHistById", mock.AnythingOfType("uint")).Return(&model.Fund{}, nil)
+	m.On("RetreiveInvestHistOfFundById", mock.AnythingOfType("uint")).Return(&model.Fund{}, nil)
 
 	return nil
 }
