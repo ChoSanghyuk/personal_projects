@@ -37,7 +37,7 @@ func (h *FundHandler) Fund(c *fiber.Ctx) error {
 		return fmt.Errorf("파라미터 id 조회 시 오류 발생. %w", err)
 	}
 
-	fund, err := h.r.RetrieveFundAmountById(uint(id))
+	fund, err := h.r.RetrieveFundHistById(uint(id))
 	if err != nil {
 		return fmt.Errorf("retrieveFundAmount시 오류 발생. %w", err)
 	}
@@ -47,7 +47,7 @@ func (h *FundHandler) Fund(c *fiber.Ctx) error {
 
 func (h *FundHandler) TotalFundAssets(c *fiber.Ctx) error {
 
-	funds, err := h.r.RetreiveAssetOfFund()
+	funds, err := h.r.RetreiveInvestHistOfFund()
 	if err != nil {
 		return fmt.Errorf("retreiveAssetOfFund 시 오류 발생. %w", err)
 	}

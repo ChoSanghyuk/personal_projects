@@ -1,4 +1,4 @@
-package handler
+package model
 
 type SaveAssetParam struct {
 	Name     string  `json:"name" validate:"required"`

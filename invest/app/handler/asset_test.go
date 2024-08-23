@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"invest/model"
 	"testing"
 
 	"github.com/gofiber/fiber/v2"
@@ -64,7 +65,7 @@ func TestAssetPostHandler(t *testing.T) {
 	}()
 
 	t.Run("SaveAssets", func(t *testing.T) {
-		reqBody := SaveAssetParam{
+		reqBody := model.SaveAssetParam{
 			Name:     "test",
 			Division: "stock",
 			Peak:     500,
@@ -75,7 +76,7 @@ func TestAssetPostHandler(t *testing.T) {
 	})
 
 	t.Run("SaveAssets_InvalidReq", func(t *testing.T) {
-		reqBody := SaveAssetParam{
+		reqBody := model.SaveAssetParam{
 			// Name:     "test",
 			Division: "stock",
 			Peak:     500,
@@ -88,10 +89,10 @@ func TestAssetPostHandler(t *testing.T) {
 
 func setAssetRetrieverMock(m *MockAssetRetriever) error {
 
-	m.On("RetrieveAssetList").Return("RetrieveAssetList Called", nil)
-	m.On("RetrieveAssetInfo", mock.AnythingOfType("uint")).Return("RetrieveAssetInfo Called", nil)
-	m.On("RetrieveAssetAmount", mock.AnythingOfType("uint")).Return("RetrieveAssetAmount Called", nil)
-	m.On("RetrieveAssetHist", mock.AnythingOfType("uint")).Return("RetrieveAssetHist Called", nil)
+	m.On("RetrieveAssetList").Return([]map[string]interface{}{{"ID": 1, "Name": "비트코인"}, {"ID": 2, "Name": "solx"}}, nil)
+	m.On("RetrieveAssetInfo", mock.AnythingOfType("uint")).Return(&model.Asset{ID: 1, Name: "비트코인"}, nil)
+	// m.On("RetrieveAssetAmount", mock.AnythingOfType("uint")).Return("RetrieveAssetAmount Called", nil)
+	m.On("RetrieveAssetHist", mock.AnythingOfType("uint")).Return([]model.InvestHistory{{ID: 1, FundID: 3, AssetID: 1}}, nil)
 
 	return nil
 }

@@ -2,6 +2,7 @@ package handler
 
 import (
 	"fmt"
+	"invest/model"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -21,7 +22,7 @@ func (h *InvestHandler) InitRoute(app *fiber.App) {
 
 func (h *InvestHandler) InvestHist(c *fiber.Ctx) error {
 
-	var param GetInvestHistParam
+	var param model.GetInvestHistParam
 	err := c.BodyParser(&param)
 	if err != nil {
 		return fmt.Errorf("파라미터 BodyParse 시 오류 발생. %w", err)
@@ -42,7 +43,7 @@ func (h *InvestHandler) InvestHist(c *fiber.Ctx) error {
 
 func (h *InvestHandler) SaveInvest(c *fiber.Ctx) error {
 
-	param := SaveInvestParam{}
+	param := model.SaveInvestParam{}
 	err := c.BodyParser(&param)
 	if err != nil {
 		return fmt.Errorf("파라미터 BodyParse 시 오류 발생. %w", err)

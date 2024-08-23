@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	model "invest/model"
 	"io"
 	"net/http"
 	"testing"
@@ -92,34 +93,10 @@ Mock
 
 func setFundRetrieverMock(m *MockFundRetriever) error {
 
-	m.On("RetrieveFundAmount").Return("RetrieveFundAmount Called", nil)
-	m.On("RetrieveFundAmountById", mock.AnythingOfType("uint")).Return("RetrieveFundAmountById Called", nil)
-	m.On("RetreiveAssetOfFund").Return("RetreiveAssetOfFund Called", nil)
-	m.On("RetreiveAssetOfFundById", mock.AnythingOfType("uint")).Return("RetreiveAssetOfFundById Called", nil)
+	m.On("RetreiveAssetOfFundById", mock.AnythingOfType("uint")).Return(&model.Fund{ID: 3, Name: "개인"}, nil)
+	m.On("RetreiveInvestHistOfFund").Return([]model.Fund{}, nil)
+	m.On("RetrieveFundAmount").Return([]model.Fund{{ID: 3, Name: "개인"}}, nil)
+	m.On("RetrieveFundHistById", mock.AnythingOfType("uint")).Return(&model.Fund{}, nil)
 
 	return nil
-}
-
-/*
-************************************************
-Mock_OLd
-*************************************************
-*/
-type FundRetrieverMock struct {
-}
-
-func (m FundRetrieverMock) RetrieveFundAmount() (any, error) {
-	return "hello1", nil
-}
-func (m FundRetrieverMock) RetrieveFundAmountById(id uint) (any, error) {
-	return "hello2", nil
-
-}
-func (m FundRetrieverMock) RetreiveAssetOfFund() (any, error) {
-	return "hello3", nil
-
-}
-func (m FundRetrieverMock) RetreiveAssetOfFundById(id uint) (any, error) {
-	return "hello4", nil
-
 }

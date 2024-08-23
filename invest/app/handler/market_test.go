@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"invest/model"
 	"testing"
 
 	"github.com/gofiber/fiber/v2"
@@ -24,7 +25,7 @@ func TestMarketHandler(t *testing.T) {
 	}()
 
 	t.Run("Market", func(t *testing.T) {
-		reqBody := GetMarketParam{
+		reqBody := model.GetMarketParam{
 			Date: "2024-08-20",
 		}
 		err := sendReqeust(app, "/market", "GET", reqBody)
@@ -35,5 +36,5 @@ func TestMarketHandler(t *testing.T) {
 }
 
 func setMarketRetrieverMock(m *MockMaketRetriever) {
-	m.On("RetrieveMarketSituation", mock.AnythingOfType("string")).Return("RetrieveMarketSituation Called", nil)
+	m.On("RetrieveMarketSituation", mock.AnythingOfType("string")).Return(&model.Market{}, nil)
 }

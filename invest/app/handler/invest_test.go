@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"invest/model"
 	"testing"
 
 	"github.com/gofiber/fiber/v2"
@@ -24,7 +25,7 @@ func TestInvestGetHandler(t *testing.T) {
 	}()
 
 	t.Run("InvestHist", func(t *testing.T) {
-		reqBody := GetInvestHistParam{
+		reqBody := model.GetInvestHistParam{
 			FundId:    1,
 			AssetId:   1,
 			StartDate: "2024-08-10",
@@ -53,7 +54,7 @@ func TestInvestPostHandler(t *testing.T) {
 	}()
 
 	t.Run("SaveInvest", func(t *testing.T) {
-		reqBody := SaveInvestParam{
+		reqBody := model.SaveInvestParam{
 			FundId:   1,
 			AssetId:  1,
 			Price:    100,
@@ -68,7 +69,7 @@ func TestInvestPostHandler(t *testing.T) {
 }
 
 func setInvestRetrieverMock(m *MockInvestRetriever) {
-	m.On("RetrieveInvestHist", mock.AnythingOfType("uint"), mock.AnythingOfType("uint"), mock.AnythingOfType("string"), mock.AnythingOfType("string")).Return("RetrieveInvestHist Called", nil)
+	m.On("RetrieveInvestHist", mock.AnythingOfType("uint"), mock.AnythingOfType("uint"), mock.AnythingOfType("string"), mock.AnythingOfType("string")).Return([]model.InvestHistory{}, nil)
 }
 
 func setInvestSaverMock(m *MockInvestSaver) {

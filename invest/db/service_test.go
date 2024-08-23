@@ -49,9 +49,9 @@ func TestRetrieveFundAmount(t *testing.T) {
 
 }
 
-func TestRetrieveFundAmountById(t *testing.T) {
+func TestRetrieveFundHistById(t *testing.T) {
 
-	rst, err := stg.RetrieveFundAmountById(1)
+	rst, err := stg.RetrieveFundHistById(1)
 	if err != nil {
 		t.Fatal(err)
 	}
