@@ -40,7 +40,7 @@ func TestRetrieveFundAmount(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	j, err := json.Marshal(rst)
+	j, err := json.MarshalIndent(rst, "", "\t")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -48,14 +48,15 @@ func TestRetrieveFundAmount(t *testing.T) {
 	fmt.Println(string(j))
 
 }
-func TestRetrieveAssetList(t *testing.T) {
 
-	rst, err := stg.RetrieveAssetList()
+func TestRetrieveFundAmountById(t *testing.T) {
+
+	rst, err := stg.RetrieveFundAmountById(1)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	j, err := json.Marshal(rst)
+	j, err := json.MarshalIndent(rst, "", "\t")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -71,7 +72,93 @@ func TestRetreiveInvestHistOfFund(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	j, err := json.Marshal(rst)
+	j, err := json.MarshalIndent(rst, "", "\t")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	fmt.Println(string(j))
+}
+
+func TestRetreiveAssetOfFundById(t *testing.T) {
+	rst, err := stg.RetreiveAssetOfFundById(1)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	j, err := json.MarshalIndent(rst, "", "\t")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	fmt.Println(string(j))
+}
+
+func TestRetrieveAssetList(t *testing.T) {
+
+	rst, err := stg.RetrieveAssetList()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	j, err := json.MarshalIndent(rst, "", "\t")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	fmt.Println(string(j))
+
+}
+
+func TestRetrieveAssetInfo(t *testing.T) {
+	rst, err := stg.RetrieveAssetInfo(1)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	j, err := json.MarshalIndent(rst, "", "\t")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	fmt.Println(string(j))
+}
+
+func TestRetrieveAssetHist(t *testing.T) {
+	rst, err := stg.RetrieveAssetHist(1)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	j, err := json.MarshalIndent(rst, "", "\t")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	fmt.Println(string(j))
+}
+
+func TestRetrieveMarketSituation(t *testing.T) {
+	rst, err := stg.RetrieveMarketSituation("2024-08-20")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	j, err := json.MarshalIndent(rst, "", "\t")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	fmt.Println(string(j))
+}
+
+func TestRetrieveInvestHist(t *testing.T) {
+	rst, err := stg.RetrieveInvestHist(1, 0, "", "")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	j, err := json.MarshalIndent(rst, "", "\t")
 	if err != nil {
 		t.Fatal(err)
 	}

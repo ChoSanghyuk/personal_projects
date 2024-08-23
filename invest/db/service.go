@@ -36,7 +36,7 @@ func (s Storage) RetreiveInvestHistOfFund() (any, error) {
 
 	var funds []Fund
 
-	result := s.db.Model(&Fund{}).Preload("Hist").Find(&funds)
+	result := s.db.Model(&Fund{}).Preload("Hist.Asset").Find(&funds)
 	if result.Error != nil {
 		return nil, result.Error
 	}
@@ -48,7 +48,7 @@ func (s Storage) RetreiveAssetOfFundById(id uint) (any, error) {
 
 	var fund Fund
 
-	result := s.db.Model(&Fund{}).Preload("InvestHistorys").Find(&fund, id)
+	result := s.db.Model(&Fund{}).Preload("Hist.Asset").Find(&fund, id)
 	if result.Error != nil {
 		return nil, result.Error
 	}
@@ -79,28 +79,16 @@ func (s Storage) RetrieveAssetInfo(id uint) (any, error) {
 	return asset, nil
 }
 
-// func (s Storage) RetrieveAssetAmount(id uint) (any, error) {
-
-// 	var fundStatus FundStatus
-
-// 	result := s.db.Where("asset_id = ?", id).First(&fundStatus)
-// 	if result.Error != nil {
-// 		return nil, result.Error
-// 	}
-
-// 	return fundStatus, nil
-// }
-
 func (s Storage) RetrieveAssetHist(id uint) (any, error) {
 
-	var investHist []InvestHistory
+	var asset Asset
 
-	result := s.db.Where("asset_id = ?", id).First(&investHist)
+	result := s.db.Model(&Asset{}).Preload("Hist").Find(&asset, id)
 	if result.Error != nil {
 		return nil, result.Error
 	}
 
-	return investHist, nil
+	return asset.Hist, nil
 }
 
 func (s Storage) RetrieveMarketSituation(date string) (any, error) {
