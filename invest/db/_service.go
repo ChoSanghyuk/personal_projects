@@ -110,7 +110,7 @@ func (s Storage) RetrieveMarketSituation(date string) (*m.Market, error) {
 	return &market, nil
 }
 
-func (s Storage) RetrieveInvestHist(fundId uint, assetId uint, start string, end string) ([]m.InvestHistory, error) {
+func (s Storage) RetrieveInvestHist(fundId uint, assetId uint, start string, end string) ([]m.Invest, error) {
 
 	conditionmap := map[string]interface{}{}
 	if fundId != 0 {
@@ -126,7 +126,7 @@ func (s Storage) RetrieveInvestHist(fundId uint, assetId uint, start string, end
 		conditionmap["end"] = end
 	}
 
-	var investHist []m.InvestHistory
+	var investHist []m.Invest
 
 	result := s.db.Where(conditionmap).Find(&investHist)
 	if result.Error != nil {
@@ -138,7 +138,7 @@ func (s Storage) RetrieveInvestHist(fundId uint, assetId uint, start string, end
 
 func (s Storage) SaveInvest(fundId uint, assetId uint, price float64, count uint) error {
 
-	result := s.db.Create(&m.InvestHistory{
+	result := s.db.Create(&m.Invest{
 		FundID:  fundId,
 		AssetID: assetId,
 		Price:   price,
@@ -155,11 +155,11 @@ func (s Storage) SaveAssetInfo(name string, division string, volatility uint, cu
 
 	result := s.db.Create(&m.Asset{
 		Name:         name,
-		Division:     division,
+		Category:     division,
 		Volatility:   volatility,
 		Currency:     currency,
-		Peak:         peak,
-		RecentPeak:   recentPeak,
+		Top:          peak,
+		Bottom:       recentPeak,
 		RecentBottom: bottom,
 	})
 

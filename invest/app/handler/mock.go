@@ -49,23 +49,23 @@ type MockAssetRetriever struct {
 }
 
 // RetrieveAssetHist provides a mock function with given fields: id
-func (_m *MockAssetRetriever) RetrieveAssetHist(id uint) ([]model.InvestHistory, error) {
+func (_m *MockAssetRetriever) RetrieveAssetHist(id uint) ([]model.Invest, error) {
 	ret := _m.Called(id)
 
 	if len(ret) == 0 {
 		panic("no return value specified for RetrieveAssetHist")
 	}
 
-	var r0 []model.InvestHistory
+	var r0 []model.Invest
 	var r1 error
-	if rf, ok := ret.Get(0).(func(uint) ([]model.InvestHistory, error)); ok {
+	if rf, ok := ret.Get(0).(func(uint) ([]model.Invest, error)); ok {
 		return rf(id)
 	}
-	if rf, ok := ret.Get(0).(func(uint) []model.InvestHistory); ok {
+	if rf, ok := ret.Get(0).(func(uint) []model.Invest); ok {
 		r0 = rf(id)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]model.InvestHistory)
+			r0 = ret.Get(0).([]model.Invest)
 		}
 	}
 
@@ -188,7 +188,7 @@ func (_m *MockFundRetriever) RetreiveAssetOfFundById(id uint) (*model.Fund, erro
 }
 
 // RetreiveInvestHistOfFund provides a mock function with given fields:
-func (_m *MockFundRetriever) RetreiveInvestHistOfFunds() ([]model.Fund, error) {
+func (_m *MockFundRetriever) RetreiveFundSummary() ([]model.Fund, error) {
 	ret := _m.Called()
 
 	if len(ret) == 0 {
@@ -297,23 +297,23 @@ type MockInvestRetriever struct {
 }
 
 // RetrieveInvestHist provides a mock function with given fields: fundId, assetId, start, end
-func (_m *MockInvestRetriever) RetrieveInvestHist(fundId uint, assetId uint, start string, end string) ([]model.InvestHistory, error) {
+func (_m *MockInvestRetriever) RetrieveInvestHist(fundId uint, assetId uint, start string, end string) ([]model.Invest, error) {
 	ret := _m.Called(fundId, assetId, start, end)
 
 	if len(ret) == 0 {
 		panic("no return value specified for RetrieveInvestHist")
 	}
 
-	var r0 []model.InvestHistory
+	var r0 []model.Invest
 	var r1 error
-	if rf, ok := ret.Get(0).(func(uint, uint, string, string) ([]model.InvestHistory, error)); ok {
+	if rf, ok := ret.Get(0).(func(uint, uint, string, string) ([]model.Invest, error)); ok {
 		return rf(fundId, assetId, start, end)
 	}
-	if rf, ok := ret.Get(0).(func(uint, uint, string, string) []model.InvestHistory); ok {
+	if rf, ok := ret.Get(0).(func(uint, uint, string, string) []model.Invest); ok {
 		r0 = rf(fundId, assetId, start, end)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]model.InvestHistory)
+			r0 = ret.Get(0).([]model.Invest)
 		}
 	}
 

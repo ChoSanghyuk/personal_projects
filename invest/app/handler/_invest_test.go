@@ -68,7 +68,7 @@ func TestInvestPostHandler(t *testing.T) {
 }
 
 func setInvestRetrieverMock(m *MockInvestRetriever) {
-	m.On("RetrieveInvestHist", mock.AnythingOfType("uint"), mock.AnythingOfType("uint"), mock.AnythingOfType("string"), mock.AnythingOfType("string")).Return([]model.InvestHistory{}, nil)
+	m.On("RetrieveInvestHist", mock.AnythingOfType("uint"), mock.AnythingOfType("uint"), mock.AnythingOfType("string"), mock.AnythingOfType("string")).Return([]model.Invest{}, nil)
 }
 
 func setInvestSaverMock(m *MockInvestSaver) {
