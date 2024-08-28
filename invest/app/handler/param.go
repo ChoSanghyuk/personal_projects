@@ -1,5 +1,9 @@
 package handler
 
+type AssetHistReq struct {
+	ID uint `json:"id" validate:"required"`
+}
+
 type TotalStatusResp struct {
 	ID     uint    `json:"id"`
 	Name   string  `json:"name"`
@@ -11,6 +15,7 @@ type AddFundReq struct {
 }
 
 type AddAssetReq struct {
+	ID        uint    `json:"id" validate:"required"`
 	Name      string  `json:"name" validate:"required"`
 	Category  uint    `json:"category" validate:"required"`
 	Currency  string  `json:"currency" validate:"required"`
@@ -22,6 +27,7 @@ type AddAssetReq struct {
 }
 
 type UpdateAssetReq struct {
+	ID        uint    `json:"id" validate:"required"`
 	Name      string  `json:"name"`
 	Category  uint    `json:"category"`
 	Currency  string  `json:"currency"`
@@ -30,4 +36,23 @@ type UpdateAssetReq struct {
 	SellPrice float64 `json:"sel_price"`
 	BuyPrice  float64 `json:"buy_price"`
 	Path      string  `json:"path"`
+}
+
+type DeleteAssetReq struct {
+	ID uint `json:"id" validate:"required"`
+}
+
+type MarketStatusParam struct {
+	Date string `json:"date" validate:"date"`
+}
+
+type SaveMarketStatusParam struct {
+	Status uint `json:"status" validate:"required"`
+}
+
+type SaveInvestParam struct {
+	FundId  uint    `json:"fund_id"`
+	AssetId uint    `json:"asset_id"`
+	Price   float64 `json:"price"`
+	Count   int     `json:"count"`
 }

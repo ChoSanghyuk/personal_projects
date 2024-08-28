@@ -2,7 +2,6 @@ package handler
 
 import (
 	"fmt"
-	m "invest/model"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -17,11 +16,11 @@ func (h *AssetHandler) InitRoute(app *fiber.App) {
 	router := app.Group("/assets")
 
 	router.Post("/", h.AddAsset)
-	router.Post("/:id", h.UpdateAsset)
-	router.Delete("/:id", h.DeleteAsset)
-	router.Get("/:id", h.Asset)
+	router.Put("/", h.UpdateAsset)
+	router.Delete("/", h.DeleteAsset)
 	router.Get("/list", h.AssetList)
-	router.Get("/:id/hist", h.AssetHist)
+	router.Get("/:id<\\d+>", h.Asset)
+	router.Get("/:id<\\d+>/hist", h.AssetHist)
 }
 
 func (h *AssetHandler) AddAsset(c *fiber.Ctx) error {
@@ -32,7 +31,7 @@ func (h *AssetHandler) AddAsset(c *fiber.Ctx) error {
 		return fmt.Errorf("파라미터 BodyParse 시 오류 발생. %w", err)
 	}
 
-	err = validCheck(param) // 포인터로 들어가도 validation 체크 되는지 확인
+	err = validCheck(&param) // 포인터로 들어가도 validation 체크 되는지 확인
 	if err != nil {
 		return fmt.Errorf("파라미터 유효성 검사 시 오류 발생. %w", err)
 	}
@@ -53,7 +52,7 @@ func (h *AssetHandler) UpdateAsset(c *fiber.Ctx) error {
 		return fmt.Errorf("파라미터 BodyParse 시 오류 발생. %w", err)
 	}
 
-	err = validCheck(param) // 포인터로 들어가도 validation 체크 되는지 확인
+	err = validCheck(&param) // 포인터로 들어가도 validation 체크 되는지 확인
 	if err != nil {
 		return fmt.Errorf("파라미터 유효성 검사 시 오류 발생. %w", err)
 	}
@@ -68,12 +67,18 @@ func (h *AssetHandler) UpdateAsset(c *fiber.Ctx) error {
 
 func (h *AssetHandler) DeleteAsset(c *fiber.Ctx) error {
 
-	id, err := c.ParamsInt("id")
+	var param DeleteAssetReq
+	err := c.BodyParser(&param)
 	if err != nil {
-		return fmt.Errorf("파라미터 id 조회 시 오류 발생. %w", err)
+		return fmt.Errorf("파라미터 BodyParse 시 오류 발생. %w", err)
 	}
 
-	err = h.w.DeleteAssetInfo(uint(id))
+	err = validCheck(&param) // 포인터로 들어가도 validation 체크 되는지 확인
+	if err != nil {
+		return fmt.Errorf("파라미터 유효성 검사 시 오류 발생. %w", err)
+	}
+
+	err = h.w.DeleteAssetInfo(param.ID)
 	if err != nil {
 		return fmt.Errorf("DeleteAssetInfo 시 오류 발생. %w", err)
 	}
@@ -81,29 +86,28 @@ func (h *AssetHandler) DeleteAsset(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).SendString("자산 정보 삭제 성공")
 }
 
-func (h *AssetHandler) Assets(c *fiber.Ctx) error {
-	assets, err := h.r.RetrieveAssetList()
-	if err != nil {
-		return fmt.Errorf("RetrieveAssetList 오류 발생. %w", err)
-	}
-
-	return c.Status(fiber.StatusOK).JSON(assets)
-}
-
-func (h *AssetHandler) AssetInfo(c *fiber.Ctx) error {
+func (h *AssetHandler) Asset(c *fiber.Ctx) error {
 
 	id, err := c.ParamsInt("id")
 	if err != nil {
 		return fmt.Errorf("파라미터 id 조회 시 오류 발생. %w", err)
 	}
 
-	fund, err := h.r.RetrieveAssetInfo(uint(id))
+	asset, err := h.r.RetrieveAsset(uint(id))
 	if err != nil {
-		return fmt.Errorf("RetrieveAssetInfo 오류 발생. %w", err)
+		return fmt.Errorf("RetrieveAsset 오류 발생. %w", err)
 	}
 
-	return c.Status(fiber.StatusOK).JSON(fund)
+	return c.Status(fiber.StatusOK).JSON(asset)
+}
 
+func (h *AssetHandler) AssetList(c *fiber.Ctx) error {
+	assets, err := h.r.RetrieveAssetList()
+	if err != nil {
+		return fmt.Errorf("RetrieveAssetList 오류 발생. %w", err)
+	}
+
+	return c.Status(fiber.StatusOK).JSON(assets)
 }
 
 func (h *AssetHandler) AssetHist(c *fiber.Ctx) error {
@@ -119,23 +123,4 @@ func (h *AssetHandler) AssetHist(c *fiber.Ctx) error {
 
 	return c.Status(fiber.StatusOK).JSON(fund)
 
-}
-
-func (h *AssetHandler) SaveAssets(c *fiber.Ctx) error {
-
-	var param m.Asset
-	err := c.BodyParser(&param)
-	if err != nil {
-		return fmt.Errorf("파라미터 BodyParse 시 오류 발생. %w", err)
-	}
-	err = validCheck(param) // 포인터로 들어가도 validation 체크 되는지 확인
-	if err != nil {
-		return fmt.Errorf("파라미터 유효성 검사 시 오류 발생. %w", err)
-	}
-	err = h.w.SaveAssetInfo(param.Name, param.Category, param.Volatility, param.Currency, param.Top, param.Bottom, param.RecentBottom)
-	if err != nil {
-		return fmt.Errorf("SaveAssetInfo 시 오류 발생. %w", err)
-	}
-
-	return c.Status(fiber.StatusOK).SendString("자산 정보 저장 성공")
 }
