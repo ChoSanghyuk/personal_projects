@@ -160,6 +160,15 @@ func (mock FundWriterMock) SaveFund(name string) error {
 	return nil
 }
 
+type ExchageRateGetterMock struct {
+}
+
+func (mock ExchageRateGetterMock) GetRealtimeExchageRate() float64 {
+	fmt.Println("SaveFund Called")
+
+	return 1334.3
+}
+
 /***************************** Market ***********************************/
 type MaketRetrieverMock struct {
 	err error

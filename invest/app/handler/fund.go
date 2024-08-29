@@ -2,6 +2,7 @@ package handler
 
 import (
 	"fmt"
+	"invest/model"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -9,23 +10,22 @@ import (
 type FundHandler struct {
 	r FundRetriever
 	w FundWriter
+	e ExchageRateGetter
 }
 
 func (h *FundHandler) InitRoute(app *fiber.App) {
-
 	router := app.Group("/funds")
 
 	router.Get("/", h.TotalStatus)
 	router.Post("/", h.AddFund)
 	router.Get("/:id/hist", h.FundHist)
 	router.Get("/:id/assets", h.FundAssets)
-
 }
 
 // 총 자금 금액
 func (h *FundHandler) TotalStatus(c *fiber.Ctx) error {
 
-	var exchangeRate float64 // TODO. Crwal Exchange rate
+	var exchangeRate float64 = h.e.GetRealtimeExchageRate()
 
 	summarys, err := h.r.RetreiveFundsSummary()
 	if err != nil {
@@ -47,7 +47,7 @@ func (h *FundHandler) TotalStatus(c *fiber.Ctx) error {
 			fund.Name = s.Fund.Name
 		}
 
-		if s.Asset.Currency == "USD" { // TODO. Make var
+		if s.Asset.Currency == model.WON.String() {
 			fund.Amount = exchangeRate + s.Sum*exchangeRate
 		} else {
 			fund.Amount = fund.Amount + s.Sum
@@ -56,6 +56,7 @@ func (h *FundHandler) TotalStatus(c *fiber.Ctx) error {
 
 	return c.Status(fiber.StatusOK).JSON(funds)
 }
+
 func (h *FundHandler) AddFund(c *fiber.Ctx) error {
 
 	var param AddFundReq

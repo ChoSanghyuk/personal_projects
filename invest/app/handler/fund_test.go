@@ -7,21 +7,18 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-// router.Get("/", h.TotalStatus)
-// router.Post("/", h.AddFund)
-// router.Get("/:id/hist", h.FundHist)
-// router.Get("/:id/assets", h.FundAssets)
-
 func TestFundHandler(t *testing.T) {
 
 	app := fiber.New()
 
 	readerMock := FundRetrieverMock{}
 	writerMock := FundWriterMock{}
+	exGetterMock := ExchageRateGetterMock{}
 
 	f := FundHandler{
 		r: readerMock,
 		w: writerMock,
+		e: exGetterMock,
 	}
 	f.InitRoute(app)
 	go func() {

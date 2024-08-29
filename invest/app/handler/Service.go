@@ -40,3 +40,7 @@ type InvestRetriever interface {
 type InvestSaver interface {
 	SaveInvest(fundId uint, assetId uint, price float64, count int) error
 }
+
+type ExchageRateGetter interface {
+	GetRealtimeExchageRate() float64
+}

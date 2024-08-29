@@ -32,13 +32,12 @@ func init() {
 
 func TestMigration(t *testing.T) {
 
-	db.AutoMigrate(&m.Fund{}, &m.Asset{}, &m.Invest{}, &m.CliIndex{}, &m.Market{})
+	db.AutoMigrate(&m.Fund{}, &m.Asset{}, &m.Invest{}, &m.InvestSummary{}, &m.Market{}, &m.DailyIndex{}, &m.CliIndex{})
 }
 
 func TestCreate(t *testing.T) {
 	fund := m.Fund{
-		Name:        "개인",
-		MarketValue: 1000000,
+		Name: "개인",
 	}
 
 	result := db.Create(&fund)

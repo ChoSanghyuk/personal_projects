@@ -1,13 +1,33 @@
 package db
 
 import (
+	"database/sql"
 	m "invest/model"
 
+	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
 
 type Storage struct {
 	db *gorm.DB
+}
+
+func NewStorage(dsn string) (*Storage, error) {
+	sqlDB, err := sql.Open("mysql", dsn)
+	if err != nil {
+		return nil, err
+	}
+
+	db, err := gorm.Open(mysql.New(mysql.Config{
+		Conn: sqlDB,
+	}), &gorm.Config{})
+	if err != nil {
+		return nil, err
+	}
+
+	return &Storage{
+		db: db,
+	}, nil
 }
 
 func (s Storage) RetreiveFundsSummary() ([]m.InvestSummary, error) {
@@ -170,7 +190,7 @@ func (s Storage) RetrieveMarketStatus(date string) (*m.Market, error) {
 			return nil, result.Error
 		}
 	} else {
-		result := s.db.First(&market, date) // Preload("Asset")
+		result := s.db.Where("created_at = ?", date).First(&market, date) // Preload("Asset")
 		if result.Error != nil {
 			return nil, result.Error
 		}
@@ -223,23 +243,24 @@ func (s Storage) SaveMarketStatus(status uint) error {
 
 func (s Storage) RetrieveInvestHist(fundId uint, assetId uint, start string, end string) ([]m.Invest, error) {
 
-	conditionmap := map[string]interface{}{}
+	query := s.db.Model(&m.Invest{}) // Note. 필수가 아니더라도, 처음에 모델을 명시하는 것이 good practice
+
 	if fundId != 0 {
-		conditionmap["fund_id"] = fundId
+		query.Where("fund_id = ?", fundId)
 	}
 	if assetId != 0 {
-		conditionmap["asset_id"] = assetId
+		query.Where("asset_id = ?", assetId)
 	}
-	if start != "" { // TODO 날짜 지정 where절
-		conditionmap["start"] = start
+	if start != "" {
+		query.Where("created_at >= ?", start)
 	}
 	if end != "" {
-		conditionmap["end"] = end
+		query.Where("created_at <= ?", end)
 	}
 
 	var investHist []m.Invest
 
-	result := s.db.Where(conditionmap).Preload("Asset").Find(&investHist)
+	result := query.Preload("Asset").Find(&investHist)
 	if result.Error != nil {
 		return nil, result.Error
 	}
