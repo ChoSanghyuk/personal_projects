@@ -30,6 +30,11 @@ type Config struct {
 		SMTP   SMTP   `yaml:"smtp"`
 		Target string `yaml:"target"`
 	} `yaml:"email"`
+
+	Telegram struct {
+		ChatId string `yaml:"chatId"`
+		Token  string `yaml:"token"`
+	} `yaml:"telegram"`
 }
 
 type apiConfig struct {
@@ -68,6 +73,9 @@ func init() {
 	util.Decode(&ConfigInfo.Gold.API.ApiKey)
 	util.Decode(&ConfigInfo.Bitcoin.API.ID)
 	util.Decode(&ConfigInfo.Bitcoin.API.ApiKey)
+
+	util.Decode(&ConfigInfo.Telegram.ChatId)
+	util.Decode(&ConfigInfo.Telegram.Token)
 
 }
 
