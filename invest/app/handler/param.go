@@ -15,7 +15,6 @@ type AddFundReq struct {
 }
 
 type AddAssetReq struct {
-	ID        uint    `json:"id" validate:"required"`
 	Name      string  `json:"name" validate:"required"`
 	Category  uint    `json:"category" validate:"required"`
 	Currency  string  `json:"currency" validate:"required"`

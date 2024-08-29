@@ -6,9 +6,6 @@ type FundRetriever interface {
 	RetreiveFundsSummary() ([]m.InvestSummary, error)
 	RetreiveFundSummaryById(id uint) ([]m.InvestSummary, error)
 	RetreiveAFundInvestsById(id uint) ([]m.Invest, error)
-
-	RetrieveFundAmount() ([]m.Fund, error)
-	RetreiveInvestHistOfFundById(id uint) (*m.Fund, error)
 }
 
 type FundWriter interface {
