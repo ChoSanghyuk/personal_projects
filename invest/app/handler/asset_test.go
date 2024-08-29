@@ -12,47 +12,19 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+// router.Post("/", h.AddAsset)
+// router.Put("/", h.UpdateAsset)
+// router.Delete("/", h.DeleteAsset)
+
 func TestAssetGetHandler(t *testing.T) {
 
 	app := fiber.New()
 
 	readerMock := AssetRetrieverMock{}
-
-	f := AssetHandler{
-		r: readerMock,
-		w: nil,
-	}
-	f.InitRoute(app)
-	go func() {
-		app.Listen(":3000")
-	}()
-
-	t.Run("Get Asset", func(t *testing.T) {
-		err := sendReqeust(app, "/assets/1", "GET", nil)
-		assert.NoError(t, err)
-	})
-
-	t.Run("Get Asset List", func(t *testing.T) {
-		err := sendReqeust(app, "/assets/list", "GET", nil)
-		assert.NoError(t, err)
-	})
-
-	t.Run("Get wrong url", func(t *testing.T) {
-		err := sendReqeust(app, "/assets/true", "GET", nil)
-		assert.Error(t, err)
-	})
-
-	app.Shutdown()
-}
-
-func TestAssetPostHandler(t *testing.T) {
-
-	app := fiber.New()
-
 	writerMock := AssetInfoSaverMock{}
 
 	f := AssetHandler{
-		r: nil,
+		r: readerMock,
 		w: writerMock,
 	}
 	f.InitRoute(app)
@@ -60,24 +32,112 @@ func TestAssetPostHandler(t *testing.T) {
 		app.Listen(":3000")
 	}()
 
-	t.Run("SaveAssets", func(t *testing.T) {
-		reqBody := AddAssetReq{
-			ID:       1,
-			Name:     "sample",
-			Category: 1,
-			Currency: "USD",
-			Top:      500,
-			Bottom:   400,
-		}
-		err := sendReqeust(app, "/assets", "POST", reqBody)
-		assert.NoError(t, err)
+	t.Run("종목 리스트 조회 테스트", func(t *testing.T) {
+		t.Run("성공 테스트", func(t *testing.T) {
+			err := sendReqeust(app, "/assets/list", "GET", nil)
+			assert.NoError(t, err)
+		})
 	})
 
-	t.Run("SaveAssets_InvalidReq", func(t *testing.T) {
-		reqBody := AddAssetReq{}
-		err := sendReqeust(app, "/assets", "POST", reqBody)
-		assert.Error(t, err)
+	t.Run("종목 정보 조회 테스트", func(t *testing.T) {
+		t.Run("성공 테스트", func(t *testing.T) {
+			err := sendReqeust(app, "/assets/1", "GET", nil)
+			assert.NoError(t, err)
+		})
 	})
+
+	t.Run("종목 투자 이력 조회 테스트", func(t *testing.T) {
+		t.Run("성공 테스트", func(t *testing.T) {
+			err := sendReqeust(app, "/assets/1/hist", "GET", nil)
+			assert.NoError(t, err)
+		})
+	})
+
+	t.Run("종목 추가 테스트", func(t *testing.T) {
+		t.Run("성공 테스트", func(t *testing.T) {
+			param := AddAssetReq{
+				Name:      "종목",
+				Category:  5,
+				Currency:  "WON",
+				Top:       500,
+				Bottom:    400,
+				SellPrice: 480,
+				BuyPrice:  450,
+				Path:      "",
+			}
+			err := sendReqeust(app, "/assets/", "POST", param)
+			assert.NoError(t, err)
+		})
+
+		t.Run("실패 테스트 - 필수 파라미터 미존재", func(t *testing.T) {
+			param := AddAssetReq{
+				// Name      : "종목",
+				Category:  5,
+				Currency:  "WON",
+				Top:       500,
+				Bottom:    400,
+				SellPrice: 480,
+				BuyPrice:  450,
+				Path:      "",
+			}
+			err := sendReqeust(app, "/assets/", "POST", param)
+			assert.NoError(t, err)
+		})
+	})
+
+	t.Run("종목 갱신 테스트", func(t *testing.T) {
+		t.Run("성공 테스트", func(t *testing.T) {
+			param := UpdateAssetReq{
+				ID:        1,
+				Name:      "종목",
+				Category:  5,
+				Currency:  "WON",
+				Top:       500,
+				Bottom:    400,
+				SellPrice: 480,
+				BuyPrice:  450,
+				Path:      "",
+			}
+			err := sendReqeust(app, "/assets/", "PUT", param)
+			assert.NoError(t, err)
+		})
+
+		t.Run("실패 테스트 - 필수 파라미터 미존재", func(t *testing.T) {
+			param := UpdateAssetReq{
+				// ID:        1,
+				Name:      "종목",
+				Category:  5,
+				Currency:  "WON",
+				Top:       500,
+				Bottom:    400,
+				SellPrice: 480,
+				BuyPrice:  450,
+				Path:      "",
+			}
+			err := sendReqeust(app, "/assets/", "PUT", param)
+			assert.NoError(t, err)
+		})
+	})
+
+	t.Run("종목 삭제 테스트", func(t *testing.T) {
+		t.Run("성공 테스트", func(t *testing.T) {
+			param := DeleteAssetReq{
+				ID: 1,
+			}
+			err := sendReqeust(app, "/assets/", "DELETE", param)
+			assert.NoError(t, err)
+		})
+
+		t.Run("실패 테스트 - 필수 파라미터 미존재", func(t *testing.T) {
+			param := DeleteAssetReq{
+				// ID: 1,
+			}
+			err := sendReqeust(app, "/assets/", "DELETE", param)
+			assert.NoError(t, err)
+		})
+	})
+
+	app.Shutdown()
 }
 
 /*

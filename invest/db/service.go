@@ -50,18 +50,6 @@ func (s Storage) RetreiveAFundInvestsById(id uint) ([]m.Invest, error) {
 	return invets, nil
 }
 
-func (s Storage) RetrieveFundAmount() ([]m.Fund, error) {
-
-	var funds []m.Fund
-
-	result := s.db.Find(&funds)
-	if result.Error != nil {
-		return nil, result.Error
-	}
-
-	return funds, nil
-}
-
 func (s Storage) RetreiveInvestHistOfFundById(id uint) (*m.Fund, error) {
 	var fund m.Fund
 
@@ -242,7 +230,7 @@ func (s Storage) RetrieveInvestHist(fundId uint, assetId uint, start string, end
 	if assetId != 0 {
 		conditionmap["asset_id"] = assetId
 	}
-	if start != "" {
+	if start != "" { // TODO 날짜 지정 where절
 		conditionmap["start"] = start
 	}
 	if end != "" {
@@ -251,7 +239,7 @@ func (s Storage) RetrieveInvestHist(fundId uint, assetId uint, start string, end
 
 	var investHist []m.Invest
 
-	result := s.db.Where(conditionmap).Find(&investHist)
+	result := s.db.Where(conditionmap).Preload("Asset").Find(&investHist)
 	if result.Error != nil {
 		return nil, result.Error
 	}
