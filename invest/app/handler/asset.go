@@ -11,6 +11,13 @@ type AssetHandler struct {
 	w AssetInfoSaver
 }
 
+func NewAssetHandler(r AssetRetriever, w AssetInfoSaver) *AssetHandler {
+	return &AssetHandler{
+		r: r,
+		w: w,
+	}
+}
+
 func (h *AssetHandler) InitRoute(app *fiber.App) {
 
 	router := app.Group("/assets")

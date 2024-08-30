@@ -1,10 +1,11 @@
 package main
 
 import (
-	"invest/alarm/mail"
+	"invest/alarm/telegram"
 	"invest/config"
 	"invest/event"
 	"invest/scrape"
+	"strconv"
 
 	"log"
 )
@@ -16,9 +17,9 @@ func main() {
 	conf := &config.ConfigInfo
 
 	bh := event.BitcoinEventHandler{
-		Scraper:    &scraper,
-		Url:        conf.Bitcoin.Crawl.Url,
-		Csspath:    conf.Bitcoin.Crawl.CssPath,
+		Scraper: &scrape.Scraper{
+			ScrapeOption: scrape.BitcoinApi(conf.Bitcoin.API.Url),
+		},
 		UpperBound: conf.Bitcoin.Bound.Upper,
 		LowerBound: conf.Bitcoin.Bound.Lower,
 	}
@@ -34,9 +35,19 @@ func main() {
 	go bh.PullingEvent(c)
 	go rh.PullingEvent(c)
 
+	chatId, err := strconv.ParseInt(conf.Telegram.ChatId, 10, 64)
+	if err != nil {
+		panic(err)
+	}
+
+	teleBot, err := telegram.NewTeleBot(conf.Telegram.Token, chatId)
+	if err != nil {
+		panic(err)
+	}
+
 	for true {
 		msg := <-c
-		mail.SendEmail(conf.Email.SMTP, msg, conf.Email.Target, msg)
+		teleBot.SendMessage(msg)
 		log.Println(msg)
 	}
 }

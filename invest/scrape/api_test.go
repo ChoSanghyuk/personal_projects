@@ -1,6 +1,8 @@
 package scrape
 
 import (
+	"encoding/json"
+	"fmt"
 	"invest/config"
 	"testing"
 
@@ -28,21 +30,21 @@ func TestGoldApi(t *testing.T) {
 func TestBitcoinApi(t *testing.T) {
 
 	var s = Scraper{}
-	var info = config.NewConfigInfo()
+	// var info = config.NewConfigInfo()
 
-	url := info.Bitcoin.API.Url
-	id := info.Bitcoin.API.ID
-	key := info.Bitcoin.API.ApiKey
+	url := "https://api.upbit.com/v1/candles/minutes/1?market=KRW-BTC&count=1" //info.Bitcoin.API.Url
+	// id := info.Bitcoin.API.ID
+	// key := info.Bitcoin.API.ApiKey
 
-	rtn, err := s.CallApi(url, map[string]string{
-		"X-Naver-Client-Id":     id,
-		"X-Naver-Client-Secret": key,
-	})
+	rtn, err := s.CallApi(url, nil)
 	if err != nil {
 		t.Error(err)
 	}
 
+	var d map[string]any
+	json.Unmarshal([]byte(rtn[1:len(rtn)-1]), &d)
+
 	assert.NotEmpty(t, rtn)
 
-	t.Log(rtn)
+	t.Logf(fmt.Sprintf("%f", d["trade_price"]))
 }

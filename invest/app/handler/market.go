@@ -11,6 +11,13 @@ type MarketHandler struct {
 	w MarketSaver
 }
 
+func NewMarketHandler(r MaketRetriever, w MarketSaver) *MarketHandler {
+	return &MarketHandler{
+		r: r,
+		w: w,
+	}
+}
+
 func (h *MarketHandler) InitRoute(app *fiber.App) {
 
 	router := app.Group("/market")

@@ -13,6 +13,14 @@ type FundHandler struct {
 	e ExchageRateGetter
 }
 
+func NewFundHandler(r FundRetriever, w FundWriter, e ExchageRateGetter) *FundHandler {
+	return &FundHandler{
+		r: r,
+		w: w,
+		e: e,
+	}
+}
+
 func (h *FundHandler) InitRoute(app *fiber.App) {
 	router := app.Group("/funds")
 

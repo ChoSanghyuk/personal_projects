@@ -9,11 +9,7 @@ import (
 )
 
 type BitcoinEventHandler struct {
-	Scraper interface {
-		Crawl(url string, cssPath string) (string, error)
-	}
-	Url        string
-	Csspath    string
+	Scraper    Scraper
 	UpperBound float64
 	LowerBound float64
 }
@@ -21,7 +17,7 @@ type BitcoinEventHandler struct {
 func (b BitcoinEventHandler) PullingEvent(c chan<- string) {
 
 	for true {
-		rtn, err := b.Scraper.Crawl(b.Url, b.Csspath)
+		rtn, err := b.Scraper.Scrape()
 		if err != nil {
 			fmt.Println(err.Error())
 			c <- fmt.Sprintf("크롤링 시 오류 발생. %s", err.Error())
@@ -41,6 +37,7 @@ func (b BitcoinEventHandler) PullingEvent(c chan<- string) {
 		} else if bitPrice <= b.LowerBound {
 			c <- fmt.Sprintf("BUY BIT. LOWER BOUND : %f. CURRENT PRICE :%f", b.LowerBound, bitPrice)
 		} else {
+			// c <- fmt.Sprintf("비트코인 현재 가격 %.3f", bitPrice)
 			log.Printf("비트코인 현재 가격 %.3f", bitPrice)
 		}
 		time.Sleep(10 * time.Minute)

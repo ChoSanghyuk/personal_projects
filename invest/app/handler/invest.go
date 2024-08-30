@@ -17,6 +17,12 @@ func (h *InvestHandler) InitRoute(app *fiber.App) {
 	router.Post("/", h.SaveInvest)
 }
 
+func NewInvestHandler(w InvestSaver) *InvestHandler {
+	return &InvestHandler{
+		w: w,
+	}
+}
+
 func (h *InvestHandler) SaveInvest(c *fiber.Ctx) error {
 
 	param := SaveInvestParam{} // TODO. Asset 정보를 심볼명으로 받아서 입력하는 방식
