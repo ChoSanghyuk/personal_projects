@@ -41,6 +41,7 @@ type InvestSummary struct {
 	Fund    Fund
 	AssetID uint
 	Asset   Asset
+	Count   int
 	Sum     float64
 }
 

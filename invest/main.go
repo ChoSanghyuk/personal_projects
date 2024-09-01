@@ -1,7 +1,7 @@
 package main
 
 import (
-	"invest/alarm/telegram"
+	"invest/bot"
 	"invest/config"
 	"invest/event"
 	"invest/scrape"
@@ -40,7 +40,7 @@ func main() {
 		panic(err)
 	}
 
-	teleBot, err := telegram.NewTeleBot(conf.Telegram.Token, chatId)
+	teleBot, err := bot.NewTeleBot(conf.Telegram.Token, chatId)
 	if err != nil {
 		panic(err)
 	}

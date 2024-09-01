@@ -30,11 +30,11 @@ func NewStorage(dsn string) (*Storage, error) {
 	}, nil
 }
 
-func (s Storage) RetreiveFundsSummary() ([]m.InvestSummary, error) {
+func (s Storage) RetreiveFundsSummaryOrderByFundId() ([]m.InvestSummary, error) {
 
 	var fundsSummary []m.InvestSummary
 
-	result := s.db.Model(&m.InvestSummary{}).Preload("Fund").Find(&fundsSummary)
+	result := s.db.Model(&m.InvestSummary{}).Preload("Fund").Preload("Asset").Order("fund_id").Find(&fundsSummary)
 
 	if result.Error != nil {
 		return nil, result.Error
@@ -44,11 +44,11 @@ func (s Storage) RetreiveFundsSummary() ([]m.InvestSummary, error) {
 
 }
 
-func (s Storage) RetreiveFundSummaryById(id uint) ([]m.InvestSummary, error) {
+func (s Storage) RetreiveFundSummaryByFundId(id uint) ([]m.InvestSummary, error) {
 
 	var fundsSummary []m.InvestSummary
 
-	result := s.db.Model(&m.InvestSummary{}).Preload("Fund").Find(&fundsSummary, id) // .Order("asset_id")
+	result := s.db.Model(&m.InvestSummary{}).Preload("Fund").Where("fund_id", id).Find(&fundsSummary) // .Order("asset_id")
 
 	if result.Error != nil {
 		return nil, result.Error
@@ -94,9 +94,9 @@ func (s Storage) SaveFund(name string) error {
 	return nil
 }
 
-func (s Storage) RetrieveAssetList() ([]map[string]interface{}, error) {
+func (s Storage) RetrieveAssetList() ([]m.Asset, error) {
 
-	var assets []map[string]interface{}
+	var assets []m.Asset
 
 	result := s.db.Model(&m.Asset{}).Select("id", "name").Find(&assets)
 	if result.Error != nil {
@@ -280,5 +280,52 @@ func (s Storage) SaveInvest(fundId uint, assetId uint, price float64, count int)
 		return result.Error
 	}
 
+	return nil
+}
+
+func (s Storage) RetrieveInvestSummaryByFundIdAssetId(fundId uint, assetId uint) (*m.InvestSummary, error) {
+	var investSummary m.InvestSummary
+
+	result := s.db.Model(&m.InvestSummary{}).
+		Where("fund_id = ?", fundId).
+		Where("asset_id = ?", assetId).
+		First(&investSummary) // Preload("Asset")
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	return &investSummary, nil
+}
+
+func (s Storage) UpdateInvestSummaryCount(fundId uint, assetId uint, change int) error {
+	// 조회한 InvestSummary를 count만 변경
+	var investSummary m.InvestSummary
+
+	result := s.db.Model(&m.InvestSummary{}).
+		Where("fund_id = ?", fundId).
+		Where("asset_id = ?", assetId).
+		First(&investSummary)
+	if result.Error != nil {
+		return result.Error
+	}
+
+	s.db.Model(&investSummary).Update("count", investSummary.Count+change)
+
+	return nil
+}
+
+func (s Storage) UpdateInvestSummarySum(fundId uint, assetId uint, sum float64) error {
+	// 조회한 InvestSummary를 sum만 변경
+	var investSummary m.InvestSummary
+
+	result := s.db.Model(&m.InvestSummary{}).
+		Where("fund_id = ?", fundId).
+		Where("asset_id = ?", assetId).
+		First(&investSummary)
+	if result.Error != nil {
+		return result.Error
+	}
+
+	s.db.Model(&investSummary).Update("sum", sum)
 	return nil
 }

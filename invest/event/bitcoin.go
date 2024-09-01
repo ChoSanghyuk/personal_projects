@@ -17,7 +17,7 @@ type BitcoinEventHandler struct {
 func (b BitcoinEventHandler) PullingEvent(c chan<- string) {
 
 	for true {
-		rtn, err := b.Scraper.Scrape()
+		rtn, err := b.Scraper.Scrape("", "")
 		if err != nil {
 			fmt.Println(err.Error())
 			c <- fmt.Sprintf("크롤링 시 오류 발생. %s", err.Error())

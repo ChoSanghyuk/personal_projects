@@ -1,4 +1,4 @@
-package telegram
+package bot
 
 // func TestAlarm(t *testing.T) {
 

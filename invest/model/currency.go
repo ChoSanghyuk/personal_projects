@@ -5,14 +5,14 @@ import "slices"
 type Currency uint
 
 const (
-	WON Currency = iota
+	WON Currency = iota + 1
 	USD
 )
 
 var currencyList = []string{"WON", "USD"}
 
 func (c Currency) String() string {
-	return currencyList[c]
+	return currencyList[c-1]
 }
 
 func IsCurrency(t string) bool {

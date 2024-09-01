@@ -35,7 +35,7 @@ func (h *FundHandler) TotalStatus(c *fiber.Ctx) error {
 
 	var exchangeRate float64 = h.e.GetRealtimeExchageRate()
 
-	summarys, err := h.r.RetreiveFundsSummary()
+	summarys, err := h.r.RetreiveFundsSummaryOrderByFundId()
 	if err != nil {
 		return fmt.Errorf("RetreiveFundSummary 오류 발생. %w", err)
 	}
@@ -94,7 +94,7 @@ func (h *FundHandler) FundAssets(c *fiber.Ctx) error {
 		return fmt.Errorf("파라미터 id 조회 시 오류 발생. %w", err)
 	}
 
-	funds, err := h.r.RetreiveFundSummaryById(uint(id))
+	funds, err := h.r.RetreiveFundSummaryByFundId(uint(id))
 	if err != nil {
 		return fmt.Errorf("RetreiveFundSummaryById 시 오류 발생. %w", err)
 	}

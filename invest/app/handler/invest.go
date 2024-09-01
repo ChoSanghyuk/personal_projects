@@ -41,6 +41,11 @@ func (h *InvestHandler) SaveInvest(c *fiber.Ctx) error {
 		return fmt.Errorf("SaveInvest 오류 발생. %w", err)
 	}
 
+	err = h.w.UpdateInvestSummaryCount(param.FundId, param.AssetId, param.Count)
+	if err != nil {
+		return fmt.Errorf("UpdateInvestSummaryCount 오류 발생. %w", err)
+	}
+
 	return c.Status(fiber.StatusOK).SendString("Invest 이력 저장 성공")
 }
 

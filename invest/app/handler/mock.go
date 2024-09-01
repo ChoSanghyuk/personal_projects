@@ -13,20 +13,20 @@ type AssetRetrieverMock struct {
 	err error
 }
 
-func (mock AssetRetrieverMock) RetrieveAssetList() ([]map[string]interface{}, error) {
+func (mock AssetRetrieverMock) RetrieveAssetList() ([]m.Asset, error) {
 	fmt.Println("RetrieveAssetList Called")
 
 	if mock.err != nil {
 		return nil, mock.err
 	}
-	return []map[string]interface{}{
+	return []m.Asset{
 		{
-			"id":   1,
-			"name": "비트코인",
+			ID:   1,
+			Name: "비트코인",
 		},
 		{
-			"id":   2,
-			"name": "TigerS&P500",
+			ID:   2,
+			Name: "TigerS&P500",
 		},
 	}, nil
 }
@@ -100,7 +100,7 @@ type FundRetrieverMock struct {
 	err error
 }
 
-func (mock FundRetrieverMock) RetreiveFundsSummary() ([]m.InvestSummary, error) {
+func (mock FundRetrieverMock) RetreiveFundsSummaryOrderByFundId() ([]m.InvestSummary, error) {
 	fmt.Println("RetreiveFundsSummary Called")
 
 	if mock.err != nil {
@@ -115,8 +115,8 @@ func (mock FundRetrieverMock) RetreiveFundsSummary() ([]m.InvestSummary, error) 
 		},
 	}, nil
 }
-func (mock FundRetrieverMock) RetreiveFundSummaryById(id uint) ([]m.InvestSummary, error) {
-	fmt.Println("RetreiveFundSummaryById Called")
+func (mock FundRetrieverMock) RetreiveFundSummaryByFundId(id uint) ([]m.InvestSummary, error) {
+	fmt.Println("RetreiveFundSummaryByFundId Called")
 
 	if mock.err != nil {
 		return nil, mock.err
@@ -243,6 +243,15 @@ type InvestSaverMock struct {
 
 func (mock InvestSaverMock) SaveInvest(fundId uint, assetId uint, price float64, count int) error {
 	fmt.Println("SaveInvest Called")
+
+	if mock.err != nil {
+		return mock.err
+	}
+	return nil
+}
+
+func (mock InvestSaverMock) UpdateInvestSummaryCount(fundId uint, assetId uint, change int) error {
+	fmt.Println("UpdateInvestSummaryCount Called")
 
 	if mock.err != nil {
 		return mock.err

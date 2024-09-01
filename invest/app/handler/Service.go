@@ -3,8 +3,8 @@ package handler
 import m "invest/model"
 
 type FundRetriever interface {
-	RetreiveFundsSummary() ([]m.InvestSummary, error)
-	RetreiveFundSummaryById(id uint) ([]m.InvestSummary, error)
+	RetreiveFundsSummaryOrderByFundId() ([]m.InvestSummary, error)
+	RetreiveFundSummaryByFundId(id uint) ([]m.InvestSummary, error)
 	RetreiveAFundInvestsById(id uint) ([]m.Invest, error)
 }
 
@@ -13,7 +13,7 @@ type FundWriter interface {
 }
 
 type AssetRetriever interface {
-	RetrieveAssetList() ([]map[string]interface{}, error)
+	RetrieveAssetList() ([]m.Asset, error)
 	RetrieveAsset(id uint) (*m.Asset, error)
 	RetrieveAssetHist(id uint) ([]m.Invest, error)
 }
@@ -39,6 +39,7 @@ type InvestRetriever interface {
 
 type InvestSaver interface {
 	SaveInvest(fundId uint, assetId uint, price float64, count int) error
+	UpdateInvestSummaryCount(fundId uint, assetId uint, change int) error
 }
 
 type ExchageRateGetter interface {

@@ -19,7 +19,7 @@ func init() {
 }
 
 func TestRetreiveFundsSummary(t *testing.T) {
-	rtn, err := stg.RetreiveFundsSummary()
+	rtn, err := stg.RetreiveFundsSummaryOrderByFundId()
 	if err != nil {
 		t.Error(t)
 	}
@@ -28,7 +28,7 @@ func TestRetreiveFundsSummary(t *testing.T) {
 
 func TestRetreiveFundSummaryById(t *testing.T) {
 
-	rtn, err := stg.RetreiveFundSummaryById(1)
+	rtn, err := stg.RetreiveFundSummaryByFundId(1)
 	if err != nil {
 		t.Error(t)
 	}
