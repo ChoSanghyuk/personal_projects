@@ -10,9 +10,10 @@ import (
 func TestGoldCrwal(t *testing.T) {
 
 	s := Scraper{}
+	conf, _ := config.NewConfig()
 
-	url := config.ConfigInfo.Gold.Crawl.Url
-	cssPath := config.ConfigInfo.Gold.Crawl.CssPath
+	url := conf.Crawl["gold"].Url
+	cssPath := conf.Crawl["gold"].CssPath
 	// CallGoldApi()
 	rtn, err := s.Crawl(url, cssPath)
 	if err != nil {
@@ -27,10 +28,11 @@ func TestGoldCrwal(t *testing.T) {
 func TestBitcoinCrwal(t *testing.T) {
 
 	s := Scraper{}
+	conf, _ := config.NewConfig()
 
 	t.Run("Crwal", func(t *testing.T) {
-		url := config.ConfigInfo.Bitcoin.Crawl.Url
-		cssPath := config.ConfigInfo.Bitcoin.Crawl.CssPath
+		url := conf.Crawl["bitcoin"].Url
+		cssPath := conf.Crawl["bitcoin"].CssPath
 
 		// CallGoldApi()
 		rtn, err := s.Crawl(url, cssPath)
@@ -64,10 +66,11 @@ func TestBitcoinCrwal(t *testing.T) {
 func TestEstateCrwal(t *testing.T) {
 
 	s := Scraper{}
+	conf, _ := config.NewConfig()
 
 	t.Run("Crwal", func(t *testing.T) {
-		url := config.ConfigInfo.RealEstate.Crawl.Url
-		cssPath := config.ConfigInfo.RealEstate.Crawl.CssPath
+		url := conf.Crawl["estate"].Url
+		cssPath := conf.Crawl["estate"].CssPath
 
 		// CallGoldApi()
 		rtn, err := s.Crawl(url, cssPath)

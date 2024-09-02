@@ -185,7 +185,7 @@ func (s Storage) RetrieveMarketStatus(date string) (*m.Market, error) {
 	var market m.Market
 
 	if date == "" {
-		result := s.db.Last(&market) // Preload("Asset")
+		result := s.db.First(&market) // Preload("Asset")
 		if result.Error != nil {
 			return nil, result.Error
 		}

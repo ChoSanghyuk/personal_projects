@@ -2,7 +2,6 @@ package config
 
 import (
 	_ "embed"
-	"fmt"
 	"invest/util"
 
 	"gopkg.in/yaml.v3"
@@ -12,25 +11,8 @@ import (
 var configByte []byte
 
 type Config struct {
-	Gold struct {
-		API   apiConfig   `yaml:"api"`
-		Crawl crawlConfig `yaml:"crawl"`
-		Bound bound       `yaml:"bound"`
-	} `yaml:"gold"`
-	Bitcoin struct {
-		API   apiConfig   `yaml:"api"`
-		Crawl crawlConfig `yaml:"crawl"`
-		Bound bound       `yaml:"bound"`
-	} `yaml:"bitcoin"`
-	RealEstate struct {
-		Crawl crawlConfig `yaml:"crawl"`
-	} `yaml:"estate"`
-
-	Email struct {
-		SMTP   SMTP   `yaml:"smtp"`
-		Target string `yaml:"target"`
-	} `yaml:"email"`
-
+	Api      map[string]apiConfig   `yaml:"api"`
+	Crawl    map[string]crawlConfig `yaml:"crawl"`
 	Telegram struct {
 		ChatId string `yaml:"chatId"`
 		Token  string `yaml:"token"`
@@ -38,9 +20,8 @@ type Config struct {
 }
 
 type apiConfig struct {
-	Url    string `yaml:"url"`
-	ID     string `yaml:"id"`
-	ApiKey string `yaml:"api-key"`
+	Url    string            `yaml:"url"`
+	Header map[string]string `yaml:"header"`
 }
 
 type crawlConfig struct {
@@ -48,53 +29,26 @@ type crawlConfig struct {
 	CssPath string `yaml:"css-path"`
 }
 
-type bound struct {
-	Lower float64 `yaml:"lower"`
-	Upper float64 `yaml:"upper"`
-}
+func NewConfig() (*Config, error) {
 
-type SMTP struct {
-	ServerI   string `yaml:"server"`
-	PortI     string `yaml:"port"`
-	UserI     string `yaml:"user"`
-	PasswordI string `yaml:"password"`
-}
-
-var ConfigInfo Config = Config{}
-
-func init() {
+	var ConfigInfo Config = Config{}
 
 	err := yaml.Unmarshal(configByte, &ConfigInfo)
 	if err != nil {
-		fmt.Println(err)
+		return nil, err
 	}
 
-	util.Decode(&ConfigInfo.Email.SMTP.PasswordI)
-	util.Decode(&ConfigInfo.Gold.API.ApiKey)
-	util.Decode(&ConfigInfo.Bitcoin.API.ID)
-	util.Decode(&ConfigInfo.Bitcoin.API.ApiKey)
-
+	// util.Decode(&ConfigInfo.Gold.API.ApiKey)
 	util.Decode(&ConfigInfo.Telegram.ChatId)
 	util.Decode(&ConfigInfo.Telegram.Token)
 
+	return &ConfigInfo, nil
 }
 
-func (s SMTP) Server() string {
-	return s.ServerI
+func (c Config) ApiInfo(target string) (url string, header map[string]string) {
+	return c.Api[target].Url, c.Api[target].Header
 }
 
-func NewConfigInfo() *Config {
-	return &ConfigInfo
-}
-
-func (s SMTP) Port() string {
-	return s.PortI
-}
-
-func (s SMTP) User() string {
-	return s.UserI
-}
-
-func (s SMTP) Password() string {
-	return s.PasswordI
+func (c Config) CrawlInfo(target string) (url string, cssPath string) {
+	return c.Crawl[target].Url, c.Crawl[target].CssPath
 }

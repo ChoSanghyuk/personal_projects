@@ -37,3 +37,7 @@ func BitcoinApi(url string) func() (string, error) {
 		return fmt.Sprintf("%f", d["trade_price"]), nil
 	}
 }
+
+func (s *Scraper) GetRealtimeExchageRate() float64 {
+	return 1337.58 // TODO 환율 크롤링
+}

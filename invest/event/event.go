@@ -11,12 +11,15 @@ import (
 type Event struct {
 	stg     Storage
 	scraper Scraper
-	config  EventConfig
+	tm      Transmitter
 }
 
-type EventConfig struct {
-	realEstateUrl     string
-	realEstateCssPath string
+func NewEvent(stg Storage, scraper Scraper, tm Transmitter) *Event {
+	return &Event{
+		stg:     stg,
+		scraper: scraper,
+		tm:      tm,
+	}
 }
 
 func (e Event) AssetEvent(c chan<- string) {
@@ -39,7 +42,8 @@ func (e Event) AssetEvent(c chan<- string) {
 		assets[i] = a
 
 		// 자산별 현재 가격 조회
-		p, _ := e.scraper.Scrape(a.Path)                                // TODO. 조회 메소드 갱신 필요
+		url, header := e.tm.ApiInfo(a.Name)
+		p, _ := e.scraper.CallApi(url, header)                          // TODO. 조회 메소드 갱신 필요
 		cp, _ := strconv.ParseFloat(strings.ReplaceAll(p, ",", ""), 64) // TODO , 없애는 롤 누구 소유인지 판단
 		log.Printf("%s 현재 가격 %.3f", a.Name, cp)
 		priceMap[a.ID] = cp
@@ -50,11 +54,13 @@ func (e Event) AssetEvent(c chan<- string) {
 		} else if a.SellPrice <= cp {
 			c <- fmt.Sprintf("SELL %s. UPPER BOUND : %f. CURRENT PRICE :%f", a.Name, a.SellPrice, cp)
 		}
-
 	}
 
 	// 자금별/종목별 현재 총액 갱신
 	investSummary, _ := e.stg.RetreiveFundsSummaryOrderByFundId()
+	if len(investSummary) == 0 {
+		return
+	}
 
 	length := investSummary[len(investSummary)-1].FundID + 1
 	stable := make([]float64, length)
@@ -92,7 +98,10 @@ func (e Event) AssetEvent(c chan<- string) {
 }
 
 func (e Event) RealEstateEvent(c chan<- string) {
-	rtn, err := e.scraper.Crwal(e.config.realEstateUrl, e.config.realEstateCssPath)
+
+	url, cssPath := e.tm.CrawlInfo("estate")
+
+	rtn, err := e.scraper.Crawl(url, cssPath)
 	if err != nil {
 		c <- fmt.Sprintf("크롤링 시 오류 발생. %s", err.Error())
 	}

@@ -12,12 +12,12 @@ import (
 func TestGoldApi(t *testing.T) {
 
 	var s = Scraper{}
-	var info = config.NewConfigInfo()
+	info, _ := config.NewConfig()
 
-	url := info.Gold.API.Url
-	key := info.Gold.API.ApiKey
+	url := info.Api["gold"].Url
+	head := info.Api["gold"].Header
 
-	rtn, err := s.CallApi(url, map[string]string{"x-access-token": key})
+	rtn, err := s.CallApi(url, head)
 	if err != nil {
 		t.Error(err)
 	}

@@ -9,8 +9,14 @@ type Storage interface {
 	RetreiveFundsSummaryOrderByFundId() ([]m.InvestSummary, error)
 	UpdateInvestSummarySum(fundId uint, assetId uint, sum float64) error
 }
+
 type Scraper interface {
-	Scrape(url string, params ...string) (string, error)
-	Crwal(url string, cssPath string) (string, error)
+	CallApi(url string, header map[string]string) (string, error)
+	Crawl(url string, cssPath string) (string, error)
 	GetRealtimeExchageRate() float64
+}
+
+type Transmitter interface {
+	ApiInfo(target string) (url string, header map[string]string)
+	CrawlInfo(target string) (url string, cssPath string)
 }
