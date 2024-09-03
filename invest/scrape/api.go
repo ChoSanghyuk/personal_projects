@@ -7,6 +7,7 @@ import (
 	"net/http"
 )
 
+// TODO. callapi 합쳐
 func (s Scraper) CallApi(url string, header map[string]string) (string, error) {
 
 	rtn, err := callApi(url, nil)

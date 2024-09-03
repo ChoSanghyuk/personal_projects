@@ -48,3 +48,19 @@ func TestBitcoinApi(t *testing.T) {
 
 	t.Logf(fmt.Sprintf("%f", d["trade_price"]))
 }
+
+func TestAlpaca(t *testing.T) {
+	cp, err := AlpacaCrypto("BTC/USD")
+	if err != nil {
+		t.Error(err)
+	}
+	t.Log(cp)
+}
+
+func TestMarket(t *testing.T) {
+	cp, err := AlpacaMarket("AAPL")
+	if err != nil {
+		t.Error(err)
+	}
+	t.Log(cp)
+}
