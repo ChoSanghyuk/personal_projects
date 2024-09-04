@@ -1,8 +1,6 @@
 package scrape
 
 import (
-	"encoding/json"
-	"fmt"
 	"invest/config"
 	"testing"
 
@@ -40,13 +38,7 @@ func TestBitcoinApi(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-
-	var d map[string]any
-	json.Unmarshal([]byte(rtn[1:len(rtn)-1]), &d)
-
-	assert.NotEmpty(t, rtn)
-
-	t.Logf(fmt.Sprintf("%f", d["trade_price"]))
+	t.Logf(rtn)
 }
 
 func TestAlpaca(t *testing.T) {

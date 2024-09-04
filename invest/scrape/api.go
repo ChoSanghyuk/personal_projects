@@ -9,19 +9,13 @@ import (
 // TODO. callapi 합쳐
 func (s Scraper) CallApi(url string, header map[string]string) (string, error) {
 
-	var rtn string
+	var rtn []map[string]any
 	err := sendRequest(url, nil, &rtn)
 	if err != nil {
 		return "", err
 	}
-	var d map[string]any
 
-	err = json.Unmarshal([]byte(rtn[1:len(rtn)-1]), &d)
-	if err != nil {
-		return "", err
-	}
-
-	return fmt.Sprintf("%f", d["trade_price"]), nil
+	return fmt.Sprintf("%f", rtn[0]["trade_price"]), nil
 }
 
 func sendRequest(url string, header map[string]string, response any) error {
