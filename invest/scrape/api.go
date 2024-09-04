@@ -1,6 +1,7 @@
 package scrape
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -10,7 +11,7 @@ import (
 func (s Scraper) CallApi(url string, header map[string]string) (string, error) {
 
 	var rtn []map[string]any
-	err := sendRequest(url, nil, &rtn)
+	err := sendRequest(url, nil, nil, &rtn)
 	if err != nil {
 		return "", err
 	}
@@ -18,9 +19,11 @@ func (s Scraper) CallApi(url string, header map[string]string) (string, error) {
 	return fmt.Sprintf("%f", rtn[0]["trade_price"]), nil
 }
 
-func sendRequest(url string, header map[string]string, response any) error {
+func sendRequest(url string, header map[string]string, body map[string]string, response any) error {
 
-	req, err := http.NewRequest("GET", url, nil)
+	bodyByte, err := json.Marshal(body)
+
+	req, err := http.NewRequest("GET", url, bytes.NewBuffer(bodyByte))
 	if err != nil {
 		return fmt.Errorf("error making request\n%w", err)
 	}
