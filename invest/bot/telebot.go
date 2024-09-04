@@ -26,3 +26,9 @@ func NewTeleBot(token string, chatId int64) (*TeleBot, error) {
 func (t TeleBot) SendMessage(msg string) {
 	t.bot.Send(tgbotapi.NewMessage(t.chatId, msg))
 }
+
+// func (t TeleBot) Message() string {
+// 	updates, err := t.bot.GetUpdates(tgbotapi.UpdateConfig{
+
+// 	})
+// }

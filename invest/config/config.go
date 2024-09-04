@@ -17,6 +17,9 @@ type Config struct {
 		ChatId string `yaml:"chatId"`
 		Token  string `yaml:"token"`
 	} `yaml:"telegram"`
+	Key struct {
+		KIS map[string]*string `yaml:"KIS"`
+	} `yaml:"key"`
 }
 
 type apiConfig struct {
@@ -41,6 +44,8 @@ func NewConfig() (*Config, error) {
 	// util.Decode(&ConfigInfo.Gold.API.ApiKey)
 	util.Decode(&ConfigInfo.Telegram.ChatId)
 	util.Decode(&ConfigInfo.Telegram.Token)
+	util.Decode(ConfigInfo.Key.KIS["appkey"])
+	util.Decode(ConfigInfo.Key.KIS["appsecret"])
 
 	return &ConfigInfo, nil
 }

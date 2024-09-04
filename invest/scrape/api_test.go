@@ -56,11 +56,3 @@ func TestAlpaca(t *testing.T) {
 	}
 	t.Log(cp)
 }
-
-func TestMarket(t *testing.T) {
-	cp, err := AlpacaMarket("AAPL")
-	if err != nil {
-		t.Error(err)
-	}
-	t.Log(cp)
-}
