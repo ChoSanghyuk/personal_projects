@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 )
 
@@ -11,7 +12,7 @@ import (
 func (s Scraper) CallApi(url string, header map[string]string) (string, error) {
 
 	var rtn []map[string]any
-	err := sendRequest(url, nil, nil, &rtn)
+	err := sendRequest(url, http.MethodGet, nil, nil, &rtn)
 	if err != nil {
 		return "", err
 	}
@@ -19,11 +20,14 @@ func (s Scraper) CallApi(url string, header map[string]string) (string, error) {
 	return fmt.Sprintf("%f", rtn[0]["trade_price"]), nil
 }
 
-func sendRequest(url string, header map[string]string, body map[string]string, response any) error {
+func sendRequest(url string, method string, header map[string]string, body map[string]string, response any) error {
 
 	bodyByte, err := json.Marshal(body)
+	if err != nil {
+		return fmt.Errorf("error request body marshaling \n%w", err)
+	}
 
-	req, err := http.NewRequest("GET", url, bytes.NewBuffer(bodyByte))
+	req, err := http.NewRequest(method, url, bytes.NewBuffer(bodyByte))
 	if err != nil {
 		return fmt.Errorf("error making request\n%w", err)
 	}
@@ -40,6 +44,14 @@ func sendRequest(url string, header map[string]string, body map[string]string, r
 		return fmt.Errorf("error sending request\n%w", err)
 	}
 	defer res.Body.Close()
+
+	b, err := io.ReadAll(res.Body)
+	if err != nil {
+		fmt.Print("error reading body", err)
+	}
+
+	// Print the response body
+	fmt.Print(string(b))
 
 	return json.NewDecoder(res.Body).Decode(response)
 

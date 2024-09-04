@@ -2,6 +2,7 @@ package scrape
 
 import (
 	"fmt"
+	"net/http"
 	"time"
 )
 
@@ -13,7 +14,7 @@ type Token struct {
 type TokenResponse struct {
 	AccessToken string `json:"access_token"`
 	TokenType   string `json:"token_type"`
-	Expired     string `json:"acess_token_token_expired"`
+	Expired     string `json:"access_token_token_expired"`
 }
 
 func GenerateToken(appKey string, appSecret string) (*Token, error) {
@@ -21,11 +22,11 @@ func GenerateToken(appKey string, appSecret string) (*Token, error) {
 	url := "https://openapi.koreainvestment.com:9443/oauth2/tokenP"
 
 	var rtn TokenResponse
-	err := sendRequest(url, map[string]string{
+	err := sendRequest(url, http.MethodPost, nil, map[string]string{
 		"grant_type": "client_credentials",
 		"appkey":     appKey,
 		"appsecret":  appSecret,
-	}, nil, &rtn)
+	}, &rtn)
 	if err != nil {
 		return nil, err
 	}
@@ -41,14 +42,17 @@ func GenerateToken(appKey string, appSecret string) (*Token, error) {
 func KISApi(appKey string, appSecret string) {
 	url := "https://openapi.koreainvestment.com:9443//uapi/domestic-stock/v1/quotations/inquire-price"
 
-	t, err := GenerateToken(appKey, appSecret)
-	fmt.Println("토큰", t)
+	token, err := GenerateToken(appKey, appSecret)
+	if err != nil {
+		fmt.Print(err)
+	}
+	fmt.Println("토큰", token)
 
 	var rtn map[string]interface{}
 
 	header := map[string]string{
 		"content-type":  "application/json; charset=utf-8",
-		"authorization": "Bearer " + t.accessToken,
+		"authorization": "Bearer " + token.accessToken,
 		"appkey":        appKey,
 		"appsecret":     appSecret,
 		"tr_id":         "FHKST01010100",
@@ -59,7 +63,7 @@ func KISApi(appKey string, appSecret string) {
 		"FID_INPUT_ISCD":         "005930",
 	}
 
-	err = sendRequest(url, header, body, &rtn)
+	err = sendRequest(url, http.MethodGet, header, body, &rtn)
 	if err != nil {
 
 	}
