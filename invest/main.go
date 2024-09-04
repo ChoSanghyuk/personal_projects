@@ -15,7 +15,7 @@ import (
 func main() {
 	// Create a new instance of the server
 
-	scraper := scrape.NewScraper(nil)
+	scraper := &scrape.Scraper{}
 	db, err := db.NewStorage("root:root@tcp(127.0.0.1:3300)/investdb?charset=utf8mb4&parseTime=True&loc=Local") // TODO. dsn config화
 	if err != nil {
 		panic(err)
