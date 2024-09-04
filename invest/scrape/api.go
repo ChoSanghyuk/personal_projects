@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"io"
 	"net/http"
 )
 
@@ -44,14 +43,6 @@ func sendRequest(url string, method string, header map[string]string, body map[s
 		return fmt.Errorf("error sending request\n%w", err)
 	}
 	defer res.Body.Close()
-
-	b, err := io.ReadAll(res.Body)
-	if err != nil {
-		fmt.Print("error reading body", err)
-	}
-
-	// Print the response body
-	fmt.Print(string(b))
 
 	return json.NewDecoder(res.Body).Decode(response)
 
