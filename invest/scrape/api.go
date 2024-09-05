@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"strconv"
 )
 
 // TODO. callapi 합쳐
@@ -20,11 +21,29 @@ func (s Scraper) CallApi(url string, header map[string]string) (string, error) {
 	return fmt.Sprintf("%f", rtn[0]["trade_price"]), nil
 }
 
+func (s Scraper) upbitApi(sym string) (float64, error) {
+
+	url := "" // TODO. 여기 부분에 config를 Transmitter로 활용
+
+	var rtn []map[string]string
+	err := sendRequest(url, http.MethodGet, nil, nil, &rtn)
+	if err != nil {
+		return 0, err
+	}
+
+	cp, err := strconv.ParseFloat(rtn[0]["trade_price"], 64)
+	if err != nil {
+		return 0, err
+	}
+
+	return cp, nil
+}
+
 /*
 중요!
-json.Marshal(nil) results in []byte("null"), which is equivalent to the string "null" in JSON.
-This "null" will be sent as the body of the request when using http.NewRequest.
-So, if the API expects a non-empty JSON body or no body at all, sending "null" may lead to unexpected behavior. If you want to send an empty body, it would be better to pass nil directly to http.NewRequest() instead of marshalling it.
+request body에 nil을 바로 넣는다면, 빈 json 데이터가 들어감.
+하지만 nil을 json.Marshal해서 넣는다면, "null"이라는 json 데이터가 형성.
+이는 request body에 nil값을 넣는 것과 다른 결과 초래 할 수 있음
 */
 func sendRequest(url string, method string, header map[string]string, body map[string]string, response any) error {
 

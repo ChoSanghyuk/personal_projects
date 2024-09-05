@@ -4,21 +4,17 @@ import (
 	"fmt"
 	m "invest/model"
 	"log"
-	"strconv"
-	"strings"
 )
 
 type Event struct {
 	stg     Storage
 	scraper Scraper
-	tm      Transmitter
 }
 
-func NewEvent(stg Storage, scraper Scraper, tm Transmitter) *Event {
+func NewEvent(stg Storage, scraper Scraper) *Event {
 	return &Event{
 		stg:     stg,
 		scraper: scraper,
-		tm:      tm,
 	}
 }
 
@@ -42,9 +38,10 @@ func (e Event) AssetEvent(c chan<- string) {
 		assets[i] = a
 
 		// 자산별 현재 가격 조회
-		url, header := e.tm.ApiInfo(a.Name)
-		p, _ := e.scraper.CallApi(url, header)                          // TODO. 조회 메소드 갱신 필요
-		cp, _ := strconv.ParseFloat(strings.ReplaceAll(p, ",", ""), 64) // TODO , 없애는 롤 누구 소유인지 판단
+		cp, _ := e.scraper.CurrentPrice(a.Name)
+		// url, header := e.tm.ApiInfo(a.Name)
+		// p, _ := e.scraper.CallApi(url, header)                          // TODO. 조회 메소드 갱신 필요
+		// cp, _ := strconv.ParseFloat(strings.ReplaceAll(p, ",", ""), 64) // TODO , 없애는 롤 누구 소유인지 판단
 		log.Printf("%s 현재 가격 %.3f", a.Name, cp)
 		priceMap[a.ID] = cp
 
@@ -99,9 +96,9 @@ func (e Event) AssetEvent(c chan<- string) {
 
 func (e Event) RealEstateEvent(c chan<- string) {
 
-	url, cssPath := e.tm.CrawlInfo("estate")
+	// url, cssPath := e.tm.CrawlInfo("estate")
 
-	rtn, err := e.scraper.Crawl(url, cssPath)
+	rtn, err := e.scraper.RealEstateStatus()
 	if err != nil {
 		c <- fmt.Sprintf("크롤링 시 오류 발생. %s", err.Error())
 	}

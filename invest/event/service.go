@@ -11,12 +11,14 @@ type Storage interface {
 }
 
 type Scraper interface {
-	CallApi(url string, header map[string]string) (string, error)
-	Crawl(url string, cssPath string) (string, error)
+	CurrentPrice(target string) (float64, error)
+	RealEstateStatus() (string, error)
 	ExchageRate() float64
+	// CallApi(url string, header map[string]string) (string, error)
+	// Crawl(url string, cssPath string) (string, error)
 }
 
-type Transmitter interface {
-	ApiInfo(target string) (url string, header map[string]string)
-	CrawlInfo(target string) (url string, cssPath string)
-}
+// type Transmitter interface {
+// 	ApiInfo(target string) (url string, header map[string]string)
+// 	CrawlInfo(target string) (url string, cssPath string)
+// }
