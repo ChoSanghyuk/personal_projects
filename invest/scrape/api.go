@@ -1,11 +1,11 @@
 package scrape
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
-	"net/url"
 )
 
 // TODO. callapi 합쳐
@@ -28,12 +28,18 @@ So, if the API expects a non-empty JSON body or no body at all, sending "null" m
 */
 func sendRequest(url string, method string, header map[string]string, body map[string]string, response any) error {
 
-	// bodyByte, err := json.Marshal(body)
-	// if err != nil {
-	// 	return fmt.Errorf("error request body marshaling \n%w", err)
-	// }
+	var rb io.Reader
+	if body == nil {
+		rb = nil
+	} else {
+		bodyByte, err := json.Marshal(body)
+		if err != nil {
+			return fmt.Errorf("error request body marshaling \n%w", err)
+		}
+		rb = bytes.NewBuffer(bodyByte)
+	}
 
-	req, err := http.NewRequest(method, url, nil) // bytes.NewBuffer(bodyByte)
+	req, err := http.NewRequest(method, url, rb)
 	if err != nil {
 		return fmt.Errorf("error making request\n%w", err)
 	}
@@ -59,55 +65,3 @@ func sendRequest(url string, method string, header map[string]string, body map[s
 	return json.NewDecoder(res.Body).Decode(response)
 
 }
-
-func sendRequest2(addr string, method string, header map[string]string, body map[string]string, response any) error {
-
-	client := &http.Client{}
-
-	// bodyByte, err := json.Marshal(body)
-	// if err != nil {
-	// 	return fmt.Errorf("error request body marshaling \n%w", err)
-	// }
-
-	req, err := http.NewRequest(method, addr, nil) // bytes.NewBuffer(bodyByte)
-	if err != nil {
-		return fmt.Errorf("error making request\n%w", err)
-	}
-
-	// Add headers to the request
-	for k, v := range header {
-		req.Header.Add(k, v)
-	}
-
-	// Send the request
-	params := url.Values{}
-	params.Add("fid_cond_mrkt_div_code", "J")
-	params.Add("fid_input_iscd", "005930") // stock_no를 적절히 변경
-
-	req.URL.RawQuery = params.Encode()
-
-	res, err := client.Do(req)
-	if err != nil {
-		return fmt.Errorf("error sending request\n%w", err)
-	}
-	defer res.Body.Close()
-
-	b, _ := io.ReadAll(res.Body)
-
-	// Print the response body
-	fmt.Println(string(b))
-
-	return json.NewDecoder(res.Body).Decode(response)
-
-}
-
-/*
-// Read the response body
-body, err := io.ReadAll(res.Body)
-if err != nil {
-	return "", fmt.Errorf("error reading body\n%w", err)
-}
-
-// Print the response body
-return string(body), nil
-*/
