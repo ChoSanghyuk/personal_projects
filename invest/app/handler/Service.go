@@ -43,5 +43,5 @@ type InvestSaver interface {
 }
 
 type ExchageRateGetter interface {
-	GetRealtimeExchageRate() float64
+	ExchageRate() float64
 }

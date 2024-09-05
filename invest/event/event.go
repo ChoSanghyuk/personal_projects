@@ -28,7 +28,7 @@ func (e Event) AssetEvent(c chan<- string) {
 	marketLevel := m.MarketLevel(market.Status)
 
 	// 환율까지 계산하여 원화로 변환
-	ex := e.scraper.GetRealtimeExchageRate()
+	ex := e.scraper.ExchageRate()
 
 	// 보유 자산 목록 조회
 	assetList, _ := e.stg.RetrieveAssetList()

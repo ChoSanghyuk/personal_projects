@@ -2,6 +2,7 @@ package config
 
 import (
 	_ "embed"
+	"fmt"
 	"invest/util"
 
 	"gopkg.in/yaml.v3"
@@ -20,6 +21,14 @@ type Config struct {
 	Key struct {
 		KIS map[string]*string `yaml:"KIS"`
 	} `yaml:"key"`
+
+	Db struct { // "root:root@tcp(127.0.0.1:3300)/investdb?charset=utf8mb4&parseTime=True&loc=Local"
+		User     string `yaml:"user"`
+		Password string `yaml:"pwd"`
+		IP       string `yaml:"ip"`
+		Port     string `yaml:"port"`
+		Scheme   string `yaml:"scheme"`
+	} `yaml:"db"`
 }
 
 type apiConfig struct {
@@ -64,4 +73,8 @@ func (c Config) KisAppKey() string {
 
 func (c Config) KisAppSecret() string {
 	return *c.Key.KIS["appsecret"]
+}
+
+func (c Config) Dsn() string {
+	return fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local", c.Db.User, c.Db.Password, c.Db.IP, c.Db.Port, c.Db.Scheme)
 }
