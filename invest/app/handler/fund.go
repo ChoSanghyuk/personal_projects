@@ -33,7 +33,7 @@ func (h *FundHandler) InitRoute(app *fiber.App) {
 // 총 자금 금액
 func (h *FundHandler) TotalStatus(c *fiber.Ctx) error {
 
-	var exchangeRate float64 = h.e.GetRealtimeExchageRate()
+	var exchangeRate float64 = h.e.ExchageRate()
 
 	summarys, err := h.r.RetreiveFundsSummaryOrderByFundId()
 	if err != nil {

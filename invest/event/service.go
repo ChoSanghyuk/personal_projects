@@ -13,7 +13,7 @@ type Storage interface {
 type Scraper interface {
 	CallApi(url string, header map[string]string) (string, error)
 	Crawl(url string, cssPath string) (string, error)
-	GetRealtimeExchageRate() float64
+	ExchageRate() float64
 }
 
 type Transmitter interface {

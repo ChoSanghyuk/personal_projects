@@ -83,3 +83,10 @@ func TestEstateCrwal(t *testing.T) {
 		t.Log(rtn)
 	})
 }
+
+func TestExchangeRate(t *testing.T) {
+
+	s := Scraper{}
+	exrate := s.ExchageRate()
+	t.Log(exrate)
+}
