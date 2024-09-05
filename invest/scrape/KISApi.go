@@ -1,15 +1,10 @@
 package scrape
 
 import (
-	"fmt"
 	"net/http"
+	"strings"
 	"time"
 )
-
-type Token struct {
-	accessToken string
-	createdAt   time.Time
-}
 
 type TokenResponse struct {
 	AccessToken string `json:"access_token"`
@@ -17,52 +12,56 @@ type TokenResponse struct {
 	Expired     string `json:"access_token_token_expired"`
 }
 
-func GenerateToken(appKey string, appSecret string) (*Token, error) {
+func (s *Scraper) KisToken() (string, error) {
+
+	if s.KIS.accessToken != "" && strings.Compare(s.KIS.tokenExpired, time.Now().Format("2006-01-02 15:04:05")) == 1 {
+		return s.KIS.accessToken, nil
+	}
 
 	url := "https://openapi.koreainvestment.com:9443/oauth2/tokenP"
 
-	var rtn TokenResponse
+	var token TokenResponse
 	err := sendRequest(url, http.MethodPost, nil, map[string]string{
 		"grant_type": "client_credentials",
-		"appkey":     appKey,
-		"appsecret":  appSecret,
-	}, &rtn)
+		"appkey":     s.KIS.appKey,
+		"appsecret":  s.KIS.appSecret,
+	}, &token)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
-	fmt.Println(rtn)
+	s.KIS.accessToken = token.AccessToken
+	s.KIS.tokenExpired = token.Expired
 
-	return &Token{
-		accessToken: rtn.AccessToken,
-		createdAt:   time.Now(),
-	}, nil
+	return token.AccessToken, nil
 }
 
-func KISApi(appKey string, appSecret string) {
-	url := "https://openapi.koreainvestment.com:9443/uapi/domestic-stock/v1/quotations/inquire-price-2"
+type CurrentPriceResponse struct {
+	CurrentPrice string `json:"stck_prpr"`
+}
 
-	// token, err := GenerateToken(appKey, appSecret)
-	// if err != nil {
-	// 	fmt.Print(err)
-	// }
+func (s *Scraper) KisCurrentPrice(target string) (string, error) {
+	url := "https://openapi.koreainvestment.com:9443/uapi/domestic-stock/v1/quotations/inquire-price?fid_cond_mrkt_div_code=J&fid_input_iscd=" + target
 
-	var rtn map[string]interface{}
+	token, err := s.KisToken()
+	if err != nil {
+		return "", err
+	}
+
+	var rtn CurrentPriceResponse
 
 	header := map[string]string{
 		"Content-Type":  "application/json",
-		"authorization": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0b2tlbiIsImF1ZCI6IjY1OTYwZWNmLWQ3ZDYtNGE3MC1hMmIwLTc1ZTZhY2Y4YWQ5OCIsInByZHRfY2QiOiIiLCJpc3MiOiJ1bm9ndyIsImV4cCI6MTcyNTU3OTA5MywiaWF0IjoxNzI1NDkyNjkzLCJqdGkiOiJQU1htMG5xSzRHbUxpUlVqWWIxRFVUWG5neWxkT1JsWVdFRDAifQ.Vlla2RpNeBf40aXkos-9_MnKQhoi0oLGUnCPyyROd3iZorKnlIaOMqhekB9o3iECfcUcaVImxtI9tg5DnqRwrg",
-		"appkey":        appKey,
-		"appsecret":     appSecret,
+		"authorization": "Bearer " + token,
+		"appkey":        s.KIS.appKey,
+		"appsecret":     s.KIS.appSecret,
 		"tr_id":         "FHKST01010100",
 	}
 
-	url = url + "?fid_cond_mrkt_div_code=J&fid_input_iscd=005930"
-
-	err := sendRequest(url, http.MethodGet, header, nil, rtn)
+	err = sendRequest(url, http.MethodGet, header, nil, &rtn)
 	if err != nil {
-		fmt.Println("에러", err)
+		return "", err
 	}
 
-	fmt.Println(rtn)
+	return rtn.CurrentPrice, nil
 }

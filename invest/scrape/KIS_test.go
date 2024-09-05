@@ -5,18 +5,32 @@ import (
 	"testing"
 )
 
-func TestGenerateToken(t *testing.T) {
+func TestKis(t *testing.T) {
 
-	conf, _ := config.NewConfig()
-	token, err := GenerateToken(conf.KisAppKey(), conf.KisAppSecret())
+	conf, err := config.NewConfig()
 	if err != nil {
-		t.Error(err)
+		panic(err)
 	}
-	t.Log(token)
-}
 
-func TestKISApi(t *testing.T) {
+	s := NewScraper(
+		WithKIS(conf.KisAppKey(), conf.KisAppSecret()),
+		// WithToken(""),
+	)
 
-	conf, _ := config.NewConfig()
-	KISApi(conf.KisAppKey(), conf.KisAppSecret())
+	t.Run("Token Generate", func(t *testing.T) {
+		token, err := s.KisToken()
+		if err != nil {
+			t.Error(err)
+		}
+		t.Log(token)
+	})
+
+	t.Run("Stock current Price", func(t *testing.T) {
+		price, err := s.KisCurrentPrice("")
+		if err != nil {
+			t.Error(err)
+		}
+		t.Log(price)
+	})
+
 }
