@@ -57,3 +57,11 @@ func (c Config) ApiInfo(target string) (url string, header map[string]string) {
 func (c Config) CrawlInfo(target string) (url string, cssPath string) {
 	return c.Crawl[target].Url, c.Crawl[target].CssPath
 }
+
+func (c Config) KisAppKey() string {
+	return *c.Key.KIS["appkey"]
+}
+
+func (c Config) KisAppSecret() string {
+	return *c.Key.KIS["appsecret"]
+}

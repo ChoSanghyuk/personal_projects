@@ -40,32 +40,28 @@ func GenerateToken(appKey string, appSecret string) (*Token, error) {
 }
 
 func KISApi(appKey string, appSecret string) {
-	url := "https://openapi.koreainvestment.com:9443//uapi/domestic-stock/v1/quotations/inquire-price"
+	url := "https://openapi.koreainvestment.com:9443/uapi/domestic-stock/v1/quotations/inquire-price-2"
 
-	token, err := GenerateToken(appKey, appSecret)
-	if err != nil {
-		fmt.Print(err)
-	}
-	fmt.Println("토큰", token)
+	// token, err := GenerateToken(appKey, appSecret)
+	// if err != nil {
+	// 	fmt.Print(err)
+	// }
 
 	var rtn map[string]interface{}
 
 	header := map[string]string{
-		"content-type":  "application/json; charset=utf-8",
-		"authorization": "Bearer " + token.accessToken,
+		"Content-Type":  "application/json",
+		"authorization": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0b2tlbiIsImF1ZCI6IjY1OTYwZWNmLWQ3ZDYtNGE3MC1hMmIwLTc1ZTZhY2Y4YWQ5OCIsInByZHRfY2QiOiIiLCJpc3MiOiJ1bm9ndyIsImV4cCI6MTcyNTU3OTA5MywiaWF0IjoxNzI1NDkyNjkzLCJqdGkiOiJQU1htMG5xSzRHbUxpUlVqWWIxRFVUWG5neWxkT1JsWVdFRDAifQ.Vlla2RpNeBf40aXkos-9_MnKQhoi0oLGUnCPyyROd3iZorKnlIaOMqhekB9o3iECfcUcaVImxtI9tg5DnqRwrg",
 		"appkey":        appKey,
 		"appsecret":     appSecret,
 		"tr_id":         "FHKST01010100",
 	}
 
-	body := map[string]string{
-		"FID_COND_MRKT_DIV_CODE": "J",
-		"FID_INPUT_ISCD":         "005930",
-	}
+	url = url + "?fid_cond_mrkt_div_code=J&fid_input_iscd=005930"
 
-	err = sendRequest(url, http.MethodGet, header, body, &rtn)
+	err := sendRequest(url, http.MethodGet, header, nil, rtn)
 	if err != nil {
-
+		fmt.Println("에러", err)
 	}
 
 	fmt.Println(rtn)
