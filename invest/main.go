@@ -20,7 +20,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	db, err := db.NewStorage(conf.Dsn()) // TODO. dsn config화
+	db, err := db.NewStorage(conf.Dsn())
 	if err != nil {
 		panic(err)
 	}
