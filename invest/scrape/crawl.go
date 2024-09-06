@@ -4,8 +4,12 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"regexp"
+	"strconv"
+	"time"
 
 	"github.com/PuerkitoBio/goquery"
+	"github.com/gofiber/fiber/v2/log"
 )
 
 func (s Scraper) Crawl(url string, cssPath string) (string, error) {
@@ -42,22 +46,26 @@ func (s Scraper) Crawl(url string, cssPath string) (string, error) {
 	return v, nil
 }
 
-// func CrawlChrome(url string, id string) (string, error) {
-// 	ctx, cancel := chromedp.NewContext(context.Background())
-// 	defer cancel()
+func (s *Scraper) ExchageRate() float64 {
 
-// 	// 결과를 저장할 변수
-// 	var res string
+	if s.Exchange.Rate != 0 && s.Exchange.Date.Format("20060102") == time.Now().Format("20060102") {
+		return s.Exchange.Rate
+	}
 
-// 	// 크롤링 작업 수행
-// 	err := chromedp.Run(ctx,
-// 		chromedp.Navigate(url),
-// 		chromedp.WaitVisible(id, chromedp.ByID), // 요소가 렌더링될 때까지 대기
-// 		chromedp.Text(id, &res, chromedp.ByID),  // 요소의 텍스트 추출
-// 	)
-// 	if err != nil {
-// 		return "", err
-// 	}
+	// Todo config화 시킬지 결정
+	url := "https://search.naver.com/search.naver?where=nexearch&sm=top_hty&fbm=0&ie=utf8&query=%ED%99%98%EC%9C%A8"
+	cssPath := "#main_pack > section.sc_new.cs_nexchangerate > div:nth-child(1) > div.exchange_bx._exchange_rate_calculator > div > div.inner > div:nth-child(3) > div.num > div > span"
 
-// 	return res, nil
-// }
+	rtn, err := s.Crawl(url, cssPath)
+	if err != nil {
+		log.Error(err)
+	}
+
+	re := regexp.MustCompile(`[^\d.]`)
+	exrate, err := strconv.ParseFloat(re.ReplaceAllString(rtn, ""), 64)
+	if err != nil {
+		return 0
+	}
+
+	return exrate // TODO 환율 크롤링
+}
