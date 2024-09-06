@@ -1,6 +1,9 @@
 package handler
 
-import m "invest/model"
+import (
+	"invest/model"
+	m "invest/model"
+)
 
 type FundRetriever interface {
 	RetreiveFundsSummaryOrderByFundId() ([]m.InvestSummary, error)
@@ -19,8 +22,8 @@ type AssetRetriever interface {
 }
 
 type AssetInfoSaver interface {
-	SaveAssetInfo(name string, category uint, currency string, top float64, bottom float64, selPrice float64, buyPrice float64, path string) error
-	UpdateAssetInfo(name string, category uint, currency string, top float64, bottom float64, selPrice float64, buyPrice float64, path string) error
+	SaveAssetInfo(name string, category model.Category, code string, currency string, top float64, bottom float64, selPrice float64, buyPrice float64) error
+	UpdateAssetInfo(name string, category model.Category, code string, currency string, top float64, bottom float64, selPrice float64, buyPrice float64) error
 	DeleteAssetInfo(id uint) error
 }
 

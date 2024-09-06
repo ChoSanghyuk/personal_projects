@@ -13,6 +13,7 @@ func TestKis(t *testing.T) {
 	}
 
 	s := NewScraper(
+		conf,
 		WithKIS(conf.KisAppKey(), conf.KisAppSecret()),
 		// WithToken(""),
 	)
@@ -26,7 +27,7 @@ func TestKis(t *testing.T) {
 	})
 
 	t.Run("Stock current Price", func(t *testing.T) {
-		price, err := s.KisCurrentPrice("")
+		price, err := s.kisDomesticStockCurrentPrice("")
 		if err != nil {
 			t.Error(err)
 		}

@@ -59,14 +59,6 @@ func NewConfig() (*Config, error) {
 	return &ConfigInfo, nil
 }
 
-func (c Config) ApiInfo(target string) (url string, header map[string]string) {
-	return c.Api[target].Url, c.Api[target].Header
-}
-
-func (c Config) CrawlInfo(target string) (url string, cssPath string) {
-	return c.Crawl[target].Url, c.Crawl[target].CssPath
-}
-
 func (c Config) KisAppKey() string {
 	return *c.Key.KIS["appkey"]
 }
@@ -77,4 +69,12 @@ func (c Config) KisAppSecret() string {
 
 func (c Config) Dsn() string {
 	return fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local", c.Db.User, c.Db.Password, c.Db.IP, c.Db.Port, c.Db.Scheme)
+}
+
+func (c Config) ApiBaseUrl(target string) string {
+	return c.Api[target].Url
+}
+
+func (c Config) CrawlUrlCasspath(target string) (url string, cssPath string) {
+	return c.Crawl[target].Url, c.Crawl[target].CssPath
 }

@@ -15,26 +15,26 @@ type AddFundReq struct {
 }
 
 type AddAssetReq struct {
-	Name      string  `json:"name" validate:"required"`
-	Category  uint    `json:"category" validate:"required"`
+	Name      string `json:"name" validate:"required"`
+	Category  uint   `json:"category" validate:"required"`
+	Code      string
 	Currency  string  `json:"currency" validate:"required"`
 	Top       float64 `json:"top" validate:"required"`
 	Bottom    float64 `json:"bottom" validate:"required"`
 	SellPrice float64 `json:"sel_price"`
 	BuyPrice  float64 `json:"buy_price"`
-	Path      string  `json:"path"`
 }
 
 type UpdateAssetReq struct {
-	ID        uint    `json:"id" validate:"required"`
-	Name      string  `json:"name"`
-	Category  uint    `json:"category"`
+	ID        uint   `json:"id" validate:"required"`
+	Name      string `json:"name"`
+	Category  uint   `json:"category"`
+	Code      string
 	Currency  string  `json:"currency"`
 	Top       float64 `json:"top"`
 	Bottom    float64 `json:"bottom"`
 	SellPrice float64 `json:"sel_price"`
 	BuyPrice  float64 `json:"buy_price"`
-	Path      string  `json:"path"`
 }
 
 type DeleteAssetReq struct {

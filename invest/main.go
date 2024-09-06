@@ -15,16 +15,20 @@ import (
 func main() {
 	// Create a new instance of the server
 
-	scraper := &scrape.Scraper{}
 	conf, err := config.NewConfig()
 	if err != nil {
 		panic(err)
 	}
+
+	scraper := scrape.NewScraper(conf,
+		scrape.WithKIS(conf.KisAppKey(), conf.KisAppSecret()),
+	)
+
 	db, err := db.NewStorage(conf.Dsn())
 	if err != nil {
 		panic(err)
 	}
-	event := event.NewEvent(db, scraper, conf)
+	event := event.NewEvent(db, scraper)
 
 	c := make(chan string)
 

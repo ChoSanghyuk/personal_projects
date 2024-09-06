@@ -15,13 +15,13 @@ type Fund struct {
 type Asset struct {
 	ID        uint
 	Name      string
-	Category  uint
+	Category  string
+	Code      string
 	Currency  string
 	Top       float64
 	Bottom    float64
 	SellPrice float64
 	BuyPrice  float64
-	Path      string
 }
 
 type Invest struct {

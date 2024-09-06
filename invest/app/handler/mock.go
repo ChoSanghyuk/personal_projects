@@ -2,6 +2,7 @@ package handler
 
 import (
 	"fmt"
+	"invest/model"
 	m "invest/model"
 	"time"
 
@@ -38,14 +39,14 @@ func (mock AssetRetrieverMock) RetrieveAsset(id uint) (*m.Asset, error) {
 	}
 	return &m.Asset{
 		ID:        1,
-		Name:      "비트코인",
-		Category:  6,
+		Name:      "bitcoin",
+		Code:      "BTS",
+		Category:  "해외코인",
 		Currency:  "USD",
 		Top:       9800,
 		Bottom:    6800,
 		SellPrice: 8800,
 		BuyPrice:  7800,
-		Path:      "",
 	}, nil
 }
 
@@ -70,7 +71,7 @@ type AssetInfoSaverMock struct {
 	err error
 }
 
-func (mock AssetInfoSaverMock) SaveAssetInfo(name string, category uint, currency string, top float64, bottom float64, selPrice float64, buyPrice float64, path string) error {
+func (mock AssetInfoSaverMock) SaveAssetInfo(name string, category model.Category, code string, currency string, top float64, bottom float64, selPrice float64, buyPrice float64) error {
 	fmt.Println("SaveAssetInfo Called")
 
 	if mock.err != nil {
@@ -78,7 +79,7 @@ func (mock AssetInfoSaverMock) SaveAssetInfo(name string, category uint, currenc
 	}
 	return nil
 }
-func (mock AssetInfoSaverMock) UpdateAssetInfo(name string, category uint, currency string, top float64, bottom float64, selPrice float64, buyPrice float64, path string) error {
+func (mock AssetInfoSaverMock) UpdateAssetInfo(name string, category model.Category, code string, currency string, top float64, bottom float64, selPrice float64, buyPrice float64) error {
 	fmt.Println("UpdateAssetInfo Called")
 
 	if mock.err != nil {

@@ -2,23 +2,20 @@ package event
 
 import (
 	"fmt"
+	"invest/model"
 	m "invest/model"
 	"log"
-	"strconv"
-	"strings"
 )
 
 type Event struct {
 	stg     Storage
 	scraper Scraper
-	tm      Transmitter
 }
 
-func NewEvent(stg Storage, scraper Scraper, tm Transmitter) *Event {
+func NewEvent(stg Storage, scraper Scraper) *Event {
 	return &Event{
 		stg:     stg,
 		scraper: scraper,
-		tm:      tm,
 	}
 }
 
@@ -42,9 +39,11 @@ func (e Event) AssetEvent(c chan<- string) {
 		assets[i] = a
 
 		// 자산별 현재 가격 조회
-		url, header := e.tm.ApiInfo(a.Name)
-		p, _ := e.scraper.CallApi(url, header)                          // TODO. 조회 메소드 갱신 필요
-		cp, _ := strconv.ParseFloat(strings.ReplaceAll(p, ",", ""), 64) // TODO , 없애는 롤 누구 소유인지 판단
+		category := model.ToCategory(a.Category)
+		if category == 0 {
+			// todo. error case
+		}
+		cp, _ := e.scraper.CurrentPrice(category, a.Code)
 		log.Printf("%s 현재 가격 %.3f", a.Name, cp)
 		priceMap[a.ID] = cp
 
@@ -77,7 +76,11 @@ func (e Event) AssetEvent(c chan<- string) {
 			v = s.Sum
 		}
 
-		if s.Asset.Category <= 3 { // TODO. 단계 변수화
+		category := model.ToCategory(s.Asset.Category)
+		if category == 0 {
+			// todo. error case
+		}
+		if category <= 3 { // TODO. 단계 변수화
 			stable[s.FundID] = stable[s.FundID] + v
 		} else {
 			volatile[s.FundID] = volatile[s.FundID] + v
@@ -99,9 +102,7 @@ func (e Event) AssetEvent(c chan<- string) {
 
 func (e Event) RealEstateEvent(c chan<- string) {
 
-	url, cssPath := e.tm.CrawlInfo("estate")
-
-	rtn, err := e.scraper.Crawl(url, cssPath)
+	rtn, err := e.scraper.RealEstateStatus()
 	if err != nil {
 		c <- fmt.Sprintf("크롤링 시 오류 발생. %s", err.Error())
 	}

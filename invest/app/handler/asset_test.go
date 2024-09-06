@@ -58,12 +58,12 @@ func TestAssetGetHandler(t *testing.T) {
 			param := AddAssetReq{
 				Name:      "종목",
 				Category:  5,
+				Code:      "code",
 				Currency:  "WON",
 				Top:       500,
 				Bottom:    400,
 				SellPrice: 480,
 				BuyPrice:  450,
-				Path:      "",
 			}
 			err := sendReqeust(app, "/assets/", "POST", param)
 			assert.NoError(t, err)
@@ -73,12 +73,12 @@ func TestAssetGetHandler(t *testing.T) {
 			param := AddAssetReq{
 				// Name      : "종목",
 				Category:  5,
+				Code:      "code",
 				Currency:  "WON",
 				Top:       500,
 				Bottom:    400,
 				SellPrice: 480,
 				BuyPrice:  450,
-				Path:      "",
 			}
 			err := sendReqeust(app, "/assets/", "POST", param)
 			assert.NoError(t, err)
@@ -91,12 +91,12 @@ func TestAssetGetHandler(t *testing.T) {
 				ID:        1,
 				Name:      "종목",
 				Category:  5,
+				Code:      "code",
 				Currency:  "WON",
 				Top:       500,
 				Bottom:    400,
 				SellPrice: 480,
 				BuyPrice:  450,
-				Path:      "",
 			}
 			err := sendReqeust(app, "/assets/", "PUT", param)
 			assert.NoError(t, err)
@@ -107,12 +107,12 @@ func TestAssetGetHandler(t *testing.T) {
 				// ID:        1,
 				Name:      "종목",
 				Category:  5,
+				Code:      "code",
 				Currency:  "WON",
 				Top:       500,
 				Bottom:    400,
 				SellPrice: 480,
 				BuyPrice:  450,
-				Path:      "",
 			}
 			err := sendReqeust(app, "/assets/", "PUT", param)
 			assert.NoError(t, err)

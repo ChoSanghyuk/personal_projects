@@ -2,10 +2,51 @@ package scrape
 
 import (
 	"invest/config"
+	"net/http"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
+
+func TestGoldApi(t *testing.T) {
+
+	info, _ := config.NewConfig()
+
+	url := info.Api["gold"].Url
+	head := info.Api["gold"].Header
+
+	var rtn map[string]interface{}
+	err := sendRequest(url, http.MethodGet, head, nil, rtn)
+	if err != nil {
+		t.Error(err)
+	}
+
+	assert.NotEmpty(t, rtn)
+
+	t.Log(rtn)
+}
+
+func TestBitcoinApi(t *testing.T) {
+
+	c, _ := config.NewConfig()
+	s := NewScraper(c)
+
+	// url := "https://api.upbit.com/v1/candles/minutes/1?market=KRW-BTC&count=1"
+	rtn, err := s.upbitApi("KRW-BTC")
+	if err != nil {
+		t.Error(err)
+	}
+
+	t.Log(rtn)
+}
+
+func TestAlpaca(t *testing.T) {
+	cp, err := AlpacaCrypto("BTC/USD")
+	if err != nil {
+		t.Error(err)
+	}
+	t.Log(cp)
+}
 
 func TestGoldCrwal(t *testing.T) {
 
@@ -14,8 +55,8 @@ func TestGoldCrwal(t *testing.T) {
 
 	url := conf.Crawl["gold"].Url
 	cssPath := conf.Crawl["gold"].CssPath
-	// CallGoldApi()
-	rtn, err := s.Crawl(url, cssPath)
+
+	rtn, err := s.crawl(url, cssPath)
 	if err != nil {
 		t.Error(err)
 	}
@@ -34,8 +75,7 @@ func TestBitcoinCrwal(t *testing.T) {
 		url := conf.Crawl["bitcoin"].Url
 		cssPath := conf.Crawl["bitcoin"].CssPath
 
-		// CallGoldApi()
-		rtn, err := s.Crawl(url, cssPath)
+		rtn, err := s.crawl(url, cssPath)
 		if err != nil {
 			t.Error(err)
 		}
@@ -44,22 +84,6 @@ func TestBitcoinCrwal(t *testing.T) {
 
 		t.Log(rtn)
 	})
-
-	// t.Run("Crwal From Chrome", func(t *testing.T) {
-
-	// 	url := config.ConfigInfo.Bitcoin.Crawl.Url
-	// 	cssPath := config.ConfigInfo.Bitcoin.Crawl.CssPath
-
-	// 	// CallGoldApi()
-	// 	rtn, err := CrawlChrome(url, cssPath)
-	// 	if err != nil {
-	// 		t.Error(err)
-	// 	}
-
-	// 	assert.NotEmpty(t, rtn)
-
-	// 	t.Log(rtn)
-	// })
 
 }
 
@@ -72,8 +96,7 @@ func TestEstateCrwal(t *testing.T) {
 		url := conf.Crawl["estate"].Url
 		cssPath := conf.Crawl["estate"].CssPath
 
-		// CallGoldApi()
-		rtn, err := s.Crawl(url, cssPath)
+		rtn, err := s.crawl(url, cssPath)
 		if err != nil {
 			t.Error(err)
 		}

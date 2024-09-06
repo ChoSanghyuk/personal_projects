@@ -129,17 +129,17 @@ func (s Storage) RetrieveAssetHist(id uint) ([]m.Invest, error) {
 	return invests, nil
 }
 
-func (s Storage) SaveAssetInfo(name string, category uint, currency string, top float64, bottom float64, selPrice float64, buyPrice float64, path string) error {
+func (s Storage) SaveAssetInfo(name string, category m.Category, code string, currency string, top float64, bottom float64, selPrice float64, buyPrice float64) error {
 
 	result := s.db.Create(&m.Asset{
 		Name:      name,
-		Category:  category,
+		Category:  category.String(),
+		Code:      code,
 		Currency:  currency,
 		Top:       top,
 		Bottom:    bottom,
 		SellPrice: selPrice,
 		BuyPrice:  buyPrice,
-		Path:      path,
 	})
 
 	if result.Error != nil {
@@ -149,17 +149,17 @@ func (s Storage) SaveAssetInfo(name string, category uint, currency string, top 
 	return nil
 }
 
-func (s Storage) UpdateAssetInfo(name string, category uint, currency string, top float64, bottom float64, selPrice float64, buyPrice float64, path string) error {
+func (s Storage) UpdateAssetInfo(name string, category m.Category, code string, currency string, top float64, bottom float64, selPrice float64, buyPrice float64) error {
 
 	result := s.db.Updates(m.Asset{
 		Name:      name,
-		Category:  category,
+		Category:  category.String(),
+		Code:      code,
 		Currency:  currency,
 		Top:       top,
 		Bottom:    bottom,
 		SellPrice: selPrice,
 		BuyPrice:  buyPrice,
-		Path:      path,
 	})
 
 	if result.Error != nil {
