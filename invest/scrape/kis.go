@@ -45,8 +45,7 @@ type CurrentPriceResponse struct {
 
 func (s *Scraper) kisDomesticStockCurrentPrice(code string) (float64, error) {
 
-	// url := "https://openapi.koreainvestment.com:9443/uapi/domestic-stock/v1/quotations/inquire-price?fid_cond_mrkt_div_code=J&fid_input_iscd=" + code
-	url := s.t.ApiBaseUrl("upbit")
+	url := s.t.ApiBaseUrl("KIS")
 	if url == "" {
 		return 0, errors.New("URL 미존재")
 	}

@@ -31,13 +31,12 @@ func TestBitcoinApi(t *testing.T) {
 	c, _ := config.NewConfig()
 	s := NewScraper(c)
 
-	// url := "https://api.upbit.com/v1/candles/minutes/1?market=KRW-BTC&count=1"
 	rtn, err := s.upbitApi("KRW-BTC")
 	if err != nil {
 		t.Error(err)
 	}
 
-	t.Log(rtn)
+	t.Logf("%f", rtn)
 }
 
 func TestAlpaca(t *testing.T) {

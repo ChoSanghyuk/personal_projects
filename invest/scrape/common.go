@@ -45,12 +45,8 @@ func sendRequest(url string, method string, header map[string]string, body map[s
 	if err != nil {
 		return fmt.Errorf("error sending request\n%w", err)
 	}
+
 	defer res.Body.Close()
-
-	b, _ := io.ReadAll(res.Body)
-
-	// Print the response body
-	fmt.Println(string(b))
 
 	return json.NewDecoder(res.Body).Decode(response)
 }

@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
-	"strconv"
 )
 
 func (s Scraper) upbitApi(sym string) (float64, error) {
@@ -15,16 +14,11 @@ func (s Scraper) upbitApi(sym string) (float64, error) {
 	}
 	url = fmt.Sprintf(url, sym)
 
-	var rtn []map[string]string
+	var rtn []map[string]any
 	err := sendRequest(url, http.MethodGet, nil, nil, &rtn)
 	if err != nil {
 		return 0, err
 	}
 
-	cp, err := strconv.ParseFloat(rtn[0]["trade_price"], 64)
-	if err != nil {
-		return 0, err
-	}
-
-	return cp, nil
+	return rtn[0]["trade_price"].(float64), nil
 }
