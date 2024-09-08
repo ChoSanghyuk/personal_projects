@@ -1,5 +1,7 @@
 package model
 
+import "errors"
+
 type Category uint
 
 const (
@@ -16,12 +18,20 @@ func (c Category) String() string {
 	return categoryList[c-1]
 }
 
-func ToCategory(s string) Category {
+func ToCategory(s string) (Category, error) {
 
 	for i, c := range categoryList {
 		if s == c {
-			return Category(i + 1)
+			return Category(i + 1), nil
 		}
 	}
-	return 0
+	return 0, errors.New("존재하지 않는 카테고리 번호. 입력 값 :" + s)
+}
+
+func (c Category) IsStable() bool {
+	if c <= 3 {
+		return true
+	} else {
+		return false
+	}
 }

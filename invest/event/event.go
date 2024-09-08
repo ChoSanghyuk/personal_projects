@@ -2,7 +2,6 @@ package event
 
 import (
 	"fmt"
-	"invest/model"
 	m "invest/model"
 	"log"
 )
@@ -21,29 +20,44 @@ func NewEvent(stg Storage, scraper Scraper) *Event {
 
 func (e Event) AssetEvent(c chan<- string) {
 	// 현재 시장 단계 조회
-	market, _ := e.stg.RetrieveMarketStatus("") // TODO. 에러 시 처리
+	market, err := e.stg.RetrieveMarketStatus("")
+	if err != nil {
+		c <- fmt.Sprintf("[AssetEvent] RetrieveMarketStatus 시, 에러 발생. %s", err)
+	}
 	marketLevel := m.MarketLevel(market.Status)
 
 	// 환율까지 계산하여 원화로 변환
 	ex := e.scraper.ExchageRate()
+	if ex == 0 {
+		c <- "[AssetEvent] ExchageRate 시 환율 값 0 반환"
+	}
 
 	// 보유 자산 목록 조회
-	assetList, _ := e.stg.RetrieveAssetList()
+	assetList, err := e.stg.RetrieveAssetList()
+	if err != nil {
+		c <- fmt.Sprintf("[AssetEvent] RetrieveAssetList 시, 에러 발생. %s", err)
+	}
 	assets := make([]*m.Asset, len(assetList))
 	priceMap := make(map[uint]float64)
 
 	for i := range len(assetList) {
 
 		// 자산 정보 조회
-		a, _ := e.stg.RetrieveAsset(assetList[i].ID)
+		a, err := e.stg.RetrieveAsset(assetList[i].ID)
+		if err != nil {
+			c <- fmt.Sprintf("[AssetEvent] RetrieveAsset 시, 에러 발생. %s", err)
+		}
 		assets[i] = a
 
 		// 자산별 현재 가격 조회
-		category := model.ToCategory(a.Category)
-		if category == 0 {
-			// todo. error case
+		category, err := m.ToCategory(a.Category)
+		if err != nil {
+			c <- fmt.Sprintf("[AssetEvent] ToCategory시, 에러 발생. %s", err)
 		}
-		cp, _ := e.scraper.CurrentPrice(category, a.Code)
+		cp, err := e.scraper.CurrentPrice(category, a.Code)
+		if err != nil {
+			c <- fmt.Sprintf("[AssetEvent] CurrentPrice 시, 에러 발생. %s", err)
+		}
 		log.Printf("%s 현재 가격 %.3f", a.Name, cp)
 		priceMap[a.ID] = cp
 
@@ -56,7 +70,10 @@ func (e Event) AssetEvent(c chan<- string) {
 	}
 
 	// 자금별/종목별 현재 총액 갱신
-	investSummary, _ := e.stg.RetreiveFundsSummaryOrderByFundId()
+	investSummary, err := e.stg.RetreiveFundsSummaryOrderByFundId()
+	if err != nil {
+		c <- fmt.Sprintf("[AssetEvent] RetreiveFundsSummaryOrderByFundId 시, 에러 발생. %s", err)
+	}
 	if len(investSummary) == 0 {
 		return
 	}
@@ -76,11 +93,11 @@ func (e Event) AssetEvent(c chan<- string) {
 			v = s.Sum
 		}
 
-		category := model.ToCategory(s.Asset.Category)
-		if category == 0 {
-			// todo. error case
+		category, err := m.ToCategory(s.Asset.Category)
+		if err != nil {
+			c <- fmt.Sprintf("[AssetEvent] investSummary loop내 ToCategory시, 에러 발생. %s", err)
 		}
-		if category <= 3 { // TODO. 단계 변수화
+		if category.IsStable() {
 			stable[s.FundID] = stable[s.FundID] + v
 		} else {
 			volatile[s.FundID] = volatile[s.FundID] + v

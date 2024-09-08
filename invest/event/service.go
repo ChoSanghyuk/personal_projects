@@ -1,7 +1,6 @@
 package event
 
 import (
-	"invest/model"
 	m "invest/model"
 )
 
@@ -14,14 +13,7 @@ type Storage interface {
 }
 
 type Scraper interface {
-	CurrentPrice(category model.Category, code string) (float64, error)
+	CurrentPrice(category m.Category, code string) (float64, error)
 	RealEstateStatus() (string, error)
 	ExchageRate() float64
-	// CallApi(url string, header map[string]string) (string, error)
-	// Crawl(url string, cssPath string) (string, error)
 }
-
-// type Transmitter interface {
-// 	ApiInfo(target string) (url string, header map[string]string)
-// 	CrawlInfo(target string) (url string, cssPath string)
-// }

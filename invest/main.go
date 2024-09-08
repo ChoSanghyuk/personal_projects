@@ -1,6 +1,7 @@
 package main
 
 import (
+	"invest/app"
 	"invest/bot"
 	"invest/config"
 	"invest/db"
@@ -54,6 +55,10 @@ func main() {
 			event.RealEstateEvent(c)
 			time.Sleep(10 * time.Minute)
 		}
+	}()
+
+	go func() {
+		app.Run(db, scraper)
 	}()
 
 	for true {

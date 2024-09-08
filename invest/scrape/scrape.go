@@ -114,8 +114,7 @@ func (s *Scraper) ExchageRate() float64 {
 	}
 
 	// Todo config화 시킬지 결정
-	url := "https://search.naver.com/search.naver?where=nexearch&sm=top_hty&fbm=0&ie=utf8&query=%ED%99%98%EC%9C%A8"
-	cssPath := "#main_pack > section.sc_new.cs_nexchangerate > div:nth-child(1) > div.exchange_bx._exchange_rate_calculator > div > div.inner > div:nth-child(3) > div.num > div > span"
+	url, cssPath := s.t.CrawlUrlCasspath("exchangeRate")
 
 	rtn, err := s.crawl(url, cssPath)
 	if err != nil {
@@ -128,5 +127,5 @@ func (s *Scraper) ExchageRate() float64 {
 		return 0
 	}
 
-	return exrate // TODO 환율 크롤링
+	return exrate
 }
