@@ -2,7 +2,7 @@ package handler
 
 import (
 	"fmt"
-	"invest/model"
+	m "invest/model"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -10,6 +10,7 @@ import (
 type AssetHandler struct {
 	r AssetRetriever
 	w AssetInfoSaver
+	p TopBottomPriceGetter
 }
 
 func NewAssetHandler(r AssetRetriever, w AssetInfoSaver) *AssetHandler {
@@ -44,7 +45,16 @@ func (h *AssetHandler) AddAsset(c *fiber.Ctx) error {
 		return fmt.Errorf("파라미터 유효성 검사 시 오류 발생. %w", err)
 	}
 
-	err = h.w.SaveAssetInfo(param.Name, model.Category(param.Category), param.Code, param.Currency, param.Top, param.Bottom, param.SellPrice, param.BuyPrice)
+	top, bottom, err := h.p.TopBottomPrice(m.Category(param.Category), param.Code) // todo 가져올 수 있는지 확인.
+	if err != nil {
+		return fmt.Errorf("TopBottomPrice 시 오류 발생. %w", err)
+	}
+
+	if param.BuyPrice == 0 {
+		param.BuyPrice = bottom
+	}
+
+	err = h.w.SaveAssetInfo(param.Name, m.Category(param.Category), param.Code, param.Currency, top, bottom, param.SellPrice, param.BuyPrice)
 	if err != nil {
 		return fmt.Errorf("SaveAssetInfo 시 오류 발생. %w", err)
 	}
@@ -65,7 +75,7 @@ func (h *AssetHandler) UpdateAsset(c *fiber.Ctx) error {
 		return fmt.Errorf("파라미터 유효성 검사 시 오류 발생. %w", err)
 	}
 
-	err = h.w.UpdateAssetInfo(param.Name, model.Category(param.Category), param.Code, param.Currency, param.Top, param.Bottom, param.SellPrice, param.BuyPrice)
+	err = h.w.UpdateAssetInfo(param.Name, m.Category(param.Category), param.Code, param.Currency, param.Top, param.Bottom, param.SellPrice, param.BuyPrice)
 	if err != nil {
 		return fmt.Errorf("UpdateAssetInfo 시 오류 발생. %w", err)
 	}

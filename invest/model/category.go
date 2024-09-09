@@ -8,11 +8,13 @@ const (
 	Cash Category = iota + 1
 	Gold
 	ShortTermBond
+	DomesticETF
 	DomesticStock
 	DomesticCoin
+	Leverage
 )
 
-var categoryList = []string{"현금", "금", "단기채권", "국내주식", "국내코인"}
+var categoryList = []string{"현금", "금", "단기채권", "국내ETF", "국내주식", "국내코인", "레버리지"}
 
 func (c Category) String() string {
 	return categoryList[c-1]
@@ -34,4 +36,8 @@ func (c Category) IsStable() bool {
 	} else {
 		return false
 	}
+}
+
+func CategoryLength() uint64 {
+	return uint64(len(categoryList))
 }

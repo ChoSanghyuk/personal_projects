@@ -21,25 +21,21 @@ func NewMarketHandler(r MaketRetriever, w MarketSaver) *MarketHandler {
 func (h *MarketHandler) InitRoute(app *fiber.App) {
 
 	router := app.Group("/market")
-	router.Get("/", h.Market)
-	router.Get("/indicator", h.MarketIndicator)
+	router.Get("/:date?", h.Market)
+	router.Get("/indicators/:date?", h.MarketIndicator)
 	router.Post("/", h.ChangeMarketStatus)
 }
 
 func (h *MarketHandler) Market(c *fiber.Ctx) error {
 
-	var param MarketStatusParam
-	err := c.BodyParser(&param)
-	if err != nil {
-		return fmt.Errorf("파라미터 BodyParse 시 오류 발생. %w", err)
+	date := c.Params("date")
+
+	isDateFormat := dateCheck(date)
+	if !isDateFormat {
+		return fmt.Errorf("파라미터 유효성 검사 시 오류 발생. 올바르지 않은 date 포맷. %s", date)
 	}
 
-	err = validCheck(&param)
-	if err != nil {
-		return fmt.Errorf("파라미터 유효성 검사 시 오류 발생. %w", err)
-	}
-
-	assets, err := h.r.RetrieveMarketStatus(param.Date)
+	assets, err := h.r.RetrieveMarketStatus(date)
 	if err != nil {
 		return fmt.Errorf("RetrieveMarketStatus 오류 발생. %w", err)
 	}
@@ -49,18 +45,14 @@ func (h *MarketHandler) Market(c *fiber.Ctx) error {
 
 func (h *MarketHandler) MarketIndicator(c *fiber.Ctx) error {
 
-	var param MarketStatusParam
-	err := c.BodyParser(&param)
-	if err != nil {
-		return fmt.Errorf("파라미터 BodyParse 시 오류 발생. %w", err)
+	date := c.Params("date")
+
+	isDateFormat := dateCheck(date)
+	if !isDateFormat {
+		return fmt.Errorf("파라미터 유효성 검사 시 오류 발생. 올바르지 않은 date 포맷. %s", date)
 	}
 
-	err = validCheck(&param)
-	if err != nil {
-		return fmt.Errorf("파라미터 유효성 검사 시 오류 발생. %w", err)
-	}
-
-	dailyIdx, cliIdx, err := h.r.RetrieveMarketIndicator(param.Date)
+	dailyIdx, cliIdx, err := h.r.RetrieveMarketIndicator(date)
 	if err != nil {
 		return fmt.Errorf("RetrieveMarketIndicator 오류 발생. %w", err)
 	}

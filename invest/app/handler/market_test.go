@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"invest/app/middleware"
 	"testing"
 
 	"github.com/gofiber/fiber/v2"
@@ -14,6 +15,7 @@ import (
 func TestMarketHandler(t *testing.T) {
 
 	app := fiber.New()
+	middleware.SetupMiddleware(app)
 
 	readerMock := MaketRetrieverMock{}
 	writerMock := MarketSaverMock{}
@@ -27,26 +29,26 @@ func TestMarketHandler(t *testing.T) {
 		app.Listen(":3000")
 	}()
 
-	t.Run("시장 단계 조회", func(t *testing.T) {
-		t.Run("성공 테스트 - 파라미터 존재", func(t *testing.T) {
+	t.Run("시장단계조회", func(t *testing.T) {
+		t.Run("성공테스트-파라미터존재", func(t *testing.T) {
 			err := sendReqeust(app, "/market/2024-09-09", "GET", nil)
 			assert.NoError(t, err)
 		})
 
-		t.Run("성공 테스트 - 파라미터 미존재", func(t *testing.T) {
+		t.Run("성공테스트-파라미터미존재", func(t *testing.T) {
 			err := sendReqeust(app, "/market/", "GET", nil)
 			assert.NoError(t, err)
 		})
 
-		t.Run("실패 테스트 - 잘못된 파라미터", func(t *testing.T) {
+		t.Run("실패테스트-잘못된파라미터", func(t *testing.T) {
 			err := sendReqeust(app, "/market/202409", "GET", nil)
 			assert.Error(t, err)
 		})
 
 	})
 
-	t.Run("시장 단계 저장", func(t *testing.T) {
-		t.Run("성공 테스트", func(t *testing.T) {
+	t.Run("시장단계저장", func(t *testing.T) {
+		t.Run("성공테스트", func(t *testing.T) {
 			param := SaveMarketStatusParam{
 				Status: 1,
 			}
@@ -54,7 +56,7 @@ func TestMarketHandler(t *testing.T) {
 			assert.NoError(t, err)
 		})
 
-		t.Run("실패 테스트 - 필수 파라미터 미존재", func(t *testing.T) {
+		t.Run("실패테스트-필수파라미터미존재", func(t *testing.T) {
 			param := SaveMarketStatusParam{
 				// Status: 1,
 			}
@@ -62,7 +64,7 @@ func TestMarketHandler(t *testing.T) {
 			assert.Error(t, err)
 		})
 
-		t.Run("실패 테스트 - 잘못된 시장 상태 값", func(t *testing.T) {
+		t.Run("실패테스트-잘못된시장상태값", func(t *testing.T) {
 			param := SaveMarketStatusParam{
 				Status: 6,
 			}
@@ -72,12 +74,9 @@ func TestMarketHandler(t *testing.T) {
 
 	})
 
-	t.Run("시장 지표 조회", func(t *testing.T) {
-		t.Run("성공 테스트", func(t *testing.T) {
-			param := MarketStatusParam{
-				Date: "202-08-29",
-			}
-			err := sendReqeust(app, "/market/indicator", "GET", param)
+	t.Run("시장지표조회", func(t *testing.T) {
+		t.Run("성공테스트", func(t *testing.T) {
+			err := sendReqeust(app, "/market/indicators/2024-08-29", "GET", nil)
 			assert.NoError(t, err)
 		})
 

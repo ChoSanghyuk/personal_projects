@@ -2,6 +2,7 @@ package main
 
 import (
 	"invest/app"
+
 	"invest/bot"
 	"invest/config"
 	"invest/db"

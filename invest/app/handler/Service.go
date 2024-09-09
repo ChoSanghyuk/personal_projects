@@ -26,6 +26,10 @@ type AssetInfoSaver interface {
 	DeleteAssetInfo(id uint) error
 }
 
+type TopBottomPriceGetter interface {
+	TopBottomPrice(category m.Category, code string) (float64, float64, error)
+}
+
 type MaketRetriever interface {
 	RetrieveMarketStatus(date string) (*m.Market, error)
 	RetrieveMarketIndicator(date string) (*m.DailyIndex, *m.CliIndex, error)

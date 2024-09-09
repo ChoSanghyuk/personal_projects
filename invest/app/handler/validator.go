@@ -3,6 +3,7 @@ package handler
 import (
 	"errors"
 	"fmt"
+	"invest/model"
 	"regexp"
 	"strings"
 
@@ -29,8 +30,11 @@ func init() {
 	})
 
 	myValidator.RegisterValidation("market_status", func(fl validator.FieldLevel) bool {
-
 		return fl.Field().Uint() >= 1 && fl.Field().Uint() <= 5
+	})
+
+	myValidator.RegisterValidation("category", func(fl validator.FieldLevel) bool {
+		return fl.Field().Uint() >= 1 && fl.Field().Uint() <= model.CategoryLength()
 	})
 }
 
@@ -72,4 +76,12 @@ func validate(data any) []ErrorResponse {
 		}
 	}
 	return validationErrors
+}
+
+func dateCheck(s string) bool {
+	isDate, err := regexp.MatchString(`^(\d{4}-\d{2}-\d{2})?$`, s)
+	if err != nil {
+		return false
+	}
+	return isDate
 }

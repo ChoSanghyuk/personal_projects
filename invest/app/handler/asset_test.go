@@ -60,8 +60,6 @@ func TestAssetGetHandler(t *testing.T) {
 				Category:  5,
 				Code:      "code",
 				Currency:  "WON",
-				Top:       500,
-				Bottom:    400,
 				SellPrice: 480,
 				BuyPrice:  450,
 			}
@@ -75,8 +73,6 @@ func TestAssetGetHandler(t *testing.T) {
 				Category:  5,
 				Code:      "code",
 				Currency:  "WON",
-				Top:       500,
-				Bottom:    400,
 				SellPrice: 480,
 				BuyPrice:  450,
 			}
@@ -166,11 +162,12 @@ func sendReqeust(app *fiber.App, url string, method string, reqBody any) error {
 		return fmt.Errorf("Error Occurred %w", err)
 	}
 
+	respBody, _ := io.ReadAll(resp.Body)
+	fmt.Println(string(respBody))
+
 	if resp.StatusCode != fiber.StatusOK {
 		return fmt.Errorf("Response status should be 200. Status: %d", resp.StatusCode)
 	}
 
-	respBody, _ := io.ReadAll(resp.Body)
-	fmt.Println(string(respBody))
 	return nil
 }
