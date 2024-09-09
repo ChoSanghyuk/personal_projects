@@ -3,6 +3,7 @@ package scrape
 import (
 	"errors"
 	"fmt"
+	"log"
 	"net/http"
 	"strconv"
 	"strings"
@@ -33,30 +34,41 @@ func (s *Scraper) KisToken() (string, error) {
 		return "", err
 	}
 
+	log.Println(token.AccessToken)
+
 	s.kis.accessToken = token.AccessToken
 	s.kis.tokenExpired = token.Expired
 
 	return token.AccessToken, nil
 }
 
-type CurrentPriceResponse struct {
-	CurrentPrice string `json:"stck_prpr"`
+type KIsResp struct {
+	Msg    string            `json:"msg1"`
+	MsgCd  string            `json:"msg_cd"`
+	Output map[string]string `json:"output"`
+	RtCd   string            `json:"rt_cd"`
 }
 
-func (s *Scraper) kisDomesticStockCurrentPrice(code string) (float64, error) {
+type KisPriceResponse struct {
+	CurrentPrice string  `json:"stck_prpr"`
+	Hgpr         float64 `json:"w52_hgpr"`
+	Lopr         float64 `json:"w52_lwpr"`
+}
+
+func (s *Scraper) kisDomesticStockPrice(code string) (float64, float64, float64, error) {
 
 	url := s.t.ApiBaseUrl("KIS")
 	if url == "" {
-		return 0, errors.New("URL 미존재")
+		return 0, 0, 0, errors.New("URL 미존재")
 	}
 	url = fmt.Sprintf(url, code)
 
 	token, err := s.KisToken()
 	if err != nil {
-		return 0, err
+		return 0, 0, 0, err
 	}
 
-	var rtn CurrentPriceResponse
+	var rtn KIsResp
 
 	header := map[string]string{
 		"Content-Type":  "application/json",
@@ -68,13 +80,27 @@ func (s *Scraper) kisDomesticStockCurrentPrice(code string) (float64, error) {
 
 	err = sendRequest(url, http.MethodGet, header, nil, &rtn)
 	if err != nil {
-		return 0, err
+		return 0, 0, 0, err
 	}
 
-	cp, err := strconv.ParseFloat(rtn.CurrentPrice, 64)
+	if rtn.RtCd != "0" {
+		return 0, 0, 0, errors.New("국내 주식현재가 시세 API 실패 코드 반환")
+	}
+
+	cp, err := strconv.ParseFloat(rtn.Output["stck_prpr"], 64)
 	if err != nil {
-		return 0, err
+		return 0, 0, 0, err
 	}
 
-	return cp, nil
+	hp, err := strconv.ParseFloat(rtn.Output["w52_hgpr"], 64)
+	if err != nil {
+		return 0, 0, 0, err
+	}
+
+	lp, err := strconv.ParseFloat(rtn.Output["w52_lwpr"], 64)
+	if err != nil {
+		return 0, 0, 0, err
+	}
+
+	return cp, hp, lp, nil
 }

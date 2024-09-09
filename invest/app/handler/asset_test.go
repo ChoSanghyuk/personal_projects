@@ -22,11 +22,10 @@ func TestAssetGetHandler(t *testing.T) {
 
 	readerMock := AssetRetrieverMock{}
 	writerMock := AssetInfoSaverMock{}
+	topBottomPriceGetterMock := TopBottomPriceGetterMock{}
 
-	f := AssetHandler{
-		r: readerMock,
-		w: writerMock,
-	}
+	f := NewAssetHandler(readerMock, writerMock, topBottomPriceGetterMock)
+
 	f.InitRoute(app)
 	go func() {
 		app.Listen(":3000")

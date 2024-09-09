@@ -95,6 +95,19 @@ func (mock AssetInfoSaverMock) DeleteAssetInfo(id uint) error {
 	return nil
 }
 
+type TopBottomPriceGetterMock struct {
+	err error
+}
+
+func (mock TopBottomPriceGetterMock) TopBottomPrice(category m.Category, code string) (float64, float64, error) {
+	fmt.Println("TopBottomPrice Called")
+
+	if mock.err != nil {
+		return 0, 0, mock.err
+	}
+	return 1000, 100, nil
+}
+
 /***************************** Fund ***********************************/
 type FundRetrieverMock struct {
 	err error

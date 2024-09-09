@@ -13,10 +13,11 @@ type AssetHandler struct {
 	p TopBottomPriceGetter
 }
 
-func NewAssetHandler(r AssetRetriever, w AssetInfoSaver) *AssetHandler {
+func NewAssetHandler(r AssetRetriever, w AssetInfoSaver, p TopBottomPriceGetter) *AssetHandler {
 	return &AssetHandler{
 		r: r,
 		w: w,
+		p: p,
 	}
 }
 
@@ -40,12 +41,12 @@ func (h *AssetHandler) AddAsset(c *fiber.Ctx) error {
 		return fmt.Errorf("파라미터 BodyParse 시 오류 발생. %w", err)
 	}
 
-	err = validCheck(&param) // 포인터로 들어가도 validation 체크 되는지 확인
+	err = validCheck(&param) // Todo. 포인터로 들어가도 validation 체크 되는지 확인
 	if err != nil {
 		return fmt.Errorf("파라미터 유효성 검사 시 오류 발생. %w", err)
 	}
 
-	top, bottom, err := h.p.TopBottomPrice(m.Category(param.Category), param.Code) // todo 가져올 수 있는지 확인.
+	top, bottom, err := h.p.TopBottomPrice(m.Category(param.Category), param.Code)
 	if err != nil {
 		return fmt.Errorf("TopBottomPrice 시 오류 발생. %w", err)
 	}

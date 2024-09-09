@@ -90,16 +90,29 @@ func AlpacaCrypto(target string) (string, error) {
 
 종목 이름 - 타입/심볼을 어디에 저장해 둘 것인가 => DB
 */
-func (s *Scraper) CurrentPrice(category model.Category, code string) (float64, error) {
+func (s *Scraper) CurrentPrice(category model.Category, code string) (cp float64, err error) {
 
 	switch category {
 	case model.DomesticStock:
-		return s.kisDomesticStockCurrentPrice(code)
+		cp, _, _, err = s.kisDomesticStockPrice(code)
+		return cp, err
 	case model.DomesticCoin:
 		return s.upbitApi(code)
 	}
 
 	return 0, errors.New("미분류된 종목")
+}
+
+func (s *Scraper) TopBottomPrice(category model.Category, code string) (hp float64, lp float64, err error) {
+	switch category {
+	case model.DomesticStock:
+		_, hp, lp, err = s.kisDomesticStockPrice(code)
+		return hp, lp, err
+	case model.DomesticCoin:
+		return 0, 0, nil
+	}
+
+	return 0, 0, errors.New("미분류된 종목")
 }
 
 func (s *Scraper) RealEstateStatus() (string, error) {
@@ -113,7 +126,6 @@ func (s *Scraper) ExchageRate() float64 {
 		return s.exchange.Rate
 	}
 
-	// Todo config화 시킬지 결정
 	url, cssPath := s.t.CrawlUrlCasspath("exchangeRate")
 
 	rtn, err := s.crawl(url, cssPath)

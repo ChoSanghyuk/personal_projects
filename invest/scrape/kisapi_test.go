@@ -15,7 +15,7 @@ func TestKis(t *testing.T) {
 	s := NewScraper(
 		conf,
 		WithKIS(conf.KisAppKey(), conf.KisAppSecret()),
-		// WithToken(""),
+		WithToken("eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0b2tlbiIsImF1ZCI6ImU0YmNhYzFkLTQyYTUtNDE0MC1hMjQ4LWI4NDZjYzEzMjljYiIsInByZHRfY2QiOiIiLCJpc3MiOiJ1bm9ndyIsImV4cCI6MTcyNjAwOTU1OSwiaWF0IjoxNzI1OTIzMTU5LCJqdGkiOiJQU1htMG5xSzRHbUxpUlVqWWIxRFVUWG5neWxkT1JsWVdFRDAifQ.z0KUcT5qUJd2JFCHT8n1iqkw0NOI0kXBu9lgEgSOpAAr34cRobMNUfmh0hn8MI_ZTQy5j5oTVnrC6br3joWnsQ"),
 	)
 
 	t.Run("Token Generate", func(t *testing.T) {
@@ -27,11 +27,11 @@ func TestKis(t *testing.T) {
 	})
 
 	t.Run("Stock current Price", func(t *testing.T) {
-		price, err := s.kisDomesticStockCurrentPrice("")
+		cp, hp, lp, err := s.kisDomesticStockPrice("005930")
 		if err != nil {
 			t.Error(err)
 		}
-		t.Log(price)
+		t.Log(cp, hp, lp)
 	})
 
 }
