@@ -4,6 +4,7 @@ import (
 	"fmt"
 	m "invest/model"
 	"log"
+	"strings"
 )
 
 type Event struct {
@@ -18,6 +19,7 @@ func NewEvent(stg Storage, scraper Scraper) *Event {
 	}
 }
 
+// Todo. 작업 단위로 함수 분리
 func (e Event) AssetEvent(c chan<- string) {
 	// 현재 시장 단계 조회
 	market, err := e.stg.RetrieveMarketStatus("")
@@ -38,7 +40,7 @@ func (e Event) AssetEvent(c chan<- string) {
 		c <- fmt.Sprintf("[AssetEvent] RetrieveAssetList 시, 에러 발생. %s", err)
 	}
 	assets := make([]*m.Asset, len(assetList))
-	priceMap := make(map[uint]float64)
+	priceMap := make(map[uint]float64) // assetId => price
 
 	for i := range len(assetList) {
 
@@ -83,7 +85,7 @@ func (e Event) AssetEvent(c chan<- string) {
 	volatile := make([]float64, length)
 
 	for _, s := range investSummary {
-		s.Sum = priceMap[s.AssetID] * float64(s.Count)
+		s.Sum = priceMap[s.AssetID] * float64(s.Count) // todo. 이거 s 정보 바뀌는지 확인 필요
 		e.stg.UpdateInvestSummarySum(s.FundID, s.AssetID, s.Sum)
 
 		var v float64
@@ -113,6 +115,18 @@ func (e Event) AssetEvent(c chan<- string) {
 		r := volatile[i] / (volatile[i] + stable[i])
 		if r > marketLevel.VolatileAssetRate() {
 			c <- fmt.Sprintf("자금 %d 변동 자산 비중 초과. 변동 자산 비율 : %f. 현재 시장 단계 : %s", i, r, marketLevel.String())
+
+			priority, extra := divideFundAsset(i, investSummary, priceMap)
+			var sb strings.Builder
+			sb.WriteString("=====우선 처분 자산 정보=====\n")
+			for _, is := range priority {
+				sb.WriteString(fmt.Sprintf("%+v\n", is))
+			}
+			sb.WriteString("=====그외 자산 정보=====\n")
+			for _, is := range extra {
+				sb.WriteString(fmt.Sprintf("%+v\n", is))
+			}
+			c <- sb.String()
 		}
 	}
 }
@@ -129,4 +143,19 @@ func (e Event) RealEstateEvent(c chan<- string) {
 	} else {
 		log.Printf("연신내 변동 사항 없음. 현재 단계: %s", rtn)
 	}
+}
+
+func divideFundAsset(id uint, base []m.InvestSummary, priceMap map[uint]float64) (priority []m.InvestSummary, extra []m.InvestSummary) {
+
+	for _, is := range base {
+		if is.FundID == id {
+			// 해당 Asset의 현재가가 최고가 넘겼는지 확인.
+			if priceMap[is.AssetID] >= is.Asset.Top {
+				priority = append(priority, is)
+			} else {
+				extra = append(extra, is)
+			}
+		}
+	}
+	return
 }
