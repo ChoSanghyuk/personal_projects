@@ -27,6 +27,11 @@ func init() {
 		}
 		return isDate
 	})
+
+	myValidator.RegisterValidation("market_status", func(fl validator.FieldLevel) bool {
+
+		return fl.Field().Uint() >= 1 && fl.Field().Uint() <= 5
+	})
 }
 
 func validCheck(s any) error {

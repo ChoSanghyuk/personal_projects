@@ -147,23 +147,25 @@ Inner Function
 */
 func sendReqeust(app *fiber.App, url string, method string, reqBody any) error {
 
-	bodyBytes, err := json.Marshal(reqBody)
-	if err != nil {
-		return fmt.Errorf("Error Occurred %w", err)
-	}
-
 	var req *http.Request
 	switch method {
 	case "POST":
+		bodyBytes, err := json.Marshal(reqBody)
+		if err != nil {
+			return fmt.Errorf("Error Occurred %w", err)
+		}
 		req, _ = http.NewRequest(http.MethodPost, url, bytes.NewBuffer(bodyBytes))
 	default:
-		req, _ = http.NewRequest(http.MethodGet, url, bytes.NewBuffer(bodyBytes))
+		req, _ = http.NewRequest(http.MethodGet, url, nil)
 	}
+
 	req.Header.Set("Content-Type", "application/json") // 중요!!. 생략 시, 파싱 오류 발생
+
 	resp, err := app.Test(req, -1)
 	if err != nil {
 		return fmt.Errorf("Error Occurred %w", err)
 	}
+
 	if resp.StatusCode != fiber.StatusOK {
 		return fmt.Errorf("Response status should be 200. Status: %d", resp.StatusCode)
 	}

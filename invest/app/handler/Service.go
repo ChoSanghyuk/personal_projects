@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"invest/model"
 	m "invest/model"
 )
 
@@ -22,8 +21,8 @@ type AssetRetriever interface {
 }
 
 type AssetInfoSaver interface {
-	SaveAssetInfo(name string, category model.Category, code string, currency string, top float64, bottom float64, selPrice float64, buyPrice float64) error
-	UpdateAssetInfo(name string, category model.Category, code string, currency string, top float64, bottom float64, selPrice float64, buyPrice float64) error
+	SaveAssetInfo(name string, category m.Category, code string, currency string, top float64, bottom float64, selPrice float64, buyPrice float64) error
+	UpdateAssetInfo(name string, category m.Category, code string, currency string, top float64, bottom float64, selPrice float64, buyPrice float64) error
 	DeleteAssetInfo(id uint) error
 }
 

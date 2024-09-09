@@ -46,7 +46,7 @@ type MarketStatusParam struct {
 }
 
 type SaveMarketStatusParam struct {
-	Status uint `json:"status" validate:"required"`
+	Status uint `json:"status" validate:"required,market_status"`
 }
 
 type SaveInvestParam struct {
