@@ -50,7 +50,7 @@ func TestRetreiveInvestHistOfFundById(t *testing.T) {
 	}
 	t.Log(rtn)
 }
-func TestSaveFund(t *testing.T) {
+func TestSaveFund(t *testing.T) { // todo. DB DML test case 작성
 
 	// tx := stg.db.Begin()
 	// rtn, err := stg.RetreiveFundsSummary()
