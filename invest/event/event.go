@@ -127,7 +127,7 @@ func (e Event) portfolioMsg(ivsmLi []m.InvestSummary, pm map[uint]float64) (msg 
 			volatile[ivsm.FundID] = volatile[ivsm.FundID] + v
 		}
 
-		if ivsm.Asset.Top <= pm[ivsm.AssetID] {
+		if ivsm.Asset.Top <= pm[ivsm.AssetID] { // TODO 변동 자산일 때만 조건 추가
 			priority[ivsm.FundID] = append(priority[ivsm.FundID], *ivsm)
 		} else {
 			extra[ivsm.FundID] = append(extra[ivsm.FundID], *ivsm)
@@ -143,16 +143,16 @@ func (e Event) portfolioMsg(ivsmLi []m.InvestSummary, pm map[uint]float64) (msg 
 		r := volatile[k] / (volatile[k] + stable[k])
 		if r > marketLevel.VolatileAssetRate() {
 			sb.WriteString(strings.Repeat("=", 20))
-			sb.WriteString(fmt.Sprintf("자금 %d 변동 자산 비중 초과. 변동 자산 비율 : %01f. 현재 시장 단계 : %s\n\n", k, r, marketLevel.String()))
+			sb.WriteString("\n")
+			sb.WriteString(fmt.Sprintf("자금 %d 변동 자산 비중 초과. 변동 자산 비율 : %.2f. 현재 시장 단계 : %s(%.1f)\n\n", k, r, marketLevel.String(), marketLevel.VolatileAssetRate()))
 
-			var sb strings.Builder
-			sb.WriteString("=====우선 처분 자산 정보=====\n")
+			sb.WriteString("=====우선 처분 종목 정보=====\n")
 			for _, p := range priority[k] {
-				sb.WriteString(fmt.Sprintf("%+v\n", p))
+				sb.WriteString(fmt.Sprintf("종목 %d %s %02f %02f\n", p.Asset.ID, p.Asset.Name, p.Asset.Top, pm[p.AssetID]))
 			}
-			sb.WriteString("=====그외 자산 정보=====\n")
+			sb.WriteString("=====그외 종목 정보=====\n")
 			for _, e := range extra[k] {
-				sb.WriteString(fmt.Sprintf("%+v\n", e))
+				sb.WriteString(fmt.Sprintf("종목 %d %s %02f %02f\n", e.Asset.ID, e.Asset.Name, e.Asset.Top, pm[e.AssetID]))
 			}
 
 		}
