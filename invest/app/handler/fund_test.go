@@ -1,7 +1,7 @@
 package handler
 
 import (
-	"invest/model"
+	"invest/app/middleware"
 	m "invest/model"
 	"testing"
 
@@ -12,29 +12,26 @@ import (
 func TestFundHandler(t *testing.T) {
 
 	app := fiber.New()
+	middleware.SetupMiddleware(app)
 
 	readerMock := &FundRetrieverMock{}
 	writerMock := &FundWriterMock{}
 	exGetterMock := &ExchageRateGetterMock{}
-
-	f := FundHandler{
-		r: readerMock,
-		w: writerMock,
-		e: exGetterMock,
-	}
+	f := NewFundHandler(readerMock, writerMock, exGetterMock)
 	f.InitRoute(app)
+
 	go func() {
 		app.Listen(":3000")
 	}()
 
 	t.Run("전체 자금별 총액", func(t *testing.T) {
 		t.Run("성공 테스트", func(t *testing.T) {
-			readerMock.isli = []model.InvestSummary{
-				{ID: 1, FundID: 1, Fund: model.Fund{Name: "공용자금"}, AssetID: 1, Sum: 10000},
-				{ID: 2, FundID: 1, Fund: model.Fund{Name: "공용자금"}, AssetID: 2, Sum: 12000},
-				{ID: 3, FundID: 1, Fund: model.Fund{Name: "공용자금"}, AssetID: 3, Sum: 15000},
-				{ID: 4, FundID: 2, Fund: model.Fund{Name: "퇴직연금"}, AssetID: 1, Sum: 10000},
-				{ID: 5, FundID: 2, Fund: model.Fund{Name: "퇴직연금"}, AssetID: 2, Sum: 20000},
+			readerMock.isli = []m.InvestSummary{
+				{ID: 1, FundID: 1, Fund: m.Fund{Name: "공용자금"}, AssetID: 1, Sum: 10000},
+				{ID: 2, FundID: 1, Fund: m.Fund{Name: "공용자금"}, AssetID: 2, Sum: 12000},
+				{ID: 3, FundID: 1, Fund: m.Fund{Name: "공용자금"}, AssetID: 3, Sum: 15000},
+				{ID: 4, FundID: 2, Fund: m.Fund{Name: "퇴직연금"}, AssetID: 1, Sum: 10000},
+				{ID: 5, FundID: 2, Fund: m.Fund{Name: "퇴직연금"}, AssetID: 2, Sum: 20000},
 			}
 
 			resp := make(map[uint]TotalStatusResp)
@@ -69,7 +66,7 @@ func TestFundHandler(t *testing.T) {
 				{ID: 2, FundID: 2, AssetID: 1, Price: 7800, Count: 3},
 			}
 
-			var resp []model.Invest
+			var resp []m.Invest
 			err := sendReqeust(app, "/funds/1/hist", "GET", nil, &resp)
 			assert.NoError(t, err)
 
@@ -86,15 +83,15 @@ func TestFundHandler(t *testing.T) {
 	t.Run("자금별 투자 종목 총액 조회", func(t *testing.T) {
 		t.Run("성공 테스트", func(t *testing.T) {
 
-			readerMock.isli = []model.InvestSummary{
-				{ID: 1, FundID: 1, Fund: model.Fund{Name: "공용자금"}, AssetID: 1, Sum: 10000},
-				{ID: 2, FundID: 1, Fund: model.Fund{Name: "공용자금"}, AssetID: 2, Sum: 12000},
-				{ID: 3, FundID: 1, Fund: model.Fund{Name: "공용자금"}, AssetID: 3, Sum: 15000},
-				{ID: 4, FundID: 2, Fund: model.Fund{Name: "퇴직연금"}, AssetID: 1, Sum: 10000},
-				{ID: 5, FundID: 2, Fund: model.Fund{Name: "퇴직연금"}, AssetID: 2, Sum: 20000},
+			readerMock.isli = []m.InvestSummary{
+				{ID: 1, FundID: 1, Fund: m.Fund{Name: "공용자금"}, AssetID: 1, Sum: 10000},
+				{ID: 2, FundID: 1, Fund: m.Fund{Name: "공용자금"}, AssetID: 2, Sum: 12000},
+				{ID: 3, FundID: 1, Fund: m.Fund{Name: "공용자금"}, AssetID: 3, Sum: 15000},
+				{ID: 4, FundID: 2, Fund: m.Fund{Name: "퇴직연금"}, AssetID: 1, Sum: 10000},
+				{ID: 5, FundID: 2, Fund: m.Fund{Name: "퇴직연금"}, AssetID: 2, Sum: 20000},
 			}
 
-			var resp []model.InvestSummary
+			var resp []m.InvestSummary
 
 			err := sendReqeust(app, "/funds/1/assets", "GET", nil, &resp)
 			assert.NoError(t, err)

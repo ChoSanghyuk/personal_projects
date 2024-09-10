@@ -64,7 +64,6 @@ func (h *InvestHandler) SaveInvest(c *fiber.Ctx) error {
 		return fmt.Errorf("UpdateInvestSummaryCount 오류 발생. %w", err)
 	}
 
-	// todo. 현금 비중 갱신
 	asset, err := h.r.RetrieveAsset(param.AssetId)
 	if err != nil {
 		return fmt.Errorf("RetrieveAsset 오류 발생. %w", err)

@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"invest/app/middleware"
 	"testing"
 
 	"github.com/gofiber/fiber/v2"
@@ -10,15 +11,11 @@ import (
 func TestInvestGetHandler(t *testing.T) {
 
 	app := fiber.New()
+	middleware.SetupMiddleware(app)
 
 	readerMock := AssetRetrieverMock{}
 	writerMock := InvestSaverMock{}
-
-	f := InvestHandler{
-		r: readerMock,
-		w: writerMock,
-	}
-
+	f := NewInvestHandler(readerMock, writerMock)
 	f.InitRoute(app)
 	go func() {
 		app.Listen(":3000")

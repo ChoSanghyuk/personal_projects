@@ -4,6 +4,8 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"invest/app/middleware"
+	"io"
 	"net/http"
 	"testing"
 
@@ -15,16 +17,16 @@ import (
 // router.Put("/", h.UpdateAsset)
 // router.Delete("/", h.DeleteAsset)
 
-func TestAssetGetHandler(t *testing.T) {
+func TestAssetHandler(t *testing.T) {
 
 	app := fiber.New()
+	middleware.SetupMiddleware(app)
 
 	readerMock := AssetRetrieverMock{}
 	writerMock := AssetInfoSaverMock{}
 	topBottomPriceGetterMock := TopBottomPriceGetterMock{}
 
 	f := NewAssetHandler(readerMock, writerMock, topBottomPriceGetterMock)
-
 	f.InitRoute(app)
 	go func() {
 		app.Listen(":3000")
@@ -67,7 +69,7 @@ func TestAssetGetHandler(t *testing.T) {
 
 		t.Run("실패 테스트 - 필수 파라미터 미존재", func(t *testing.T) {
 			param := AddAssetReq{
-				// Name      : "종목",
+				// Name:      "종목",
 				Category:  5,
 				Code:      "code",
 				Currency:  "WON",
@@ -75,7 +77,10 @@ func TestAssetGetHandler(t *testing.T) {
 				BuyPrice:  450,
 			}
 			err := sendReqeust(app, "/assets/", "POST", param, nil)
-			assert.NoError(t, err)
+			if err == nil {
+				t.Error()
+			}
+			t.Log(err)
 		})
 	})
 
@@ -165,7 +170,11 @@ func sendReqeust(app *fiber.App, url string, method string, reqBody any, respons
 	// fmt.Println(string(respBody))
 
 	if resp.StatusCode != fiber.StatusOK {
-		return fmt.Errorf("Response status should be 200. Status: %d", resp.StatusCode)
+		respBody, _ := io.ReadAll(resp.Body)
+		return fmt.Errorf("Response status should be 200. Status: %d. msg:%s", resp.StatusCode, string(respBody))
 	}
-	return json.NewDecoder(resp.Body).Decode(response)
+	if response != nil {
+		return json.NewDecoder(resp.Body).Decode(response)
+	}
+	return nil
 }

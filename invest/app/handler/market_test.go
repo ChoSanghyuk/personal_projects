@@ -19,12 +19,9 @@ func TestMarketHandler(t *testing.T) {
 
 	readerMock := MaketRetrieverMock{}
 	writerMock := MarketSaverMock{}
-
-	f := MarketHandler{
-		r: readerMock,
-		w: writerMock,
-	}
+	f := NewMarketHandler(readerMock, writerMock)
 	f.InitRoute(app)
+
 	go func() {
 		app.Listen(":3000")
 	}()

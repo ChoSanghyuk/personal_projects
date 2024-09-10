@@ -41,7 +41,7 @@ func (h *AssetHandler) AddAsset(c *fiber.Ctx) error {
 		return fmt.Errorf("파라미터 BodyParse 시 오류 발생. %w", err)
 	}
 
-	err = validCheck(&param) // Todo. 포인터로 들어가도 validation 체크 되는지 확인
+	err = validCheck(&param)
 	if err != nil {
 		return fmt.Errorf("파라미터 유효성 검사 시 오류 발생. %w", err)
 	}
