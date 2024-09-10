@@ -11,11 +11,11 @@ func TestInvestGetHandler(t *testing.T) {
 
 	app := fiber.New()
 
-	// readerMock := InvestRetrieverMock{}
+	readerMock := AssetRetrieverMock{}
 	writerMock := InvestSaverMock{}
 
 	f := InvestHandler{
-		// r: readerMock,
+		r: readerMock,
 		w: writerMock,
 	}
 
@@ -32,7 +32,7 @@ func TestInvestGetHandler(t *testing.T) {
 				Price:   56532,
 				Count:   3,
 			}
-			err := sendReqeust(app, "/invest", "POST", param)
+			err := sendReqeust(app, "/invest", "POST", param, nil)
 			assert.NoError(t, err)
 		})
 

@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"io"
 	"net/http"
 	"testing"
 
@@ -33,21 +32,21 @@ func TestAssetGetHandler(t *testing.T) {
 
 	t.Run("종목 리스트 조회 테스트", func(t *testing.T) {
 		t.Run("성공 테스트", func(t *testing.T) {
-			err := sendReqeust(app, "/assets/list", "GET", nil)
+			err := sendReqeust(app, "/assets/list", "GET", nil, nil)
 			assert.NoError(t, err)
 		})
 	})
 
 	t.Run("종목 정보 조회 테스트", func(t *testing.T) {
 		t.Run("성공 테스트", func(t *testing.T) {
-			err := sendReqeust(app, "/assets/1", "GET", nil)
+			err := sendReqeust(app, "/assets/1", "GET", nil, nil)
 			assert.NoError(t, err)
 		})
 	})
 
 	t.Run("종목 투자 이력 조회 테스트", func(t *testing.T) {
 		t.Run("성공 테스트", func(t *testing.T) {
-			err := sendReqeust(app, "/assets/1/hist", "GET", nil)
+			err := sendReqeust(app, "/assets/1/hist", "GET", nil, nil)
 			assert.NoError(t, err)
 		})
 	})
@@ -62,7 +61,7 @@ func TestAssetGetHandler(t *testing.T) {
 				SellPrice: 480,
 				BuyPrice:  450,
 			}
-			err := sendReqeust(app, "/assets/", "POST", param)
+			err := sendReqeust(app, "/assets/", "POST", param, nil)
 			assert.NoError(t, err)
 		})
 
@@ -75,7 +74,7 @@ func TestAssetGetHandler(t *testing.T) {
 				SellPrice: 480,
 				BuyPrice:  450,
 			}
-			err := sendReqeust(app, "/assets/", "POST", param)
+			err := sendReqeust(app, "/assets/", "POST", param, nil)
 			assert.NoError(t, err)
 		})
 	})
@@ -93,7 +92,7 @@ func TestAssetGetHandler(t *testing.T) {
 				SellPrice: 480,
 				BuyPrice:  450,
 			}
-			err := sendReqeust(app, "/assets/", "PUT", param)
+			err := sendReqeust(app, "/assets/", "PUT", param, nil)
 			assert.NoError(t, err)
 		})
 
@@ -109,7 +108,7 @@ func TestAssetGetHandler(t *testing.T) {
 				SellPrice: 480,
 				BuyPrice:  450,
 			}
-			err := sendReqeust(app, "/assets/", "PUT", param)
+			err := sendReqeust(app, "/assets/", "PUT", param, nil)
 			assert.NoError(t, err)
 		})
 	})
@@ -119,7 +118,7 @@ func TestAssetGetHandler(t *testing.T) {
 			param := DeleteAssetReq{
 				ID: 1,
 			}
-			err := sendReqeust(app, "/assets/", "DELETE", param)
+			err := sendReqeust(app, "/assets/", "DELETE", param, nil)
 			assert.NoError(t, err)
 		})
 
@@ -127,7 +126,7 @@ func TestAssetGetHandler(t *testing.T) {
 			param := DeleteAssetReq{
 				// ID: 1,
 			}
-			err := sendReqeust(app, "/assets/", "DELETE", param)
+			err := sendReqeust(app, "/assets/", "DELETE", param, nil)
 			assert.NoError(t, err)
 		})
 	})
@@ -140,7 +139,7 @@ func TestAssetGetHandler(t *testing.T) {
 Inner Function
 *************************************************
 */
-func sendReqeust(app *fiber.App, url string, method string, reqBody any) error {
+func sendReqeust(app *fiber.App, url string, method string, reqBody any, response any) error {
 
 	var req *http.Request
 	switch method {
@@ -160,13 +159,13 @@ func sendReqeust(app *fiber.App, url string, method string, reqBody any) error {
 	if err != nil {
 		return fmt.Errorf("Error Occurred %w", err)
 	}
+	defer resp.Body.Close()
 
-	respBody, _ := io.ReadAll(resp.Body)
-	fmt.Println(string(respBody))
+	// respBody, _ := io.ReadAll(resp.Body)
+	// fmt.Println(string(respBody))
 
 	if resp.StatusCode != fiber.StatusOK {
 		return fmt.Errorf("Response status should be 200. Status: %d", resp.StatusCode)
 	}
-
-	return nil
+	return json.NewDecoder(resp.Body).Decode(response)
 }

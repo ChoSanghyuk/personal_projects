@@ -44,8 +44,8 @@ type InvestRetriever interface {
 }
 
 type InvestSaver interface {
-	SaveInvest(fundId uint, assetId uint, price float64, count int) error
-	UpdateInvestSummaryCount(fundId uint, assetId uint, change int) error
+	SaveInvest(fundId uint, assetId uint, price float64, count float64) error
+	UpdateInvestSummaryCount(fundId uint, assetId uint, change float64) error
 }
 
 type ExchageRateGetter interface {

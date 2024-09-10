@@ -127,7 +127,7 @@ func (e Event) portfolioMsg(ivsmLi []m.InvestSummary, pm map[uint]float64) (msg 
 			volatile[ivsm.FundID] = volatile[ivsm.FundID] + v
 		}
 
-		if ivsm.Asset.Top <= pm[ivsm.AssetID] { // TODO 변동 자산일 때만 조건 추가
+		if !category.IsStable() && ivsm.Asset.Top <= pm[ivsm.AssetID] { // TODO 변동 자산일 때만 조건 추가
 			priority[ivsm.FundID] = append(priority[ivsm.FundID], *ivsm)
 		} else {
 			extra[ivsm.FundID] = append(extra[ivsm.FundID], *ivsm)
@@ -148,11 +148,11 @@ func (e Event) portfolioMsg(ivsmLi []m.InvestSummary, pm map[uint]float64) (msg 
 
 			sb.WriteString("=====우선 처분 종목 정보=====\n")
 			for _, p := range priority[k] {
-				sb.WriteString(fmt.Sprintf("종목 %d %s %02f %02f\n", p.Asset.ID, p.Asset.Name, p.Asset.Top, pm[p.AssetID]))
+				sb.WriteString(fmt.Sprintf("종목 %d %s %.2f %.2f\n", p.Asset.ID, p.Asset.Name, p.Asset.Top, pm[p.AssetID]))
 			}
-			sb.WriteString("=====그외 종목 정보=====\n")
+			sb.WriteString("=====보유 종목 정보=====\n")
 			for _, e := range extra[k] {
-				sb.WriteString(fmt.Sprintf("종목 %d %s %02f %02f\n", e.Asset.ID, e.Asset.Name, e.Asset.Top, pm[e.AssetID]))
+				sb.WriteString(fmt.Sprintf("종목 %d %s %.2f %.2f\n", e.Asset.ID, e.Asset.Name, e.Asset.Top, pm[e.AssetID]))
 			}
 
 		}

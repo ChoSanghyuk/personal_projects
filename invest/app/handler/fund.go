@@ -35,30 +35,25 @@ func (h *FundHandler) TotalStatus(c *fiber.Ctx) error {
 
 	var exchangeRate float64 = h.e.ExchageRate()
 
-	summarys, err := h.r.RetreiveFundsSummaryOrderByFundId()
+	investSummarys, err := h.r.RetreiveFundsSummaryOrderByFundId()
 	if err != nil {
 		return fmt.Errorf("RetreiveFundSummary 오류 발생. %w", err)
 	}
 
-	funds := make([]*TotalStatusResp, 0)
-	for _, s := range summarys {
+	funds := make(map[uint]*TotalStatusResp)
+	for _, is := range investSummarys {
 
-		id := int(s.FundID)
-		if id > len(funds) {
-			funds = append(funds, &TotalStatusResp{})
+		if funds[is.FundID] == nil {
+			funds[is.FundID] = &TotalStatusResp{
+				ID:   is.FundID,
+				Name: is.Fund.Name,
+			}
 		}
 
-		fund := funds[id-1]
-
-		if fund.ID == 0 {
-			fund.ID = s.FundID
-			fund.Name = s.Fund.Name
-		}
-
-		if s.Asset.Currency == model.WON.String() {
-			fund.Amount = exchangeRate + s.Sum*exchangeRate
+		if is.Asset.Currency == model.USD.String() {
+			funds[is.FundID].Amount = funds[is.FundID].Amount + is.Sum*exchangeRate
 		} else {
-			fund.Amount = fund.Amount + s.Sum
+			funds[is.FundID].Amount = funds[is.FundID].Amount + is.Sum
 		}
 	}
 

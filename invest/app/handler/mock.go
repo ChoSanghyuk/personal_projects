@@ -110,7 +110,9 @@ func (mock TopBottomPriceGetterMock) TopBottomPrice(category m.Category, code st
 
 /***************************** Fund ***********************************/
 type FundRetrieverMock struct {
-	err error
+	isli []m.InvestSummary
+	il   []m.Invest
+	err  error
 }
 
 func (mock FundRetrieverMock) RetreiveFundsSummaryOrderByFundId() ([]m.InvestSummary, error) {
@@ -119,45 +121,31 @@ func (mock FundRetrieverMock) RetreiveFundsSummaryOrderByFundId() ([]m.InvestSum
 	if mock.err != nil {
 		return nil, mock.err
 	}
-	return []m.InvestSummary{
-		{
-			ID:      1,
-			FundID:  1,
-			AssetID: 1,
-			Sum:     568210,
-		},
-	}, nil
+	return mock.isli, nil
 }
+
 func (mock FundRetrieverMock) RetreiveFundSummaryByFundId(id uint) ([]m.InvestSummary, error) {
 	fmt.Println("RetreiveFundSummaryByFundId Called")
 
 	if mock.err != nil {
 		return nil, mock.err
 	}
-	return []m.InvestSummary{
-		{
-			ID:      1,
-			FundID:  1,
-			AssetID: 1,
-			Sum:     568210,
-		},
-	}, nil
+	return mock.isli, nil
 }
+
 func (mock FundRetrieverMock) RetreiveAFundInvestsById(id uint) ([]m.Invest, error) {
 	fmt.Println("RetreiveAFundInvestsById Called")
 
 	if mock.err != nil {
 		return nil, mock.err
 	}
-	return []m.Invest{
-		{
-			ID:      id,
-			FundID:  3,
-			AssetID: 1,
-			Price:   7800,
-			Count:   5,
-		},
-	}, nil
+	var rtn []m.Invest
+	for _, iv := range mock.il {
+		if iv.FundID == id {
+			rtn = append(rtn, iv)
+		}
+	}
+	return rtn, nil
 }
 
 type FundWriterMock struct {
@@ -254,7 +242,7 @@ type InvestSaverMock struct {
 	err error
 }
 
-func (mock InvestSaverMock) SaveInvest(fundId uint, assetId uint, price float64, count int) error {
+func (mock InvestSaverMock) SaveInvest(fundId uint, assetId uint, price float64, count float64) error {
 	fmt.Println("SaveInvest Called")
 
 	if mock.err != nil {
@@ -263,7 +251,7 @@ func (mock InvestSaverMock) SaveInvest(fundId uint, assetId uint, price float64,
 	return nil
 }
 
-func (mock InvestSaverMock) UpdateInvestSummaryCount(fundId uint, assetId uint, change int) error {
+func (mock InvestSaverMock) UpdateInvestSummaryCount(fundId uint, assetId uint, change float64) error {
 	fmt.Println("UpdateInvestSummaryCount Called")
 
 	if mock.err != nil {

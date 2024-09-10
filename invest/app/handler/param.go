@@ -49,5 +49,5 @@ type SaveInvestParam struct {
 	FundId  uint    `json:"fund_id"`
 	AssetId uint    `json:"asset_id"`
 	Price   float64 `json:"price"`
-	Count   int     `json:"count"`
+	Count   float64 `json:"count"`
 }
