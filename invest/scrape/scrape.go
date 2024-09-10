@@ -97,7 +97,7 @@ func (s *Scraper) CurrentPrice(category model.Category, code string) (cp float64
 		return 1, nil
 	case model.Dollar:
 		return s.ExchageRate(), nil
-	case model.DomesticStock:
+	case model.DomesticStock, model.Gold:
 		cp, _, _, err = s.kisDomesticStockPrice(code)
 		return cp, err
 	case model.DomesticCoin:
