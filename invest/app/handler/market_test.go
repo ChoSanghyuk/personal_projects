@@ -31,17 +31,17 @@ func TestMarketHandler(t *testing.T) {
 
 	t.Run("시장단계조회", func(t *testing.T) {
 		t.Run("성공테스트-파라미터존재", func(t *testing.T) {
-			err := sendReqeust(app, "/market/2024-09-09", "GET", nil)
+			err := sendReqeust(app, "/market/2024-09-09", "GET", nil, nil)
 			assert.NoError(t, err)
 		})
 
 		t.Run("성공테스트-파라미터미존재", func(t *testing.T) {
-			err := sendReqeust(app, "/market/", "GET", nil)
+			err := sendReqeust(app, "/market/", "GET", nil, nil)
 			assert.NoError(t, err)
 		})
 
 		t.Run("실패테스트-잘못된파라미터", func(t *testing.T) {
-			err := sendReqeust(app, "/market/202409", "GET", nil)
+			err := sendReqeust(app, "/market/202409", "GET", nil, nil)
 			assert.Error(t, err)
 		})
 
@@ -52,7 +52,7 @@ func TestMarketHandler(t *testing.T) {
 			param := SaveMarketStatusParam{
 				Status: 1,
 			}
-			err := sendReqeust(app, "/market", "POST", param)
+			err := sendReqeust(app, "/market", "POST", param, nil)
 			assert.NoError(t, err)
 		})
 
@@ -60,7 +60,7 @@ func TestMarketHandler(t *testing.T) {
 			param := SaveMarketStatusParam{
 				// Status: 1,
 			}
-			err := sendReqeust(app, "/market", "POST", param)
+			err := sendReqeust(app, "/market", "POST", param, nil)
 			assert.Error(t, err)
 		})
 
@@ -68,7 +68,7 @@ func TestMarketHandler(t *testing.T) {
 			param := SaveMarketStatusParam{
 				Status: 6,
 			}
-			err := sendReqeust(app, "/market", "POST", param)
+			err := sendReqeust(app, "/market", "POST", param, nil)
 			assert.Error(t, err)
 		})
 
@@ -76,7 +76,7 @@ func TestMarketHandler(t *testing.T) {
 
 	t.Run("시장지표조회", func(t *testing.T) {
 		t.Run("성공테스트", func(t *testing.T) {
-			err := sendReqeust(app, "/market/indicators/2024-08-29", "GET", nil)
+			err := sendReqeust(app, "/market/indicators/2024-08-29", "GET", nil, nil)
 			assert.NoError(t, err)
 		})
 
