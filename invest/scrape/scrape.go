@@ -139,5 +139,8 @@ func (s *Scraper) ExchageRate() float64 {
 		return 0
 	}
 
+	s.exchange.Rate = exrate
+	s.exchange.Date = time.Now()
+
 	return exrate
 }
