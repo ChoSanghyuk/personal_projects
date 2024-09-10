@@ -169,6 +169,7 @@ func (e Event) AssetEvent(c chan<- string) {
 	assetList, err := e.stg.RetrieveAssetList()
 	if err != nil {
 		c <- fmt.Sprintf("[AssetEvent] RetrieveAssetList 시, 에러 발생. %s", err)
+		return
 	}
 	priceMap := make(map[uint]float64) // assetId => price
 
@@ -177,6 +178,7 @@ func (e Event) AssetEvent(c chan<- string) {
 		msg, err := e.buySellMsg(a.ID, priceMap)
 		if err != nil {
 			c <- fmt.Sprintf("[AssetEvent] buySellMsg시, 에러 발생. %s", err)
+			return
 		}
 		if msg != "" {
 			c <- msg
@@ -187,6 +189,7 @@ func (e Event) AssetEvent(c chan<- string) {
 	ivsmLi, err := e.stg.RetreiveFundsSummaryOrderByFundId()
 	if err != nil {
 		c <- fmt.Sprintf("[AssetEvent] RetreiveFundsSummaryOrderByFundId 시, 에러 발생. %s", err)
+		return
 	}
 	if len(ivsmLi) == 0 {
 		return
@@ -196,6 +199,7 @@ func (e Event) AssetEvent(c chan<- string) {
 	err = e.updateFundSummarys(ivsmLi, priceMap)
 	if err != nil {
 		c <- fmt.Sprintf("[AssetEvent] updateFundSummary 시, 에러 발생. %s", err)
+		return
 	}
 
 	// 현재 시장 단계 이하로 변동 자산을 가지고 있는지 확인. (알림 전송)
@@ -213,6 +217,7 @@ func (e Event) RealEstateEvent(c chan<- string) {
 	rtn, err := e.scraper.RealEstateStatus()
 	if err != nil {
 		c <- fmt.Sprintf("크롤링 시 오류 발생. %s", err.Error())
+		return
 	}
 
 	if rtn != "예정지구 지정" {
