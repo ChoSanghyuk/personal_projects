@@ -269,7 +269,7 @@ func (s Storage) RetrieveInvestHist(fundId uint, assetId uint, start string, end
 	return investHist, nil
 }
 
-func (s Storage) SaveInvest(fundId uint, assetId uint, price float64, count int) error {
+func (s Storage) SaveInvest(fundId uint, assetId uint, price float64, count float64) error {
 
 	result := s.db.Create(&m.Invest{
 		FundID:  fundId,
@@ -298,7 +298,7 @@ func (s Storage) RetrieveInvestSummaryByFundIdAssetId(fundId uint, assetId uint)
 	return &investSummary, nil
 }
 
-func (s Storage) UpdateInvestSummaryCount(fundId uint, assetId uint, change int) error {
+func (s Storage) UpdateInvestSummaryCount(fundId uint, assetId uint, change float64) error {
 	// 조회한 InvestSummary를 count만 변경
 	var investSummary m.InvestSummary
 

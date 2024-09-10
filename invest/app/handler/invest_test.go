@@ -11,11 +11,11 @@ func TestInvestGetHandler(t *testing.T) {
 
 	app := fiber.New()
 
-	// readerMock := InvestRetrieverMock{}
+	readerMock := AssetRetrieverMock{}
 	writerMock := InvestSaverMock{}
 
 	f := InvestHandler{
-		// r: readerMock,
+		r: readerMock,
 		w: writerMock,
 	}
 

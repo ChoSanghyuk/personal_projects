@@ -254,7 +254,7 @@ type InvestSaverMock struct {
 	err error
 }
 
-func (mock InvestSaverMock) SaveInvest(fundId uint, assetId uint, price float64, count int) error {
+func (mock InvestSaverMock) SaveInvest(fundId uint, assetId uint, price float64, count float64) error {
 	fmt.Println("SaveInvest Called")
 
 	if mock.err != nil {
@@ -263,7 +263,7 @@ func (mock InvestSaverMock) SaveInvest(fundId uint, assetId uint, price float64,
 	return nil
 }
 
-func (mock InvestSaverMock) UpdateInvestSummaryCount(fundId uint, assetId uint, change int) error {
+func (mock InvestSaverMock) UpdateInvestSummaryCount(fundId uint, assetId uint, change float64) error {
 	fmt.Println("UpdateInvestSummaryCount Called")
 
 	if mock.err != nil {

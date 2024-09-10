@@ -93,6 +93,8 @@ func AlpacaCrypto(target string) (string, error) {
 func (s *Scraper) CurrentPrice(category model.Category, code string) (cp float64, err error) {
 
 	switch category {
+	case model.Won:
+		return 1, nil
 	case model.DomesticStock:
 		cp, _, _, err = s.kisDomesticStockPrice(code)
 		return cp, err

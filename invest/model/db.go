@@ -32,7 +32,7 @@ type Invest struct {
 	AssetID uint
 	Asset   Asset
 	Price   float64
-	Count   int
+	Count   float64
 	gorm.Model
 }
 
@@ -42,7 +42,7 @@ type InvestSummary struct {
 	Fund    Fund
 	AssetID uint
 	Asset   Asset
-	Count   int
+	Count   float64
 	Sum     float64
 }
 

@@ -14,7 +14,7 @@ func Run(stg *db.Storage, scraper *scrape.Scraper) {
 
 	handler.NewAssetHandler(stg, stg, scraper).InitRoute(app)
 	handler.NewFundHandler(stg, stg, nil).InitRoute(app)
-	handler.NewInvestHandler(stg).InitRoute(app)
+	handler.NewInvestHandler(stg, stg).InitRoute(app)
 	handler.NewMarketHandler(stg, stg).InitRoute(app)
 
 	app.Listen(":3000")

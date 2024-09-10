@@ -5,7 +5,8 @@ import "errors"
 type Category uint
 
 const (
-	Cash Category = iota + 1
+	Won Category = iota + 1
+	Dollar
 	Gold
 	ShortTermBond
 	DomesticETF
@@ -14,7 +15,7 @@ const (
 	Leverage
 )
 
-var categoryList = []string{"현금", "금", "단기채권", "국내ETF", "국내주식", "국내코인", "레버리지"}
+var categoryList = []string{"현금", "달러", "금", "단기채권", "국내ETF", "국내주식", "국내코인", "레버리지"}
 
 func (c Category) String() string {
 	return categoryList[c-1]
@@ -31,7 +32,7 @@ func ToCategory(s string) (Category, error) {
 }
 
 func (c Category) IsStable() bool {
-	if c <= 3 {
+	if c <= 4 {
 		return true
 	} else {
 		return false

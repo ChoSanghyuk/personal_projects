@@ -5,11 +5,11 @@ import "slices"
 type Currency uint
 
 const (
-	WON Currency = iota + 1
+	KRW Currency = iota + 1
 	USD
 )
 
-var currencyList = []string{"WON", "USD"}
+var currencyList = []string{"원화", "달러"}
 
 func (c Currency) String() string {
 	return currencyList[c-1]

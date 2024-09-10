@@ -55,7 +55,7 @@ func (h *FundHandler) TotalStatus(c *fiber.Ctx) error {
 			fund.Name = s.Fund.Name
 		}
 
-		if s.Asset.Currency == model.WON.String() {
+		if s.Asset.Currency == model.KRW.String() {
 			fund.Amount = exchangeRate + s.Sum*exchangeRate
 		} else {
 			fund.Amount = fund.Amount + s.Sum
