@@ -73,7 +73,7 @@ func TestEventportfolioMsg(t *testing.T) {
 
 	pm := make(map[uint]float64)
 
-	t.Run("portfolioMsg-alertwithpriority", func(t *testing.T) { // todo. 현금 현황 관리
+	t.Run("portfolioMsg-alertwithpriority", func(t *testing.T) {
 
 		stg.market = &m.Market{
 			Status: 3,
@@ -98,7 +98,7 @@ func TestEventportfolioMsg(t *testing.T) {
 		}
 	})
 
-	t.Run("portfolioMsg-alertwithoutpriority", func(t *testing.T) { // todo. 현금 현황 관리
+	t.Run("portfolioMsg-alertwithoutpriority", func(t *testing.T) {
 
 		stg.market = &m.Market{
 			Status: 3,

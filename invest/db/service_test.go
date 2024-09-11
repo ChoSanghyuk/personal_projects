@@ -1,8 +1,11 @@
 package db
 
 import (
+	m "invest/model"
 	"log"
 	"testing"
+
+	"gorm.io/gorm"
 )
 
 var stg *Storage
@@ -10,7 +13,9 @@ var stg *Storage
 func init() {
 
 	dsn := "root:root@tcp(127.0.0.1:3300)/investdb?charset=utf8mb4&parseTime=True&loc=Local"
-	s, err := NewStorage(dsn)
+	s, err := NewStorage(dsn, &gorm.Config{
+		PrepareStmt: false,
+	})
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -52,12 +57,20 @@ func TestRetreiveInvestHistOfFundById(t *testing.T) {
 }
 func TestSaveFund(t *testing.T) { // todo. DB DML test case 작성
 
-	// tx := stg.db.Begin()
-	// rtn, err := stg.RetreiveFundsSummary()
-	// if err != nil {
-	// 	t.Error(t)
-	// }
-	// t.Log(rtn)
+	err := stg.SaveFund("테스트")
+	if err != nil {
+		t.Error(err)
+	}
+
+	var fund m.Fund
+
+	stg.db.Last(&fund)
+	t.Logf("%+v", fund)
+
+	if fund.Name != "테스트" {
+		t.Error()
+	}
+	stg.db.Rollback()
 }
 
 func TestRetrieveAssetList(t *testing.T) {
@@ -86,11 +99,48 @@ func TestRetrieveAssetHist(t *testing.T) {
 }
 func TestSaveAssetInfo(t *testing.T) {
 
+	err := stg.SaveAssetInfo("테스트", m.DomesticStock, "test", "WON", 82300, 60000, 80000, 62300)
+	if err != nil {
+		t.Error(err)
+	}
+
+	var asset m.Asset
+
+	stg.db.Last(&asset)
+	t.Logf("%+v", asset)
+
+	if asset.Name != "테스트" {
+		t.Error()
+	}
+	stg.db.Rollback()
+
 }
 func TestUpdateAssetInfo(t *testing.T) {
 
 }
 func TestDeleteAssetInfo(t *testing.T) {
+
+	err := stg.SaveAssetInfo("테스트", m.DomesticStock, "test", "WON", 82300, 60000, 80000, 62300)
+	if err != nil {
+		t.Error(err)
+	}
+
+	var asset m.Asset
+	stg.db.Last(&asset)
+	t.Logf("%+v", asset)
+
+	err = stg.DeleteAssetInfo(asset.ID)
+	if err != nil {
+		t.Error(err)
+	}
+
+	stg.db.Select(&asset, asset.ID)
+	t.Logf("%+v", asset)
+
+	if asset.Name != "" {
+		t.Error()
+	}
+	stg.db.Rollback()
 
 }
 func TestRetrieveMarketStatus(t *testing.T) {
@@ -134,6 +184,22 @@ func TestRetrieveMarketIndicator(t *testing.T) {
 }
 func TestSaveMarketStatus(t *testing.T) {
 
+	err := stg.SaveMarketStatus(3)
+	if err != nil {
+		t.Error(err)
+	}
+
+	var mk m.Market
+
+	stg.db.Last(&mk)
+	t.Logf("%+v", mk)
+
+	if mk.Status != 3 {
+		t.Error()
+	}
+
+	stg.db.Rollback()
+
 }
 func TestRetrieveInvestHist(t *testing.T) {
 
@@ -155,5 +221,21 @@ func TestRetrieveInvestHist(t *testing.T) {
 }
 
 func TestSaveInvest(t *testing.T) {
+
+	err := stg.SaveInvest(1, 1, 62000, 10)
+	if err != nil {
+		t.Error(err)
+	}
+
+	var invest m.Invest
+
+	stg.db.Last(&invest)
+	t.Logf("%+v", invest)
+
+	if invest.Count != 10 {
+		t.Error()
+	}
+
+	stg.db.Rollback()
 
 }
