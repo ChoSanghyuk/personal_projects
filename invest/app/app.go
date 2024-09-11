@@ -17,6 +17,15 @@ func Run(stg *db.Storage, scraper *scrape.Scraper) {
 	handler.NewInvestHandler(stg, stg).InitRoute(app)
 	handler.NewMarketHandler(stg, stg).InitRoute(app)
 
+	app.Get("/shutdown", func(c *fiber.Ctx) error {
+		go func() {
+			if err := app.Shutdown(); err != nil {
+				panic("SHUTDOWN ERROR")
+			}
+		}()
+		return c.SendString("Shutting Down")
+	})
+
 	app.Listen(":3000")
 
 }
