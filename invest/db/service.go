@@ -150,9 +150,10 @@ func (s Storage) SaveAssetInfo(name string, category m.Category, code string, cu
 }
 
 // Todo. 테스트로 확인. When updating with struct, GORM will only update non-zero fields. You might want to use map to update attributes or use Select to specify fields to update
-func (s Storage) UpdateAssetInfo(name string, category m.Category, code string, currency string, top float64, bottom float64, selPrice float64, buyPrice float64) error {
+func (s Storage) UpdateAssetInfo(id uint, name string, category m.Category, code string, currency string, top float64, bottom float64, selPrice float64, buyPrice float64) error {
 
 	result := s.db.Updates(m.Asset{
+		ID:        id,
 		Name:      name,
 		Category:  category.String(),
 		Code:      code,

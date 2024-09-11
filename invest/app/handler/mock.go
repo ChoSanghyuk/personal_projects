@@ -78,7 +78,7 @@ func (mock AssetInfoSaverMock) SaveAssetInfo(name string, category m.Category, c
 	}
 	return nil
 }
-func (mock AssetInfoSaverMock) UpdateAssetInfo(name string, category m.Category, code string, currency string, top float64, bottom float64, selPrice float64, buyPrice float64) error {
+func (mock AssetInfoSaverMock) UpdateAssetInfo(ID uint, name string, category m.Category, code string, currency string, top float64, bottom float64, selPrice float64, buyPrice float64) error {
 	fmt.Println("UpdateAssetInfo Called")
 
 	if mock.err != nil {

@@ -76,7 +76,7 @@ func (h *AssetHandler) UpdateAsset(c *fiber.Ctx) error {
 		return fmt.Errorf("파라미터 유효성 검사 시 오류 발생. %w", err)
 	}
 
-	err = h.w.UpdateAssetInfo(param.Name, m.Category(param.Category), param.Code, param.Currency, param.Top, param.Bottom, param.SellPrice, param.BuyPrice)
+	err = h.w.UpdateAssetInfo(param.ID, param.Name, m.Category(param.Category), param.Code, param.Currency, param.Top, param.Bottom, param.SellPrice, param.BuyPrice)
 	if err != nil {
 		return fmt.Errorf("UpdateAssetInfo 시 오류 발생. %w", err)
 	}

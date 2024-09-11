@@ -80,14 +80,20 @@ func TestRetrieveAssetHist(t *testing.T) {
 
 	rtn, err := stg.RetrieveAssetHist(1)
 	if err != nil {
-		t.Error(t)
+		t.Error(err)
 	}
 	t.Log(rtn)
 }
 func TestSaveAssetInfo(t *testing.T) {
 
+	// stg.SaveAssetInfo()
+
 }
 func TestUpdateAssetInfo(t *testing.T) {
+	err := stg.UpdateAssetInfo(2, "", 0, "", "", 0, 0, 0, 103500)
+	if err != nil {
+		t.Error(err)
+	}
 
 }
 func TestDeleteAssetInfo(t *testing.T) {
