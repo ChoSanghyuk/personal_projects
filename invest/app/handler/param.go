@@ -17,7 +17,7 @@ type AddFundReq struct {
 type AddAssetReq struct {
 	Name     string `json:"name" validate:"required"`
 	Category uint   `json:"category" validate:"required,category"`
-	Code     string
+	Code     string `json:"code"`
 	Currency string `json:"currency" validate:"required"`
 	// Top       float64 `json:"top" validate:"required"`
 	// Bottom    float64 `json:"bottom" validate:"required"`
@@ -26,10 +26,10 @@ type AddAssetReq struct {
 }
 
 type UpdateAssetReq struct {
-	ID        uint   `json:"id" validate:"required"`
-	Name      string `json:"name"`
-	Category  uint   `json:"category"`
-	Code      string
+	ID        uint    `json:"id" validate:"required"`
+	Name      string  `json:"name"`
+	Category  uint    `json:"category"`
+	Code      string  `json:"code"`
 	Currency  string  `json:"currency"`
 	Top       float64 `json:"top"`
 	Bottom    float64 `json:"bottom"`
@@ -46,8 +46,10 @@ type SaveMarketStatusParam struct {
 }
 
 type SaveInvestParam struct {
-	FundId  uint    `json:"fund_id"`
-	AssetId uint    `json:"asset_id"`
-	Price   float64 `json:"price"`
-	Count   float64 `json:"count"`
+	FundId    uint    `json:"fund_id" validate:"required"`
+	AssetId   uint    `json:"asset_id"`
+	AssetName string  `json:"name"`
+	AssetCode string  `json:"code"`
+	Price     float64 `json:"price" validate:"required"`
+	Count     float64 `json:"count" validate:"required"`
 }

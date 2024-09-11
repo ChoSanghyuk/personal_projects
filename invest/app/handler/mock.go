@@ -66,6 +66,13 @@ func (mock AssetRetrieverMock) RetrieveAssetHist(id uint) ([]m.Invest, error) {
 	}, nil
 }
 
+func (mock AssetRetrieverMock) RetrieveAssetIdByName(name string) uint {
+	return 1
+}
+func (mock AssetRetrieverMock) RetrieveAssetIdByCode(code string) uint {
+	return 1
+}
+
 type AssetInfoSaverMock struct {
 	err error
 }

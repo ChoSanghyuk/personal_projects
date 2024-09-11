@@ -18,6 +18,8 @@ type AssetRetriever interface {
 	RetrieveAssetList() ([]m.Asset, error)
 	RetrieveAsset(id uint) (*m.Asset, error)
 	RetrieveAssetHist(id uint) ([]m.Invest, error)
+	RetrieveAssetIdByName(name string) uint
+	RetrieveAssetIdByCode(code string) uint
 }
 
 type AssetInfoSaver interface {

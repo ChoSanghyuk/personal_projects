@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"errors"
 	"fmt"
 	"invest/model"
 
@@ -43,7 +44,7 @@ func NewInvestHandler(r AssetRetriever, w InvestSaver) *InvestHandler {
 
 func (h *InvestHandler) SaveInvest(c *fiber.Ctx) error {
 
-	param := SaveInvestParam{} // TODO. Asset 정보를 심볼명으로 받아서 입력하는 방식
+	param := SaveInvestParam{}
 	err := c.BodyParser(&param)
 	if err != nil {
 		return fmt.Errorf("파라미터 BodyParse 시 오류 발생. %w", err)
@@ -54,17 +55,31 @@ func (h *InvestHandler) SaveInvest(c *fiber.Ctx) error {
 		return fmt.Errorf("파라미터 유효성 검사 시 오류 발생. %w", err)
 	}
 
-	err = h.w.SaveInvest(param.FundId, param.AssetId, param.Price, param.Count)
+	var assetId uint
+
+	if param.AssetId != 0 {
+		assetId = param.AssetId
+	} else if param.AssetName != "" {
+		assetId = h.r.RetrieveAssetIdByName(param.AssetName)
+	} else if param.AssetCode != "" {
+		assetId = h.r.RetrieveAssetIdByCode(param.AssetName)
+	}
+
+	if assetId == 0 {
+		return errors.New("parameter asset 정보 없음")
+	}
+
+	err = h.w.SaveInvest(param.FundId, assetId, param.Price, param.Count)
 	if err != nil {
 		return fmt.Errorf("SaveInvest 오류 발생. %w", err)
 	}
 
-	err = h.w.UpdateInvestSummaryCount(param.FundId, param.AssetId, param.Count)
+	err = h.w.UpdateInvestSummaryCount(param.FundId, assetId, param.Count)
 	if err != nil {
 		return fmt.Errorf("UpdateInvestSummaryCount 오류 발생. %w", err)
 	}
 
-	asset, err := h.r.RetrieveAsset(param.AssetId)
+	asset, err := h.r.RetrieveAsset(assetId)
 	if err != nil {
 		return fmt.Errorf("RetrieveAsset 오류 발생. %w", err)
 	}

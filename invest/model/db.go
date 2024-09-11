@@ -15,7 +15,6 @@ type Fund struct {
 type Asset struct {
 	ID        uint
 	Name      string
-	Symbol    string
 	Category  string
 	Code      string
 	Currency  string
