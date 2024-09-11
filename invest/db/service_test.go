@@ -55,7 +55,7 @@ func TestRetreiveInvestHistOfFundById(t *testing.T) {
 	}
 	t.Log(rtn)
 }
-func TestSaveFund(t *testing.T) { // todo. DB DML test case 작성
+func TestSaveFund(t *testing.T) {
 
 	err := stg.SaveFund("테스트")
 	if err != nil {
