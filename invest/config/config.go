@@ -75,6 +75,10 @@ func (c Config) ApiBaseUrl(target string) string {
 	return c.Api[target].Url
 }
 
+func (c Config) ApiHeader(target string) map[string]string {
+	return c.Api[target].Header
+}
+
 func (c Config) CrawlUrlCasspath(target string) (url string, cssPath string) {
 	return c.Crawl[target].Url, c.Crawl[target].CssPath
 }

@@ -8,31 +8,111 @@ import (
 )
 
 type Event struct {
-	stg     Storage
-	scraper Scraper
+	stg Storage
+	rt  RtPoller
+	dp  DailyPoller
 }
 
-func NewEvent(stg Storage, scraper Scraper) *Event {
+func NewEvent(stg Storage, rtPoller RtPoller, dailyPoller DailyPoller) *Event {
 	return &Event{
-		stg:     stg,
-		scraper: scraper,
+		stg: stg,
+		rt:  rtPoller,
+		dp:  dailyPoller,
 	}
 }
 
 /*
 작업 1. 자산의 현재가와 자산의 매도/매수 기준 비교하여 알림 전송
- - 보유 자산 list
- - 자산 정보
- - 현재가
+  - 보유 자산 list
+  - 자산 정보
+  - 현재가
+
 작업 2. 자금별/종목별 현재 총액 갱신 + 최저가/최고가 갱신
- - investSummary list
- - 현재가
- - 환율
- - 자산 정보
+  - investSummary list
+  - 현재가
+  - 환율
+  - 자산 정보
+
 직업 3. 현재 시장 단계에 맞는 변동 자산을 가지고 있는지 확인하여 알림 전송. 대상 시, 우선처분 대상 및 보유 자산 현환 전송
- - 시장 단계
- - 갱신된 investSummary list
+  - 시장 단계
+  - 갱신된 investSummary list
 */
+func (e Event) AssetEvent(c chan<- string) {
+
+	// 등록 자산 목록 조회
+	assetList, err := e.stg.RetrieveAssetList()
+	if err != nil {
+		c <- fmt.Sprintf("[AssetEvent] RetrieveAssetList 시, 에러 발생. %s", err)
+		return
+	}
+	priceMap := make(map[uint]float64) // assetId => price
+
+	// 등록 자산 매수/매도 기준 충족 시, 채널로 메시지 전달
+	for _, a := range assetList {
+		msg, err := e.buySellMsg(a.ID, priceMap)
+		if err != nil {
+			c <- fmt.Sprintf("[AssetEvent] buySellMsg시, 에러 발생. %s", err)
+			return
+		}
+		if msg != "" {
+			c <- msg
+		}
+	}
+
+	// 자금별 종목 투자 내역 조회
+	ivsmLi, err := e.stg.RetreiveFundsSummaryOrderByFundId()
+	if err != nil {
+		c <- fmt.Sprintf("[AssetEvent] RetreiveFundsSummaryOrderByFundId 시, 에러 발생. %s", err)
+		return
+	}
+	if len(ivsmLi) == 0 {
+		return
+	}
+
+	// 자금별/종목별 현재 총액 갱신
+	err = e.updateFundSummarys(ivsmLi, priceMap)
+	if err != nil {
+		c <- fmt.Sprintf("[AssetEvent] updateFundSummary 시, 에러 발생. %s", err)
+		return
+	}
+
+	// 현재 시장 단계 이하로 변동 자산을 가지고 있는지 확인. (알림 전송)
+	msg, err := e.portfolioMsg(ivsmLi, priceMap)
+	if err != nil {
+		c <- fmt.Sprintf("[AssetEvent] portfolioMsg시, 에러 발생. %s", err)
+	}
+	if msg != "" {
+		c <- msg
+	}
+}
+
+func (e Event) RealEstateEvent(c chan<- string) {
+
+	rtn, err := e.rt.RealEstateStatus()
+	if err != nil {
+		c <- fmt.Sprintf("크롤링 시 오류 발생. %s", err.Error())
+		return
+	}
+
+	if rtn != "예정지구 지정" {
+		c <- fmt.Sprintf("연신내 재개발 변동 사항 존재. 예정지구 지정 => %s", rtn)
+	} else {
+		log.Printf("연신내 변동 사항 없음. 현재 단계: %s", rtn)
+	}
+}
+
+// func (e Event) IndexEvent(c chan<- string) {
+
+// 	rtn, err := e.scraper.
+// 	if err != nil {
+// 		c <- fmt.Sprintf("크롤링 시 오류 발생. %s", err.Error())
+// 		return
+// 	}
+
+// }
+/**********************************************************************************************************************
+*********************************************Inner Function************************************************************
+**********************************************************************************************************************/
 
 func (e Event) buySellMsg(assetId uint, pm map[uint]float64) (msg string, err error) {
 
@@ -47,7 +127,7 @@ func (e Event) buySellMsg(assetId uint, pm map[uint]float64) (msg string, err er
 	if err != nil {
 		return "", fmt.Errorf("[AssetEvent] ToCategory시, 에러 발생. %w", err)
 	}
-	cp, err := e.scraper.CurrentPrice(category, a.Code)
+	cp, err := e.rt.CurrentPrice(category, a.Code)
 	if err != nil {
 		return "", fmt.Errorf("[AssetEvent] CurrentPrice 시, 에러 발생. %w", err)
 	}
@@ -89,7 +169,7 @@ func (e Event) portfolioMsg(ivsmLi []m.InvestSummary, pm map[uint]float64) (msg 
 	marketLevel := m.MarketLevel(market.Status)
 
 	// 환율까지 계산하여 원화로 변환
-	ex := e.scraper.ExchageRate()
+	ex := e.dp.ExchageRate()
 	if ex == 0 {
 		msg = "[AssetEvent] ExchageRate 시 환율 값 0 반환"
 		return
@@ -160,68 +240,4 @@ func (e Event) portfolioMsg(ivsmLi []m.InvestSummary, pm map[uint]float64) (msg 
 
 	msg = sb.String()
 	return
-}
-
-func (e Event) AssetEvent(c chan<- string) {
-
-	// 등록 자산 목록 조회
-	assetList, err := e.stg.RetrieveAssetList()
-	if err != nil {
-		c <- fmt.Sprintf("[AssetEvent] RetrieveAssetList 시, 에러 발생. %s", err)
-		return
-	}
-	priceMap := make(map[uint]float64) // assetId => price
-
-	// 등록 자산 매수/매도 기준 충족 시, 채널로 메시지 전달
-	for _, a := range assetList {
-		msg, err := e.buySellMsg(a.ID, priceMap)
-		if err != nil {
-			c <- fmt.Sprintf("[AssetEvent] buySellMsg시, 에러 발생. %s", err)
-			return
-		}
-		if msg != "" {
-			c <- msg
-		}
-	}
-
-	// 자금별 종목 투자 내역 조회
-	ivsmLi, err := e.stg.RetreiveFundsSummaryOrderByFundId()
-	if err != nil {
-		c <- fmt.Sprintf("[AssetEvent] RetreiveFundsSummaryOrderByFundId 시, 에러 발생. %s", err)
-		return
-	}
-	if len(ivsmLi) == 0 {
-		return
-	}
-
-	// 자금별/종목별 현재 총액 갱신
-	err = e.updateFundSummarys(ivsmLi, priceMap)
-	if err != nil {
-		c <- fmt.Sprintf("[AssetEvent] updateFundSummary 시, 에러 발생. %s", err)
-		return
-	}
-
-	// 현재 시장 단계 이하로 변동 자산을 가지고 있는지 확인. (알림 전송)
-	msg, err := e.portfolioMsg(ivsmLi, priceMap)
-	if err != nil {
-		c <- fmt.Sprintf("[AssetEvent] portfolioMsg시, 에러 발생. %s", err)
-	}
-	if msg != "" {
-		c <- msg
-	}
-}
-
-func (e Event) RealEstateEvent(c chan<- string) {
-
-	rtn, err := e.scraper.RealEstateStatus()
-	if err != nil {
-		c <- fmt.Sprintf("크롤링 시 오류 발생. %s", err.Error())
-		return
-	}
-
-	if rtn != "예정지구 지정" {
-		c <- fmt.Sprintf("연신내 재개발 변동 사항 존재. 예정지구 지정 => %s", rtn)
-	} else {
-		log.Printf("연신내 변동 사항 없음. 현재 단계: %s", rtn)
-	}
 }

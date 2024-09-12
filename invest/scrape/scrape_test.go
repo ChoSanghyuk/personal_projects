@@ -112,3 +112,15 @@ func TestExchangeRate(t *testing.T) {
 	exrate := s.ExchageRate()
 	t.Log(exrate)
 }
+
+func TestFearGreedIndex(t *testing.T) {
+
+	conf, _ := config.NewConfig()
+	s := NewScraper(conf)
+
+	rtn, err := s.FearGreedIndex()
+	if err != nil {
+		t.Error(err)
+	}
+	t.Logf("\n%+v", rtn)
+}

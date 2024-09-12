@@ -30,7 +30,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	event := event.NewEvent(db, scraper)
+	event := event.NewEvent(db, scraper, scraper)
 
 	c := make(chan string)
 

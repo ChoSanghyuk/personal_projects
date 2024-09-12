@@ -12,8 +12,14 @@ type Storage interface {
 	UpdateInvestSummarySum(fundId uint, assetId uint, sum float64) error
 }
 
-type Scraper interface {
+type RtPoller interface {
 	CurrentPrice(category m.Category, code string) (float64, error)
 	RealEstateStatus() (string, error)
+}
+
+type DailyPoller interface {
 	ExchageRate() float64
+	FearGreedIndex() (uint, error)
+	Nasdaq() (float64, error)
+	CliIdx() (float64, error)
 }
