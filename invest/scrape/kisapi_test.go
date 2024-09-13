@@ -15,6 +15,7 @@ func TestKis(t *testing.T) {
 	s := NewScraper(
 		conf,
 		WithKIS(conf.KisAppKey(), conf.KisAppSecret()),
+		WithToken(""),
 	)
 
 	t.Run("Token Generate", func(t *testing.T) {
@@ -33,4 +34,12 @@ func TestKis(t *testing.T) {
 		t.Log(cp, hp, lp)
 	})
 
+	t.Run("Foreing Index", func(t *testing.T) {
+		s.kisForeingIndex()
+	})
+
 }
+
+// 2852601
+//   17569.68
+//      72.57

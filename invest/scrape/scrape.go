@@ -173,9 +173,13 @@ func (s *Scraper) FearGreedIndex() (uint, error) {
 
 	return rtn.Fgi.Now.Value, nil
 }
+
 func (s *Scraper) Nasdaq() (float64, error) {
+
 	return 0, nil
 }
+
 func (s *Scraper) CliIdx() (float64, error) {
+	// need Chromedp
 	return 0, nil
 }

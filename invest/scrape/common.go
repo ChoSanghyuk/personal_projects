@@ -73,6 +73,8 @@ func (s Scraper) crawl(url string, cssPath string) (string, error) {
 		return "", fmt.Errorf("error creating document\n%w", err)
 	}
 
+	// fmt.Println(doc.Text())
+
 	var v string
 	// Find the elements by the CSS selector
 	doc.Find(cssPath).Each(func(i int, s *goquery.Selection) {

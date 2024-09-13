@@ -45,14 +45,8 @@ func (s *Scraper) KisToken() (string, error) {
 type KIsResp struct {
 	Msg    string            `json:"msg1"`
 	MsgCd  string            `json:"msg_cd"`
-	Output map[string]string `json:"output"`
+	Output map[string]string `json:"output"` // value가 string 타입으로 넘어오기에 바로 파싱 X
 	RtCd   string            `json:"rt_cd"`
-}
-
-type KisPriceResponse struct {
-	CurrentPrice string  `json:"stck_prpr"`
-	Hgpr         float64 `json:"w52_hgpr"`
-	Lopr         float64 `json:"w52_lwpr"`
 }
 
 func (s *Scraper) kisDomesticStockPrice(code string) (float64, float64, float64, error) {
@@ -103,4 +97,37 @@ func (s *Scraper) kisDomesticStockPrice(code string) (float64, float64, float64,
 	}
 
 	return cp, hp, lp, nil
+}
+
+func (s *Scraper) kisForeingIndex() {
+
+	url := "https://openapi.koreainvestment.com:9443/uapi/overseas-price/v1/quotations/inquire-daily-chartprice?FID_COND_MRKT_DIV_CODE=N&FID_INPUT_ISCD=COMP&FID_INPUT_DATE_1=20240911&FID_INPUT_DATE_2=20240913&FID_PERIOD_DIV_CODE=D"
+
+	token, err := s.KisToken()
+	if err != nil {
+		return
+	}
+
+	header := map[string]string{
+		"Content-Type":  "application/json",
+		"authorization": "Bearer " + token,
+		"appkey":        s.kis.appKey,
+		"appsecret":     s.kis.appSecret,
+		"tr_id":         "FHKST03030100",
+	}
+
+	// type TempResp struct {
+	// 	Msg    string            `json:"msg1"`
+	// 	MsgCd  string            `json:"msg_cd"`
+	// 	Output map[string]string `json:"output1"` // value가 string 타입으로 넘어오기에 바로 파싱 X
+	// 	RtCd   string            `json:"rt_cd"`
+	// }
+	var rtn map[string]any //TempResp
+
+	err = sendRequest(url, http.MethodGet, header, nil, &rtn)
+	if err != nil {
+		return
+	}
+
+	fmt.Printf("%+v", rtn)
 }
