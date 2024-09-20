@@ -176,9 +176,10 @@ func (s *Scraper) FearGreedIndex() (uint, error) {
 
 func (s *Scraper) Nasdaq() (float64, error) {
 
-	return 0, nil
+	return s.kisNasdaqIndex()
 }
 
+// TODO. 현재로는 크롤링/API 못 찾음
 func (s *Scraper) CliIdx() (float64, error) {
 	// need Chromedp
 	return 0, nil

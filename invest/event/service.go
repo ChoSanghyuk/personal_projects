@@ -10,6 +10,9 @@ type Storage interface {
 	RetrieveAsset(id uint) (*m.Asset, error)
 	RetreiveFundsSummaryOrderByFundId() ([]m.InvestSummary, error)
 	UpdateInvestSummarySum(fundId uint, assetId uint, sum float64) error
+
+	RetrieveMarketIndicator(date string) (*m.DailyIndex, *m.CliIndex, error)
+	SaveDailyMarketIndicator(fearGreedIndex uint, nasdaq float64) error
 }
 
 type RtPoller interface {

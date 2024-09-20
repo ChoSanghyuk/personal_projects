@@ -50,6 +50,18 @@ func (m StorageMock) UpdateInvestSummarySum(fundId uint, assetId uint, sum float
 	return nil
 }
 
+// todo. 목 수정
+func (m StorageMock) RetrieveMarketIndicator(date string) (*md.DailyIndex, *md.CliIndex, error) {
+	return nil, nil, nil
+}
+
+func (m StorageMock) SaveDailyMarketIndicator(fearGreedIndex uint, nasdaq float64) error {
+	if m.err != nil {
+		return m.err
+	}
+	return nil
+}
+
 type RtPollerMock struct {
 	cp     float64
 	estate string

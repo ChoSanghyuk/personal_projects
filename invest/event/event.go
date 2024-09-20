@@ -101,15 +101,37 @@ func (e Event) RealEstateEvent(c chan<- string) {
 	}
 }
 
-// func (e Event) IndexEvent(c chan<- string) {
+func (e Event) IndexEvent(c chan<- string) {
 
-// 	rtn, err := e.scraper.
-// 	if err != nil {
-// 		c <- fmt.Sprintf("크롤링 시 오류 발생. %s", err.Error())
-// 		return
-// 	}
+	// 1. 공포 탐욕 지수
+	fgi, err := e.dp.FearGreedIndex()
+	if err != nil {
+		c <- fmt.Sprintf("공포 탐욕 지수 조회 시 오류 발생. %s", err.Error())
+		return
+	}
+	// 2. Nasdaq 지수 조회
+	nasdaq, err := e.dp.Nasdaq()
+	if err != nil {
+		c <- fmt.Sprintf("Nasdaq Index 조회 시 오류 발생. %s", err.Error())
+		return
+	}
 
-// }
+	// 오늘분 저장
+	err = e.stg.SaveDailyMarketIndicator(fgi, nasdaq)
+	if err != nil {
+		c <- fmt.Sprintf("Nasdaq Index 저장 시 오류 발생. %s", err.Error())
+	}
+
+	// 어제꺼 조회
+	di, _, err := e.stg.RetrieveMarketIndicator("어제")
+	if err != nil {
+		c <- fmt.Sprintf("어제자 Nasdaq Index 저장 시 오류 발생. %s", err.Error())
+	}
+
+	c <- fmt.Sprintf("금일 공포 탐욕 지수 : %d (전일 : %d)\n금일 Nasdaq : %f (전일 : %f)", fgi, di.FearGreedIndex, nasdaq, di.NasDaq)
+
+}
+
 /**********************************************************************************************************************
 *********************************************Inner Function************************************************************
 **********************************************************************************************************************/

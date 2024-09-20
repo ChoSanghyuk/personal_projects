@@ -3,7 +3,9 @@ package db
 import (
 	"database/sql"
 	m "invest/model"
+	"time"
 
+	"gorm.io/datatypes"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
@@ -234,29 +236,44 @@ func (s Storage) RetrieveMarketIndicator(date string) (*m.DailyIndex, *m.CliInde
 			return nil, nil, result.Error
 		}
 
-		result = s.db.Last(&cliIdx) // Preload("Asset")
-		if result.Error != nil {
-			return nil, nil, result.Error
-		}
+		// result = s.db.Last(&cliIdx) // Preload("Asset") // TODO. CLI Index 우선 미사용
+		// if result.Error != nil {
+		// 	return nil, nil, result.Error
+		// }
 	} else {
 		result := s.db.First(&dailyIdx, date) // Preload("Asset")
 		if result.Error != nil {
 			return nil, nil, result.Error
 		}
 
-		result = s.db.First(&cliIdx, date) // Preload("Asset")
-		if result.Error != nil {
-			return nil, nil, result.Error
-		}
+		// result = s.db.First(&cliIdx, date) // Preload("Asset")
+		// if result.Error != nil {
+		// 	return nil, nil, result.Error
+		// }
 	}
 
 	return &dailyIdx, &cliIdx, nil
 }
 
+func (s Storage) SaveDailyMarketIndicator(fearGreedIndex uint, nasdaq float64) error {
+
+	result := s.db.Create(&m.DailyIndex{
+		CreatedAt:      datatypes.Date(time.Now()),
+		FearGreedIndex: fearGreedIndex,
+		NasDaq:         nasdaq,
+	})
+	if result.Error != nil {
+		return result.Error
+	}
+
+	return nil
+}
+
 func (s Storage) SaveMarketStatus(status uint) error {
 
 	result := s.db.Create(&m.Market{
-		Status: status,
+		CreatedAt: datatypes.Date(time.Now()),
+		Status:    status,
 	})
 	if result.Error != nil {
 		return result.Error
