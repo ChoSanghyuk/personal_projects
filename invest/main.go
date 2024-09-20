@@ -17,7 +17,7 @@ import (
 
 const (
 	Every15Min = "0 */15 * * * *"
-	Every9Am   = "* * 15 * * *"
+	Every9Am   = "0 0 9 * * *"
 )
 
 func main() {

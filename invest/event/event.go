@@ -5,6 +5,7 @@ import (
 	m "invest/model"
 	"log"
 	"strings"
+	"time"
 )
 
 type Event struct {
@@ -123,7 +124,8 @@ func (e Event) IndexEvent(c chan<- string) {
 	}
 
 	// 어제꺼 조회
-	di, _, err := e.stg.RetrieveMarketIndicator("어제")
+	yesterday := time.Now().AddDate(0, 0, -1).Format("2006-01-02")
+	di, _, err := e.stg.RetrieveMarketIndicator(yesterday)
 	if err != nil {
 		c <- fmt.Sprintf("어제자 Nasdaq Index 저장 시 오류 발생. %s", err.Error())
 		c <- fmt.Sprintf("금일 공포 탐욕 지수 : %d\n금일 Nasdaq : %f", fgi, nasdaq)
