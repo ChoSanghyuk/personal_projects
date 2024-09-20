@@ -50,30 +50,56 @@ func (m StorageMock) UpdateInvestSummarySum(fundId uint, assetId uint, sum float
 	return nil
 }
 
-type ScraperMock struct {
+// todo. 목 수정
+func (m StorageMock) RetrieveMarketIndicator(date string) (*md.DailyIndex, *md.CliIndex, error) {
+	return nil, nil, nil
+}
+
+func (m StorageMock) SaveDailyMarketIndicator(fearGreedIndex uint, nasdaq float64) error {
+	if m.err != nil {
+		return m.err
+	}
+	return nil
+}
+
+type RtPollerMock struct {
 	cp     float64
 	estate string
 	err    error
 }
 
-func (m ScraperMock) CurrentPrice(category md.Category, code string) (float64, error) {
+func (m RtPollerMock) CurrentPrice(category md.Category, code string) (float64, error) {
 	if m.err != nil {
 		return 0, m.err
 	}
 	return m.cp, nil
 }
 
-func (m ScraperMock) RealEstateStatus() (string, error) {
+func (m RtPollerMock) RealEstateStatus() (string, error) {
 	if m.err != nil {
 		return "", m.err
 	}
 	return m.estate, nil
 }
 
-func (m ScraperMock) ExchageRate() float64 {
+type DailyPollerMock struct {
+	err error
+}
+
+func (m DailyPollerMock) ExchageRate() float64 {
 	if m.err != nil {
 		return 0
 	}
 
 	return 1300
+}
+
+func (m DailyPollerMock) FearGreedIndex() (uint, error) {
+	return 0, nil
+}
+func (m DailyPollerMock) Nasdaq() (float64, error) {
+	return 0, nil
+}
+func (m DailyPollerMock) CliIdx() (float64, error) {
+	return 0, nil
 }

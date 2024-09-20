@@ -9,9 +9,10 @@ import (
 func TestEventbuySellMsg(t *testing.T) {
 
 	stg := &StorageMock{}
-	scrp := &ScraperMock{}
+	scrp := &RtPollerMock{}
+	dp := &DailyPollerMock{}
 
-	evt := NewEvent(stg, scrp)
+	evt := NewEvent(stg, scrp, dp)
 
 	pm := make(map[uint]float64)
 
@@ -67,9 +68,10 @@ func TestEventbuySellMsg(t *testing.T) {
 func TestEventportfolioMsg(t *testing.T) {
 
 	stg := &StorageMock{}
-	scrp := &ScraperMock{}
+	scrp := &RtPollerMock{}
+	dp := &DailyPollerMock{}
 
-	evt := NewEvent(stg, scrp)
+	evt := NewEvent(stg, scrp, dp)
 
 	pm := make(map[uint]float64)
 

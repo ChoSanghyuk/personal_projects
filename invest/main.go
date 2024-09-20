@@ -9,9 +9,15 @@ import (
 	"invest/event"
 	"invest/scrape"
 	"strconv"
-	"time"
 
 	"log"
+
+	"github.com/robfig/cron"
+)
+
+const (
+	Every15Min = "0 */15 * * * *"
+	Every9Am   = "0 0 9 * * *"
 )
 
 func main() {
@@ -30,9 +36,9 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	event := event.NewEvent(db, scraper)
+	event := event.NewEvent(db, scraper, scraper)
 
-	c := make(chan string)
+	ch := make(chan string)
 
 	chatId, err := strconv.ParseInt(conf.Telegram.ChatId, 10, 64)
 	if err != nil {
@@ -44,26 +50,32 @@ func main() {
 		panic(err)
 	}
 
-	go func() {
-		for true {
-			event.AssetEvent(c)
-			time.Sleep(10 * time.Minute)
-		}
-	}()
+	c := cron.New()
+	c.AddFunc(Every15Min, func() { event.AssetEvent(ch) })
+	c.AddFunc(Every15Min, func() { event.RealEstateEvent(ch) })
+	c.AddFunc(Every9Am, func() { event.IndexEvent(ch) })
+	c.Start()
 
-	go func() {
-		for true {
-			event.RealEstateEvent(c)
-			time.Sleep(10 * time.Minute)
-		}
-	}()
+	// go func() {
+	// 	for true {
+	// 		event.AssetEvent(ch)
+	// 		time.Sleep(10 * time.Minute)
+	// 	}
+	// }()
+
+	// go func() {
+	// 	for true {
+	// 		event.RealEstateEvent(ch)
+	// 		time.Sleep(10 * time.Minute)
+	// 	}
+	// }()
 
 	go func() {
 		app.Run(db, scraper)
 	}()
 
 	for true {
-		msg := <-c
+		msg := <-ch
 		teleBot.SendMessage(msg)
 		log.Println(msg)
 	}

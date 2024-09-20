@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"invest/model"
+	"net/http"
 	"regexp"
 	"strconv"
 	"time"
@@ -28,6 +29,7 @@ type Scraper struct {
 
 type transmitter interface {
 	ApiBaseUrl(target string) string
+	ApiHeader(target string) map[string]string
 	CrawlUrlCasspath(target string) (url string, cssPath string)
 }
 
@@ -147,4 +149,38 @@ func (s *Scraper) ExchageRate() float64 {
 	s.exchange.Date = time.Now()
 
 	return exrate
+}
+
+func (s *Scraper) FearGreedIndex() (uint, error) {
+
+	url := s.t.ApiBaseUrl("fearGreed")
+	header := s.t.ApiHeader("fearGreed")
+
+	type fearGreed struct {
+		Fgi struct {
+			Now struct {
+				Value uint   `json:"value"`
+				Text  string `json:"valueText"`
+			} `json:"now"`
+		} `json:"fgi"`
+	}
+	var rtn fearGreed
+
+	err := sendRequest(url, http.MethodGet, header, nil, &rtn)
+	if err != nil {
+		return 0, nil
+	}
+
+	return rtn.Fgi.Now.Value, nil
+}
+
+func (s *Scraper) Nasdaq() (float64, error) {
+
+	return s.kisNasdaqIndex()
+}
+
+// TODO. 현재로는 크롤링/API 못 찾음
+func (s *Scraper) CliIdx() (float64, error) {
+	// need Chromedp
+	return 0, nil
 }

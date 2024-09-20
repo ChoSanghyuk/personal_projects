@@ -195,13 +195,22 @@ func TestRetrieveMarketIndicator(t *testing.T) {
 	})
 
 	t.Run("날짜 지정", func(t *testing.T) {
-		rtn1, rtn2, err := stg.RetrieveMarketIndicator("2024-08-29")
+		rtn1, rtn2, err := stg.RetrieveMarketIndicator("2024-09-20")
 		if err != nil {
 			t.Error(t)
 		}
 		t.Log(rtn1)
 		t.Log(rtn2)
 	})
+}
+
+func TestSaveDailyMarketIndicator(t *testing.T) {
+
+	err := stg.SaveDailyMarketIndicator(20, 183.35)
+	if err != nil {
+		t.Error(err)
+	}
+
 }
 func TestSaveMarketStatus(t *testing.T) {
 
