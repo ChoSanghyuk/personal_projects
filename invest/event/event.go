@@ -126,9 +126,10 @@ func (e Event) IndexEvent(c chan<- string) {
 	di, _, err := e.stg.RetrieveMarketIndicator("어제")
 	if err != nil {
 		c <- fmt.Sprintf("어제자 Nasdaq Index 저장 시 오류 발생. %s", err.Error())
+		c <- fmt.Sprintf("금일 공포 탐욕 지수 : %d\n금일 Nasdaq : %f", fgi, nasdaq)
+	} else {
+		c <- fmt.Sprintf("금일 공포 탐욕 지수 : %d (전일 : %d)\n금일 Nasdaq : %f (전일 : %f)", fgi, di.FearGreedIndex, nasdaq, di.NasDaq)
 	}
-
-	c <- fmt.Sprintf("금일 공포 탐욕 지수 : %d (전일 : %d)\n금일 Nasdaq : %f (전일 : %f)", fgi, di.FearGreedIndex, nasdaq, di.NasDaq)
 
 }
 

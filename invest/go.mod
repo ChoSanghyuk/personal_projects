@@ -10,6 +10,7 @@ require (
 	github.com/go-playground/validator/v10 v10.22.0
 	github.com/go-telegram-bot-api/telegram-bot-api/v5 v5.5.1
 	github.com/gofiber/fiber/v2 v2.52.5
+	github.com/robfig/cron v1.2.0
 	github.com/stretchr/testify v1.9.0
 	gopkg.in/yaml.v3 v3.0.1
 	gorm.io/datatypes v1.2.1
