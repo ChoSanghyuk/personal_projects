@@ -162,10 +162,12 @@ func (e Event) buySellMsg(assetId uint, pm map[uint]float64) (msg string, err er
 	pm[assetId] = cp
 
 	// 자산 매도/매수 기준 비교 및 알림 여부 판단. (알림 전송)
-	if a.BuyPrice >= cp {
+	if a.BuyPrice >= cp && !hasMsgCache(a.ID, false, a.BuyPrice) {
 		msg = fmt.Sprintf("BUY %s. ID : %d. LOWER BOUND : %f. CURRENT PRICE :%f", a.Name, a.ID, a.BuyPrice, cp)
-	} else if a.SellPrice != 0 && a.SellPrice <= cp {
+		setMsgCache(a.ID, false, a.BuyPrice)
+	} else if a.SellPrice != 0 && a.SellPrice <= cp && !hasMsgCache(a.ID, true, a.SellPrice) {
 		msg = fmt.Sprintf("SELL %s. ID : %d. UPPER BOUND : %f. CURRENT PRICE :%f", a.Name, a.ID, a.SellPrice, cp)
+		setMsgCache(a.ID, true, a.SellPrice)
 	}
 
 	return
