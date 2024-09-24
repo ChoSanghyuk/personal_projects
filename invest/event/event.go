@@ -1,9 +1,11 @@
 package event
 
 import (
+	"cmp"
 	"fmt"
 	m "invest/model"
 	"log"
+	"slices"
 	"strings"
 	"time"
 )
@@ -38,6 +40,7 @@ func NewEvent(stg Storage, rtPoller RtPoller, dailyPoller DailyPoller) *Event {
   - 시장 단계
   - 갱신된 investSummary list
 */
+
 func (e Event) AssetEvent(c chan<- string) {
 
 	// 등록 자산 목록 조회
@@ -77,8 +80,22 @@ func (e Event) AssetEvent(c chan<- string) {
 		return
 	}
 
+}
+
+func (e Event) PortfolioEvent(c chan<- string) {
+
+	// 자금별 종목 투자 내역 조회
+	ivsmLi, err := e.stg.RetreiveFundsSummaryOrderByFundId()
+	if err != nil {
+		c <- fmt.Sprintf("[AssetEvent] RetreiveFundsSummaryOrderByFundId 시, 에러 발생. %s", err)
+		return
+	}
+	if len(ivsmLi) == 0 {
+		return
+	}
+
 	// 현재 시장 단계 이하로 변동 자산을 가지고 있는지 확인. (알림 전송)
-	msg, err := e.portfolioMsg(ivsmLi, priceMap)
+	msg, err := e.portfolioMsg(ivsmLi)
 	if err != nil {
 		c <- fmt.Sprintf("[AssetEvent] portfolioMsg시, 에러 발생. %s", err)
 	}
@@ -186,7 +203,7 @@ func (e Event) updateFundSummarys(list []m.InvestSummary, pm map[uint]float64) (
 	return nil
 }
 
-func (e Event) portfolioMsg(ivsmLi []m.InvestSummary, pm map[uint]float64) (msg string, err error) {
+func (e Event) portfolioMsg(ivsmLi []m.InvestSummary) (msg string, err error) {
 	// 현재 시장 단계 조회
 	market, err := e.stg.RetrieveMarketStatus("")
 	if err != nil {
@@ -205,8 +222,6 @@ func (e Event) portfolioMsg(ivsmLi []m.InvestSummary, pm map[uint]float64) (msg 
 	keySet := make(map[uint]bool)
 	stable := make(map[uint]float64)
 	volatile := make(map[uint]float64)
-	priority := make(map[uint][]m.InvestSummary)
-	extra := make(map[uint][]m.InvestSummary)
 
 	for i := range len(ivsmLi) {
 
@@ -214,6 +229,7 @@ func (e Event) portfolioMsg(ivsmLi []m.InvestSummary, pm map[uint]float64) (msg 
 
 		keySet[ivsm.FundID] = true
 
+		// 원화 가치로 환산
 		var v float64
 		if ivsm.Asset.Currency == m.USD.String() {
 			v = ivsm.Sum * ex
@@ -227,40 +243,73 @@ func (e Event) portfolioMsg(ivsmLi []m.InvestSummary, pm map[uint]float64) (msg 
 			return msg, err
 		}
 
+		// 자금 종류별 안전 자산 가치, 변동 자산 가치 총합 계산
 		if category.IsStable() {
 			stable[ivsm.FundID] = stable[ivsm.FundID] + v
 		} else {
 			volatile[ivsm.FundID] = volatile[ivsm.FundID] + v
 		}
-
-		if !category.IsStable() && ivsm.Asset.Top <= pm[ivsm.AssetID] {
-			priority[ivsm.FundID] = append(priority[ivsm.FundID], *ivsm)
-		} else {
-			extra[ivsm.FundID] = append(extra[ivsm.FundID], *ivsm)
-		}
 	}
 
 	var sb strings.Builder
+	type priority struct {
+		asset *m.Asset
+		ap    float64
+		cp    float64
+		hp    float64
+		score float64
+	}
 	for k := range keySet {
 		if volatile[k]+stable[k] == 0 {
 			continue
 		}
 
 		r := volatile[k] / (volatile[k] + stable[k])
-		if r > marketLevel.VolatileAssetRate() {
+		if r > marketLevel.MaxVolatileAssetRate() || r < marketLevel.MinVolatileAssetRate() { // 매도해야 함
 			sb.WriteString(strings.Repeat("=", 20))
 			sb.WriteString("\n")
-			sb.WriteString(fmt.Sprintf("자금 %d 변동 자산 비중 초과. 변동 자산 비율 : %.2f. 현재 시장 단계 : %s(%.1f)\n\n", k, r, marketLevel.String(), marketLevel.VolatileAssetRate()))
 
-			sb.WriteString("=====우선 처분 종목 정보=====\n")
-			for _, p := range priority[k] {
-				sb.WriteString(fmt.Sprintf("종목 %d %s %.2f %.2f\n", p.Asset.ID, p.Asset.Name, p.Asset.Top, pm[p.AssetID]))
-			}
-			sb.WriteString("=====보유 종목 정보=====\n")
-			for _, e := range extra[k] {
-				sb.WriteString(fmt.Sprintf("종목 %d %s %.2f %.2f\n", e.Asset.ID, e.Asset.Name, e.Asset.Top, pm[e.AssetID]))
+			os := make([]priority, 0) // ordered slice
+			for _, ivsm := range ivsmLi {
+				if ivsm.FundID == k {
+
+					a := &ivsm.Asset
+					category, err := m.ToCategory(a.Category)
+					if err != nil {
+						return "", fmt.Errorf("[AssetEvent] ToCategory시, 에러 발생. %w", err)
+					}
+
+					cp, ap, hp, _, err := e.rt.AssetPriceInfo(category, a.Code)
+					if err != nil {
+						return "", fmt.Errorf("[AssetEvent] AssetPriceInfo, 에러 발생. %w", err)
+					}
+
+					os = append(os, priority{
+						asset: a,
+						ap:    ap,
+						cp:    cp,
+						hp:    hp,
+						score: 0.6*((cp-ap)/cp) + 0.4*((cp-hp)/cp),
+					})
+				}
 			}
 
+			if r > marketLevel.MaxVolatileAssetRate() {
+				sb.WriteString(fmt.Sprintf("자금 %d 변동 자산 비중 초과. 변동 자산 비율 : %.2f. 현재 시장 단계 : %s(%.1f)\n\n", k, r, marketLevel.String(), marketLevel.MaxVolatileAssetRate()))
+				slices.SortFunc(os, func(a, b priority) int {
+					// todo. 안전 자산일 때 매도 대상 후순위 로직 필요. + category 변환... 너무 번거로움. 방법 필요함
+					return cmp.Compare(b.score, a.score) // 큰 게 앞으로
+				})
+			} else {
+				sb.WriteString(fmt.Sprintf("자금 %d 변동 자산 비중 부족. 변동 자산 비율 : %.2f. 현재 시장 단계 : %s(%.1f)\n\n", k, r, marketLevel.String(), marketLevel.MinVolatileAssetRate()))
+				slices.SortFunc(os, func(a, b priority) int {
+					return cmp.Compare(a.score, b.score)
+				})
+			}
+
+			for _, p := range os {
+				sb.WriteString(fmt.Sprintf("AssetId : %d, AssetName : %s, CurrentPrice : %f, WeighedAveragePrice : %f, HighestPrice : %f\n", p.asset.ID, p.asset.Name, p.cp, p.ap, p.hp))
+			}
 		}
 
 	}
@@ -268,3 +317,18 @@ func (e Event) portfolioMsg(ivsmLi []m.InvestSummary, pm map[uint]float64) (msg 
 	msg = sb.String()
 	return
 }
+
+/*
+[판단]
+현재가가 고점 및 이평가보다 낮을수록 저평가(조정) => 매수
+현재가가 고점 및 이평가보다 높을수록 고평가 => 매도
+
+[수식]
+cp - 현재가
+ap - 평균가
+hp - 최고가
+
+매도매수지수 = 0.6*((cp-ap)/cp) + 0.4*((cp-hp))/cp)
+매도매수지수 클수록 매도 우선 순위
+매도매수지수 낮을수록 매수 우선순위
+*/

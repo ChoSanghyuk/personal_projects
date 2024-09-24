@@ -68,27 +68,41 @@ func TestEventbuySellMsg(t *testing.T) {
 func TestEventportfolioMsg(t *testing.T) {
 
 	stg := &StorageMock{}
-	scrp := &RtPollerMock{}
+	scrp := &RtPollerMock{
+		price: make(map[string][4]float64),
+	}
 	dp := &DailyPollerMock{}
 
 	evt := NewEvent(stg, scrp, dp)
 
-	pm := make(map[uint]float64)
-
+	/*
+		매도 필요상황
+		현재가 > ap, hp 인 애들이 앞으로 오는지
+		1번 cp > ap, cp >hp
+		2번 cp > ap, cp < hp (갭은 같게)
+		3번 cp = ap, cp = hp
+		4번 cp < ap, cp < hp
+		5번 안전 자산들
+	*/
 	t.Run("portfolioMsg-alertwithpriority", func(t *testing.T) {
 
 		stg.market = &m.Market{
 			Status: 3,
 		}
 		ivsmLi := []m.InvestSummary{
-			{ID: 1, FundID: 1, AssetID: 1, Asset: m.Asset{ID: 1, Category: "금", Currency: "WON", Top: 10000}, Count: 10, Sum: 50000},
-			{ID: 2, FundID: 1, AssetID: 2, Asset: m.Asset{ID: 2, Category: "국내주식", Name: "삼성전자", Currency: "WON", Top: 10000}, Count: 10, Sum: 100000},
+			{ID: 1, FundID: 1, AssetID: 1, Asset: m.Asset{ID: 1, Category: "금", Name: "금", Currency: "WON", Code: "1"}, Count: 10, Sum: 50000},
+			{ID: 2, FundID: 1, AssetID: 2, Asset: m.Asset{ID: 2, Category: "국내주식", Name: "삼성전자", Currency: "WON", Code: "2"}, Count: 10, Sum: 100000},
+			{ID: 3, FundID: 1, AssetID: 3, Asset: m.Asset{ID: 3, Category: "해외주식", Name: "애플", Currency: "USD", Code: "3"}, Count: 15, Sum: 1500},
+			{ID: 2, FundID: 1, AssetID: 2, Asset: m.Asset{ID: 4, Category: "국내주식", Name: "하이닉스", Currency: "WON", Code: "4"}, Count: 10, Sum: 100000},
+			{ID: 2, FundID: 1, AssetID: 2, Asset: m.Asset{ID: 5, Category: "국내코인", Name: "비트코인", Currency: "WON", Code: "5"}, Count: 10, Sum: 100000},
 		}
+		scrp.price["5"] = [4]float64{1000, 900, 900, 0}
+		scrp.price["3"] = [4]float64{1000, 900, 1100, 0}
+		scrp.price["4"] = [4]float64{1000, 1000, 1000, 0}
+		scrp.price["2"] = [4]float64{1000, 1100, 1100, 0}
+		scrp.price["1"] = [4]float64{1000, 900, 900, 0}
 
-		pm[1] = 9000
-		pm[2] = 11000
-
-		msg, err := evt.portfolioMsg(ivsmLi, pm)
+		msg, err := evt.portfolioMsg(ivsmLi)
 
 		if err != nil {
 			t.Error(err)
@@ -110,10 +124,7 @@ func TestEventportfolioMsg(t *testing.T) {
 			{ID: 2, FundID: 1, AssetID: 2, Asset: m.Asset{ID: 2, Category: "국내주식", Name: "삼성전자", Currency: "WON", Top: 10000}, Count: 10, Sum: 100000},
 		}
 
-		pm[1] = 11000
-		pm[2] = 9000
-
-		msg, err := evt.portfolioMsg(ivsmLi, pm)
+		msg, err := evt.portfolioMsg(ivsmLi)
 
 		if err != nil {
 			t.Error(err)
@@ -134,10 +145,7 @@ func TestEventportfolioMsg(t *testing.T) {
 			{ID: 2, FundID: 1, AssetID: 2, Asset: m.Asset{ID: 2, Category: "국내주식", Name: "삼성전자", Currency: "WON", Top: 10000}, Count: 10, Sum: 100000},
 		}
 
-		pm[1] = 9000
-		pm[2] = 11000
-
-		msg, err := evt.portfolioMsg(ivsmLi, pm)
+		msg, err := evt.portfolioMsg(ivsmLi)
 
 		if err != nil {
 			t.Error(err)

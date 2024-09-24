@@ -12,10 +12,11 @@ const (
 	DomesticETF
 	DomesticStock
 	DomesticCoin
+	ForeignStock
 	Leverage
 )
 
-var categoryList = []string{"현금", "달러", "금", "단기채권", "국내ETF", "국내주식", "국내코인", "레버리지"}
+var categoryList = []string{"현금", "달러", "금", "단기채권", "국내ETF", "국내주식", "국내코인", "해외주식", "레버리지"}
 
 func (c Category) String() string {
 	if c == 0 || int(c) >= len(categoryList) {

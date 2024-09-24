@@ -65,6 +65,7 @@ func (m StorageMock) SaveDailyMarketIndicator(fearGreedIndex uint, nasdaq float6
 type RtPollerMock struct {
 	cp     float64
 	estate string
+	price  map[string][4]float64
 	err    error
 }
 
@@ -80,6 +81,11 @@ func (m RtPollerMock) RealEstateStatus() (string, error) {
 		return "", m.err
 	}
 	return m.estate, nil
+}
+
+func (m RtPollerMock) AssetPriceInfo(category md.Category, code string) (cp, ap, hp, lp float64, err error) {
+
+	return m.price[code][0], m.price[code][1], m.price[code][2], m.price[code][3], nil
 }
 
 type DailyPollerMock struct {

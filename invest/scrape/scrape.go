@@ -100,8 +100,8 @@ func (s *Scraper) CurrentPrice(category model.Category, code string) (cp float64
 	case model.Dollar:
 		return s.ExchageRate(), nil
 	case model.DomesticStock, model.Gold:
-		cp, _, _, err = s.kisDomesticStockPrice(code)
-		return cp, err
+		stock, err := s.kisDomesticStockPrice(code)
+		return stock.cp, err
 	case model.DomesticCoin:
 		return s.upbitApi(code)
 	}
@@ -112,13 +112,33 @@ func (s *Scraper) CurrentPrice(category model.Category, code string) (cp float64
 func (s *Scraper) TopBottomPrice(category model.Category, code string) (hp float64, lp float64, err error) {
 	switch category {
 	case model.DomesticStock:
-		_, hp, lp, err = s.kisDomesticStockPrice(code)
-		return hp, lp, err
+		stock, err := s.kisDomesticStockPrice(code)
+		return stock.hp, stock.lp, err
 	case model.DomesticCoin:
 		return 0, 0, nil
 	}
 
 	return 0, 0, errors.New("미분류된 종목")
+}
+
+func (s *Scraper) AssetPriceInfo(category model.Category, code string) (cp, ap, hp, lp float64, err error) {
+
+	switch category {
+	case model.Won:
+		return 1, 1, 1, 1, nil
+	case model.Dollar:
+		r := s.ExchageRate()
+		return r, r, r, r, nil
+	case model.DomesticStock, model.Gold:
+		stock, err := s.kisDomesticStockPrice(code)
+		return stock.cp, stock.ap, stock.hp, stock.lp, err
+	case model.DomesticCoin:
+		// todo. 해외 주식 및 코인 정보 정리
+		cp, err = s.upbitApi(code)
+		return cp, ap, hp, lp, err
+	}
+
+	return 0, 0, 0, 0, errors.New("미분류된 종목")
 }
 
 func (s *Scraper) RealEstateStatus() (string, error) {

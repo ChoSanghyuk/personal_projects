@@ -49,17 +49,24 @@ type KIsResp struct {
 	RtCd   string            `json:"rt_cd"`
 }
 
-func (s *Scraper) kisDomesticStockPrice(code string) (float64, float64, float64, error) {
+type StockPrice struct {
+	cp float64
+	ap float64
+	hp float64
+	lp float64
+}
+
+func (s *Scraper) kisDomesticStockPrice(code string) (StockPrice, error) {
 
 	url := s.t.ApiBaseUrl("KIS")
 	if url == "" {
-		return 0, 0, 0, errors.New("URL 미존재")
+		return StockPrice{}, errors.New("URL 미존재")
 	}
 	url = fmt.Sprintf(url, code)
 
 	token, err := s.KisToken()
 	if err != nil {
-		return 0, 0, 0, err
+		return StockPrice{}, err
 	}
 
 	var rtn KIsResp
@@ -74,29 +81,39 @@ func (s *Scraper) kisDomesticStockPrice(code string) (float64, float64, float64,
 
 	err = sendRequest(url, http.MethodGet, header, nil, &rtn)
 	if err != nil {
-		return 0, 0, 0, err
+		return StockPrice{}, err
 	}
 
 	if rtn.RtCd != "0" {
-		return 0, 0, 0, errors.New("국내 주식현재가 시세 API 실패 코드 반환")
+		return StockPrice{}, errors.New("국내 주식현재가 시세 API 실패 코드 반환")
 	}
 
 	cp, err := strconv.ParseFloat(rtn.Output["stck_prpr"], 64)
 	if err != nil {
-		return 0, 0, 0, err
+		return StockPrice{}, err
+	}
+
+	ap, err := strconv.ParseFloat(rtn.Output["wghn_avrg_stck_prc"], 64) // 가중 평균 주식 가격
+	if err != nil {
+		return StockPrice{}, err
 	}
 
 	hp, err := strconv.ParseFloat(rtn.Output["w52_hgpr"], 64)
 	if err != nil {
-		return 0, 0, 0, err
+		return StockPrice{}, err
 	}
 
 	lp, err := strconv.ParseFloat(rtn.Output["w52_lwpr"], 64)
 	if err != nil {
-		return 0, 0, 0, err
+		return StockPrice{}, err
 	}
 
-	return cp, hp, lp, nil
+	return StockPrice{
+		cp: cp,
+		ap: ap,
+		hp: hp,
+		lp: lp,
+	}, nil
 }
 
 // 해외주식 종목/지수/환율기간별시세(일/주/월/년)[v1_해외주식-012]

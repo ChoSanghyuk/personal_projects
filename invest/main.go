@@ -16,8 +16,9 @@ import (
 )
 
 const (
-	Every15Min = "0 */15 * * * *"
-	Every9Am   = "0 0 9 * * *"
+	Every15Min    = "0 */15 * * * *"
+	Every9Am      = "0 0 9 * * *"
+	PortfolioSpec = "0 5 10,22 * * *"
 )
 
 func main() {
@@ -54,6 +55,7 @@ func main() {
 	c.AddFunc(Every15Min, func() { event.AssetEvent(ch) })
 	c.AddFunc(Every15Min, func() { event.RealEstateEvent(ch) })
 	c.AddFunc(Every9Am, func() { event.IndexEvent(ch) })
+	c.AddFunc(PortfolioSpec, func() { event.PortfolioEvent(ch) })
 	c.Start()
 
 	// go func() {

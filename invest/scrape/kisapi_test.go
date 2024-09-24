@@ -27,11 +27,11 @@ func TestKis(t *testing.T) {
 	})
 
 	t.Run("Stock current Price", func(t *testing.T) {
-		cp, hp, lp, err := s.kisDomesticStockPrice("M04020000")
+		stock, err := s.kisDomesticStockPrice("M04020000")
 		if err != nil {
 			t.Error(err)
 		}
-		t.Log(cp, hp, lp)
+		t.Log(stock.cp, stock.ap, stock.hp, stock.lp)
 	})
 
 	t.Run("Foreign Index", func(t *testing.T) {

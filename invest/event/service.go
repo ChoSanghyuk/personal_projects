@@ -17,6 +17,7 @@ type Storage interface {
 
 type RtPoller interface {
 	CurrentPrice(category m.Category, code string) (float64, error)
+	AssetPriceInfo(category m.Category, code string) (cp, ap, hp, lp float64, err error)
 	RealEstateStatus() (string, error)
 }
 
