@@ -2,6 +2,7 @@ package db
 
 import (
 	"database/sql"
+	"fmt"
 	m "invest/model"
 	"log"
 	"testing"
@@ -10,6 +11,7 @@ import (
 	"gorm.io/datatypes"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 )
 
 var db *gorm.DB
@@ -24,7 +26,9 @@ func init() {
 
 	db, err = gorm.Open(mysql.New(mysql.Config{
 		Conn: sqlDB,
-	}), &gorm.Config{})
+	}), &gorm.Config{
+		Logger: logger.Default.LogMode(logger.Info),
+	})
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -65,4 +69,15 @@ func TestTime(t *testing.T) {
 	}
 
 	db.Debug().Create(&d)
+}
+
+func TestSelectFirst(t *testing.T) {
+	var dailyIdx m.DailyIndex
+
+	result := db.Where("created_at = ?", "2024-09-21").Select(&dailyIdx)
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+
+	fmt.Printf("%+v", dailyIdx)
 }

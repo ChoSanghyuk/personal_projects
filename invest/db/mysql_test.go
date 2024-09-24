@@ -156,10 +156,11 @@ func TestDeleteAssetInfo(t *testing.T) {
 		t.Error(err)
 	}
 
-	stg.db.Select(&asset, asset.ID)
-	t.Logf("%+v", asset)
+	var asset2 m.Asset
+	stg.db.Select(&asset2, asset.ID)
+	t.Logf("%+v", asset2)
 
-	if asset.Name != "" {
+	if asset2.Name != "" {
 		t.Error()
 	}
 
@@ -195,12 +196,12 @@ func TestRetrieveMarketIndicator(t *testing.T) {
 	})
 
 	t.Run("날짜 지정", func(t *testing.T) {
-		rtn1, rtn2, err := stg.RetrieveMarketIndicator("2024-09-20")
+		rtn1, rtn2, err := stg.RetrieveMarketIndicator("2024-09-23")
 		if err != nil {
 			t.Error(t)
 		}
-		t.Log(rtn1)
-		t.Log(rtn2)
+		t.Log(*rtn1)
+		t.Log(*rtn2)
 	})
 }
 

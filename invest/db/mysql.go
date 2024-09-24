@@ -241,7 +241,7 @@ func (s Storage) RetrieveMarketIndicator(date string) (*m.DailyIndex, *m.CliInde
 		// 	return nil, nil, result.Error
 		// }
 	} else {
-		result := s.db.First(&dailyIdx, date) // Preload("Asset")
+		result := s.db.Where("created_at = ?", date).First(&dailyIdx) // Preload("Asset")
 		if result.Error != nil {
 			return nil, nil, result.Error
 		}
