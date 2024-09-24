@@ -157,7 +157,7 @@ func (s Storage) SaveAssetInfo(name string, category m.Category, code string, cu
 
 	result := s.db.Create(&m.Asset{
 		Name:      name,
-		Category:  category.String(),
+		Category:  category,
 		Code:      code,
 		Currency:  currency,
 		Top:       top,
@@ -179,7 +179,7 @@ func (s Storage) UpdateAssetInfo(id uint, name string, category m.Category, code
 	result := s.db.Updates(m.Asset{
 		ID:        id,
 		Name:      name,
-		Category:  category.String(),
+		Category:  category,
 		Code:      code,
 		Currency:  currency,
 		Top:       top,
@@ -241,6 +241,7 @@ func (s Storage) RetrieveMarketIndicator(date string) (*m.DailyIndex, *m.CliInde
 		// 	return nil, nil, result.Error
 		// }
 	} else {
+		// todo. createdAt에 대해서는 왜 First가 where절 못 만드는지
 		result := s.db.Where("created_at = ?", date).First(&dailyIdx) // Preload("Asset")
 		if result.Error != nil {
 			return nil, nil, result.Error

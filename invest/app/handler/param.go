@@ -1,5 +1,7 @@
 package handler
 
+/***************************************************************** request ****************************************************************/
+
 type AssetHistReq struct {
 	ID uint `json:"id" validate:"required"`
 }
@@ -52,4 +54,23 @@ type SaveInvestParam struct {
 	AssetCode string  `json:"code"`
 	Price     float64 `json:"price" validate:"required"`
 	Count     float64 `json:"count" validate:"required"`
+}
+
+/***************************************************************** resoponse ****************************************************************/
+
+type assetListResponse struct {
+	AssetId   uint   `json:"asset_id"`
+	AssetName string `json:"name"`
+}
+
+type assetResponse struct {
+	ID        uint
+	Name      string
+	Category  string
+	Code      string
+	Currency  string
+	Top       float64
+	Bottom    float64
+	SellPrice float64
+	BuyPrice  float64
 }

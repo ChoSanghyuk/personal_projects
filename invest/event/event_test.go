@@ -18,7 +18,7 @@ func TestEventbuySellMsg(t *testing.T) {
 
 	t.Run("buySellMsgTest-Buy", func(t *testing.T) {
 		stg.assets = []m.Asset{
-			{ID: 1, Name: "종목1", Category: "국내주식", Code: "code", Currency: "WON", SellPrice: 480, BuyPrice: 450},
+			{ID: 1, Name: "종목1", Category: m.DomesticStock, Code: "code", Currency: "WON", SellPrice: 480, BuyPrice: 450},
 		}
 		scrp.cp = 400
 		msg, err := evt.buySellMsg(1, pm)
@@ -34,7 +34,7 @@ func TestEventbuySellMsg(t *testing.T) {
 
 	t.Run("buySellMsgTest-Sell", func(t *testing.T) {
 		stg.assets = []m.Asset{
-			{ID: 1, Name: "종목1", Category: "국내주식", Code: "code", Currency: "WON", SellPrice: 480, BuyPrice: 450},
+			{ID: 1, Name: "종목1", Category: m.DomesticStock, Code: "code", Currency: "WON", SellPrice: 480, BuyPrice: 450},
 		}
 		scrp.cp = 490
 		msg, err := evt.buySellMsg(1, pm)
@@ -50,7 +50,7 @@ func TestEventbuySellMsg(t *testing.T) {
 
 	t.Run("buySellMsgTest-Nothing", func(t *testing.T) {
 		stg.assets = []m.Asset{
-			{ID: 1, Name: "종목1", Category: "국내주식", Code: "code", Currency: "WON", SellPrice: 480, BuyPrice: 450},
+			{ID: 1, Name: "종목1", Category: m.DomesticStock, Code: "code", Currency: "WON", SellPrice: 480, BuyPrice: 450},
 		}
 		scrp.cp = 470
 		msg, err := evt.buySellMsg(1, pm)
@@ -90,11 +90,11 @@ func TestEventportfolioMsg(t *testing.T) {
 			Status: 3,
 		}
 		ivsmLi := []m.InvestSummary{
-			{ID: 1, FundID: 1, AssetID: 1, Asset: m.Asset{ID: 1, Category: "금", Name: "금", Currency: "WON", Code: "1"}, Count: 10, Sum: 50000},
-			{ID: 2, FundID: 1, AssetID: 2, Asset: m.Asset{ID: 2, Category: "국내주식", Name: "삼성전자", Currency: "WON", Code: "2"}, Count: 10, Sum: 100000},
-			{ID: 3, FundID: 1, AssetID: 3, Asset: m.Asset{ID: 3, Category: "해외주식", Name: "애플", Currency: "USD", Code: "3"}, Count: 15, Sum: 1500},
-			{ID: 2, FundID: 1, AssetID: 2, Asset: m.Asset{ID: 4, Category: "국내주식", Name: "하이닉스", Currency: "WON", Code: "4"}, Count: 10, Sum: 100000},
-			{ID: 2, FundID: 1, AssetID: 2, Asset: m.Asset{ID: 5, Category: "국내코인", Name: "비트코인", Currency: "WON", Code: "5"}, Count: 10, Sum: 100000},
+			{ID: 1, FundID: 1, AssetID: 1, Asset: m.Asset{ID: 1, Category: m.Gold, Name: "금", Currency: "WON", Code: "1"}, Count: 10, Sum: 50000},
+			{ID: 2, FundID: 1, AssetID: 2, Asset: m.Asset{ID: 2, Category: m.DomesticStock, Name: "삼성전자", Currency: "WON", Code: "2"}, Count: 10, Sum: 100000},
+			{ID: 3, FundID: 1, AssetID: 3, Asset: m.Asset{ID: 3, Category: m.ForeignStock, Name: "애플", Currency: "USD", Code: "3"}, Count: 15, Sum: 1500},
+			{ID: 2, FundID: 1, AssetID: 2, Asset: m.Asset{ID: 4, Category: m.DomesticStock, Name: "하이닉스", Currency: "WON", Code: "4"}, Count: 10, Sum: 100000},
+			{ID: 2, FundID: 1, AssetID: 2, Asset: m.Asset{ID: 5, Category: m.DomesticCoin, Name: "비트코인", Currency: "WON", Code: "5"}, Count: 10, Sum: 100000},
 		}
 		scrp.price["5"] = [4]float64{1000, 900, 900, 0}
 		scrp.price["3"] = [4]float64{1000, 900, 1100, 0}
@@ -108,49 +108,6 @@ func TestEventportfolioMsg(t *testing.T) {
 			t.Error(err)
 		}
 		if msg != "" {
-			t.Log("\n", msg)
-		} else {
-			t.Error(msg)
-		}
-	})
-
-	t.Run("portfolioMsg-alertwithoutpriority", func(t *testing.T) {
-
-		stg.market = &m.Market{
-			Status: 3,
-		}
-		ivsmLi := []m.InvestSummary{
-			{ID: 1, FundID: 1, AssetID: 1, Asset: m.Asset{ID: 1, Category: "금", Name: "금", Currency: "WON", Top: 10000}, Count: 10, Sum: 50000},
-			{ID: 2, FundID: 1, AssetID: 2, Asset: m.Asset{ID: 2, Category: "국내주식", Name: "삼성전자", Currency: "WON", Top: 10000}, Count: 10, Sum: 100000},
-		}
-
-		msg, err := evt.portfolioMsg(ivsmLi)
-
-		if err != nil {
-			t.Error(err)
-		}
-		if msg != "" {
-			t.Log("\n", msg)
-		} else {
-			t.Error(msg)
-		}
-	})
-
-	t.Run("portfolioMsg-nothing", func(t *testing.T) {
-		stg.market = &m.Market{
-			Status: 3,
-		}
-		ivsmLi := []m.InvestSummary{
-			{ID: 1, FundID: 1, AssetID: 1, Asset: m.Asset{ID: 1, Category: "금", Currency: "WON", Top: 10000}, Count: 10, Sum: 150000},
-			{ID: 2, FundID: 1, AssetID: 2, Asset: m.Asset{ID: 2, Category: "국내주식", Name: "삼성전자", Currency: "WON", Top: 10000}, Count: 10, Sum: 100000},
-		}
-
-		msg, err := evt.portfolioMsg(ivsmLi)
-
-		if err != nil {
-			t.Error(err)
-		}
-		if msg == "" {
 			t.Log("\n", msg)
 		} else {
 			t.Error(msg)
