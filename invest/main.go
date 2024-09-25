@@ -56,6 +56,7 @@ func main() {
 	c.AddFunc(Every15Min, func() { event.AssetEvent(ch) })
 	c.AddFunc(Every15Min, func() { event.RealEstateEvent(ch) })
 	c.AddFunc(Every9Am, func() { event.IndexEvent(ch) })
+	c.AddFunc(Every9Am, func() { event.EmaUpdateEvent(ch) })
 	c.Start()
 
 	go func() {

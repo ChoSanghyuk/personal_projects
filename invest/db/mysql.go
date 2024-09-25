@@ -386,7 +386,7 @@ func (s Storage) RetreiveLatestEma(assetId uint) (float64, error) {
 
 func (s Storage) SaveEmaHist(assetId uint, price float64) error {
 
-	emay, err := s.RetreiveLatestEma(assetId)
+	emay, err := s.RetreiveLatestEma(assetId) // todo. 더 효율적으로 조회할 방법
 	if err != nil {
 		return err
 	}

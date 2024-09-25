@@ -40,11 +40,11 @@ func TestBitcoinApi(t *testing.T) {
 }
 
 func TestAlpaca(t *testing.T) {
-	cp, err := AlpacaCrypto("BTC/USD")
+	pp, err := AlpacaCrypto("BTC/USD")
 	if err != nil {
 		t.Error(err)
 	}
-	t.Log(cp)
+	t.Log(pp)
 }
 
 func TestGoldCrwal(t *testing.T) {

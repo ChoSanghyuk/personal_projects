@@ -86,13 +86,14 @@ func AlpacaCrypto(target string) (string, error) {
 종목 이름만 보고 어디서 가져올 지 정할 수 있어야 함
 종목별로 타입을 지정 => 어떤 base url을 사용할 지 결정
 
-	어떤 base url일지는 CurrentPrice 내부에서 case 세분화
+	어떤 base url일지는 PresentPrice 내부에서 case 세분화
 
 종목별로 심볼 등 base url에 들어갈 인자를 정할 수 있어야함
 
 종목 이름 - 타입/심볼을 어디에 저장해 둘 것인가 => DB
 */
-func (s *Scraper) CurrentPrice(category m.Category, code string) (cp float64, err error) {
+
+func (s *Scraper) PresentPrice(category m.Category, code string) (pp float64, err error) {
 
 	switch category {
 	case m.Won:
@@ -101,9 +102,12 @@ func (s *Scraper) CurrentPrice(category m.Category, code string) (cp float64, er
 		return s.ExchageRate(), nil
 	case m.DomesticStock, m.Gold:
 		stock, err := s.kisDomesticStockPrice(code)
-		return stock.cp, err
+		return stock.pp, err
 	case m.DomesticCoin:
 		return s.upbitApi(code)
+	case m.ForeignStock:
+		pp, _, err := s.kisForeignStockPrice(code)
+		return pp, err
 	}
 
 	return 0, errors.New("미분류된 종목")
@@ -114,11 +118,11 @@ func (s *Scraper) TopBottomPrice(category m.Category, code string) (hp float64, 
 	case m.DomesticStock:
 		stock, err := s.kisDomesticStockPrice(code)
 		return stock.hp, stock.lp, err
-	case m.DomesticCoin:
-		return 0, 0, nil
+		// case model.DomesticCoin:
+		// 	return 0, 0, nil
 	}
 
-	return 0, 0, errors.New("미분류된 종목")
+	return 0, 0, errors.New("최고/최저 호출 API 등록")
 }
 
 func (s *Scraper) ClosingPrice(category m.Category, code string) (cp float64, err error) {

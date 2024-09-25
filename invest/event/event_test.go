@@ -20,7 +20,7 @@ func TestEventbuySellMsg(t *testing.T) {
 		stg.assets = []m.Asset{
 			{ID: 1, Name: "종목1", Category: m.DomesticStock, Code: "code", Currency: "WON", SellPrice: 480, BuyPrice: 450},
 		}
-		scrp.cp = 400
+		scrp.pp = 400
 		msg, err := evt.buySellMsg(1, pm)
 		if err != nil {
 			t.Error(err)
@@ -36,7 +36,7 @@ func TestEventbuySellMsg(t *testing.T) {
 		stg.assets = []m.Asset{
 			{ID: 1, Name: "종목1", Category: m.DomesticStock, Code: "code", Currency: "WON", SellPrice: 480, BuyPrice: 450},
 		}
-		scrp.cp = 490
+		scrp.pp = 490
 		msg, err := evt.buySellMsg(1, pm)
 		if err != nil {
 			t.Error(err)
@@ -52,7 +52,7 @@ func TestEventbuySellMsg(t *testing.T) {
 		stg.assets = []m.Asset{
 			{ID: 1, Name: "종목1", Category: m.DomesticStock, Code: "code", Currency: "WON", SellPrice: 480, BuyPrice: 450},
 		}
-		scrp.cp = 470
+		scrp.pp = 470
 		msg, err := evt.buySellMsg(1, pm)
 		if err != nil {
 			t.Error(err)
@@ -76,10 +76,10 @@ func TestEventportfolioMsg(t *testing.T) {
 	/*
 		매도 필요상황
 		현재가 > ap, hp 인 애들이 앞으로 오는지
-		1번 cp > ap, cp >hp
-		2번 cp > ap, cp < hp (갭은 같게)
-		3번 cp = ap, cp = hp
-		4번 cp < ap, cp < hp
+		1번 pp > ap, pp >hp
+		2번 pp > ap, pp < hp (갭은 같게)
+		3번 pp = ap, pp = hp
+		4번 pp < ap, pp < hp
 		5번 안전 자산들
 	*/
 	t.Run("portfolioMsg-alertwithpriority", func(t *testing.T) {

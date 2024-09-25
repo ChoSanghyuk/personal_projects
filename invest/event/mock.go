@@ -71,16 +71,16 @@ func (m StorageMock) SaveEmaHist(assetId uint, price float64) error {
 }
 
 type RtPollerMock struct {
-	cp     float64
+	pp     float64
 	estate string
 	err    error
 }
 
-func (m RtPollerMock) CurrentPrice(category md.Category, code string) (float64, error) {
+func (m RtPollerMock) PresentPrice(category md.Category, code string) (float64, error) {
 	if m.err != nil {
 		return 0, m.err
 	}
-	return m.cp, nil
+	return m.pp, nil
 }
 
 func (m RtPollerMock) RealEstateStatus() (string, error) {

@@ -101,9 +101,9 @@ func (e Event) EmaUpdateEvent(c chan<- string) {
 	}
 
 	for _, a := range assetList {
-		cp, err := e.dp.ClosingPrice(a.Category, a.Code) // todo.
+		cp, err := e.dp.ClosingPrice(a.Category, a.Code)
 		if err != nil {
-			c <- fmt.Sprintf("[EmaUpdateEvent] CurrentPrice 시, 에러 발생. %s", err)
+			c <- fmt.Sprintf("[EmaUpdateEvent] PresentPrice 시, 에러 발생. %s", err)
 		}
 		e.stg.SaveEmaHist(a.ID, cp)
 	}
@@ -171,21 +171,21 @@ func (e Event) buySellMsg(assetId uint, pm map[uint]float64) (msg string, err er
 	}
 
 	// 자산별 현재 가격 조회
-	cp, err := e.rt.CurrentPrice(a.Category, a.Code)
+	pp, err := e.rt.PresentPrice(a.Category, a.Code)
 	if err != nil {
-		return "", fmt.Errorf("[AssetEvent] CurrentPrice 시, 에러 발생. %w", err)
+		return "", fmt.Errorf("[AssetEvent] PresentPrice 시, 에러 발생. %w", err)
 	}
 
-	log.Printf("%s 현재 가격 %.3f", a.Name, cp)
+	log.Printf("%s 현재 가격 %.3f", a.Name, pp)
 
-	pm[assetId] = cp
+	pm[assetId] = pp
 
 	// 자산 매도/매수 기준 비교 및 알림 여부 판단. (알림 전송)
-	if a.BuyPrice >= cp && !hasMsgCache(a.ID, false, a.BuyPrice) {
-		msg = fmt.Sprintf("BUY %s. ID : %d. LOWER BOUND : %f. CURRENT PRICE :%f", a.Name, a.ID, a.BuyPrice, cp)
+	if a.BuyPrice >= pp && !hasMsgCache(a.ID, false, a.BuyPrice) {
+		msg = fmt.Sprintf("BUY %s. ID : %d. LOWER BOUND : %f. CURRENT PRICE :%f", a.Name, a.ID, a.BuyPrice, pp)
 		setMsgCache(a.ID, false, a.BuyPrice)
-	} else if a.SellPrice != 0 && a.SellPrice <= cp && !hasMsgCache(a.ID, true, a.SellPrice) {
-		msg = fmt.Sprintf("SELL %s. ID : %d. UPPER BOUND : %f. CURRENT PRICE :%f", a.Name, a.ID, a.SellPrice, cp)
+	} else if a.SellPrice != 0 && a.SellPrice <= pp && !hasMsgCache(a.ID, true, a.SellPrice) {
+		msg = fmt.Sprintf("SELL %s. ID : %d. UPPER BOUND : %f. CURRENT PRICE :%f", a.Name, a.ID, a.SellPrice, pp)
 		setMsgCache(a.ID, true, a.SellPrice)
 	}
 
@@ -251,7 +251,7 @@ func (e Event) portfolioMsg(ivsmLi []m.InvestSummary, pm map[uint]float64) (msg 
 	type priority struct {
 		asset *m.Asset
 		ap    float64
-		cp    float64
+		pp    float64
 		hp    float64
 		score float64
 	}
@@ -270,7 +270,7 @@ func (e Event) portfolioMsg(ivsmLi []m.InvestSummary, pm map[uint]float64) (msg 
 				if ivsm.FundID == k {
 
 					a := &ivsm.Asset
-					cp := pm[a.ID]
+					pp := pm[a.ID]
 					ap, err := e.stg.RetreiveLatestEma(a.ID)
 					if err != nil {
 						return "", fmt.Errorf("RetreiveLatestEma, 에러 발생. %w", err)
@@ -280,9 +280,9 @@ func (e Event) portfolioMsg(ivsmLi []m.InvestSummary, pm map[uint]float64) (msg 
 					os = append(os, priority{
 						asset: a,
 						ap:    ap,
-						cp:    cp,
+						pp:    pp,
 						hp:    hp,
-						score: 0.6*((cp-ap)/cp) + 0.4*((cp-hp)/cp),
+						score: 0.6*((pp-ap)/pp) + 0.4*((pp-hp)/pp),
 					})
 				}
 			}
@@ -309,7 +309,7 @@ func (e Event) portfolioMsg(ivsmLi []m.InvestSummary, pm map[uint]float64) (msg 
 			}
 
 			for _, p := range os {
-				sb.WriteString(fmt.Sprintf("AssetId : %d, AssetName : %s, CurrentPrice : %f, WeighedAveragePrice : %f, HighestPrice : %f\n", p.asset.ID, p.asset.Name, p.cp, p.ap, p.hp))
+				sb.WriteString(fmt.Sprintf("AssetId : %d, AssetName : %s, PresentPrice : %f, WeighedAveragePrice : %f, HighestPrice : %f\n", p.asset.ID, p.asset.Name, p.pp, p.ap, p.hp))
 			}
 		}
 
@@ -325,11 +325,11 @@ func (e Event) portfolioMsg(ivsmLi []m.InvestSummary, pm map[uint]float64) (msg 
 현재가가 고점 및 이평가보다 높을수록 고평가 => 매도
 
 [수식]
-cp - 현재가
+pp - 현재가
 ap - 평균가
 hp - 최고가
 
-매도매수지수 = 0.6*((cp-ap)/cp) + 0.4*((cp-hp))/cp)
+매도매수지수 = 0.6*((pp-ap)/pp) + 0.4*((pp-hp))/pp)
 매도매수지수 클수록 매도 우선 순위
 매도매수지수 낮을수록 매수 우선순위
 */

@@ -46,9 +46,18 @@ func (h *AssetHandler) AddAsset(c *fiber.Ctx) error {
 		return fmt.Errorf("파라미터 유효성 검사 시 오류 발생. %w", err)
 	}
 
-	top, bottom, err := h.p.TopBottomPrice(m.Category(param.Category), param.Code)
-	if err != nil {
-		return fmt.Errorf("TopBottomPrice 시 오류 발생. %w", err)
+	top, bottom := param.Top, param.Bottom
+	if top == 0 || bottom == 0 {
+		_top, _bottom, err := h.p.TopBottomPrice(m.Category(param.Category), param.Code)
+		if err != nil {
+			return fmt.Errorf("TopBottomPrice 시 오류 발생. %w", err)
+		}
+		if top == 0 {
+			top = _top
+		}
+		if bottom == 0 {
+			bottom = _bottom
+		}
 	}
 
 	if param.BuyPrice == 0 {
