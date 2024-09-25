@@ -3,6 +3,7 @@ package event
 import md "invest/model"
 
 type StorageMock struct {
+	ma     map[uint]float64
 	market *md.Market
 	assets []md.Asset
 	ivsm   []md.InvestSummary
@@ -62,10 +63,16 @@ func (m StorageMock) SaveDailyMarketIndicator(fearGreedIndex uint, nasdaq float6
 	return nil
 }
 
+func (m StorageMock) RetreiveLatestEma(assetId uint) (float64, error) {
+	return m.ma[assetId], nil
+}
+func (m StorageMock) SaveEmaHist(assetId uint, price float64) error {
+	return nil
+}
+
 type RtPollerMock struct {
 	cp     float64
 	estate string
-	price  map[string][4]float64
 	err    error
 }
 
@@ -81,11 +88,6 @@ func (m RtPollerMock) RealEstateStatus() (string, error) {
 		return "", m.err
 	}
 	return m.estate, nil
-}
-
-func (m RtPollerMock) AssetPriceInfo(category md.Category, code string) (cp, ap, hp, lp float64, err error) {
-
-	return m.price[code][0], m.price[code][1], m.price[code][2], m.price[code][3], nil
 }
 
 type DailyPollerMock struct {
@@ -107,5 +109,9 @@ func (m DailyPollerMock) Nasdaq() (float64, error) {
 	return 0, nil
 }
 func (m DailyPollerMock) CliIdx() (float64, error) {
+	return 0, nil
+}
+
+func (m DailyPollerMock) ClosingPrice(category md.Category, code string) (float64, error) {
 	return 0, nil
 }

@@ -3,6 +3,7 @@ package db
 import (
 	"database/sql"
 	m "invest/model"
+	"math"
 	"time"
 
 	"gorm.io/datatypes"
@@ -236,7 +237,7 @@ func (s Storage) RetrieveMarketIndicator(date string) (*m.DailyIndex, *m.CliInde
 			return nil, nil, result.Error
 		}
 
-		// result = s.db.Last(&cliIdx) // Preload("Asset") // TODO. CLI Index 우선 미사용
+		// result = s.db.Last(&cliIdx) // Preload("Asset") // todo. CLI Index 우선 미사용
 		// if result.Error != nil {
 		// 	return nil, nil, result.Error
 		// }
@@ -370,4 +371,46 @@ func (s Storage) UpdateInvestSummarySum(fundId uint, assetId uint, sum float64) 
 
 	s.db.Model(&investSummary).Update("sum", sum)
 	return nil
+}
+
+func (s Storage) RetreiveLatestEma(assetId uint) (float64, error) {
+
+	var ema m.EmaHist
+	result := s.db.Where("asset_id", assetId).Order("date desc").First(&ema)
+	if result.Error != nil {
+		return 0, result.Error
+	}
+
+	return ema.Ema, nil
+}
+
+func (s Storage) SaveEmaHist(assetId uint, price float64) error {
+
+	emay, err := s.RetreiveLatestEma(assetId)
+	if err != nil {
+		return err
+	}
+
+	var ema = m.EmaHist{
+		AssetID: assetId,
+		Date:    datatypes.Date(time.Now()),
+		Ema:     ema(price, emay),
+	}
+
+	result := s.db.Create(&ema)
+	if result.Error != nil {
+		return result.Error
+	}
+
+	return nil
+}
+
+/*
+a =  2/N+1
+EMAt = a*PRICEt + (1-a)EMAy
+*/
+func ema(tp float64, emay float64) float64 {
+
+	a := 2.0 / (200 + 1)
+	return math.Round((a*tp+(1-a)*emay)*100) / 100
 }

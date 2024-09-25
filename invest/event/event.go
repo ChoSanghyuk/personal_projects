@@ -80,28 +80,34 @@ func (e Event) AssetEvent(c chan<- string) {
 		return
 	}
 
-}
-
-func (e Event) PortfolioEvent(c chan<- string) {
-
-	// 자금별 종목 투자 내역 조회
-	ivsmLi, err := e.stg.RetreiveFundsSummaryOrderByFundId()
-	if err != nil {
-		c <- fmt.Sprintf("[AssetEvent] RetreiveFundsSummaryOrderByFundId 시, 에러 발생. %s", err)
-		return
-	}
-	if len(ivsmLi) == 0 {
-		return
-	}
-
 	// 현재 시장 단계 이하로 변동 자산을 가지고 있는지 확인. (알림 전송)
-	msg, err := e.portfolioMsg(ivsmLi)
+	msg, err := e.portfolioMsg(ivsmLi, priceMap)
 	if err != nil {
 		c <- fmt.Sprintf("[AssetEvent] portfolioMsg시, 에러 발생. %s", err)
 	}
 	if msg != "" {
 		c <- msg
 	}
+
+}
+
+func (e Event) EmaUpdateEvent(c chan<- string) {
+
+	// 등록 자산 목록 조회
+	assetList, err := e.stg.RetrieveAssetList()
+	if err != nil {
+		c <- fmt.Sprintf("[EmaUpdateEvent] RetrieveAssetList 시, 에러 발생. %s", err)
+		return
+	}
+
+	for _, a := range assetList {
+		cp, err := e.dp.ClosingPrice(a.Category, a.Code) // todo.
+		if err != nil {
+			c <- fmt.Sprintf("[EmaUpdateEvent] CurrentPrice 시, 에러 발생. %s", err)
+		}
+		e.stg.SaveEmaHist(a.ID, cp)
+	}
+
 }
 
 func (e Event) RealEstateEvent(c chan<- string) {
@@ -199,7 +205,7 @@ func (e Event) updateFundSummarys(list []m.InvestSummary, pm map[uint]float64) (
 	return nil
 }
 
-func (e Event) portfolioMsg(ivsmLi []m.InvestSummary) (msg string, err error) {
+func (e Event) portfolioMsg(ivsmLi []m.InvestSummary, pm map[uint]float64) (msg string, err error) {
 	// 현재 시장 단계 조회
 	market, err := e.stg.RetrieveMarketStatus("")
 	if err != nil {
@@ -264,10 +270,12 @@ func (e Event) portfolioMsg(ivsmLi []m.InvestSummary) (msg string, err error) {
 				if ivsm.FundID == k {
 
 					a := &ivsm.Asset
-					cp, ap, hp, _, err := e.rt.AssetPriceInfo(a.Category, a.Code)
+					cp := pm[a.ID]
+					ap, err := e.stg.RetreiveLatestEma(a.ID)
 					if err != nil {
-						return "", fmt.Errorf("[AssetEvent] AssetPriceInfo, 에러 발생. %w", err)
+						return "", fmt.Errorf("RetreiveLatestEma, 에러 발생. %w", err)
 					}
+					hp := a.Top
 
 					os = append(os, priority{
 						asset: a,

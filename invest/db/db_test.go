@@ -35,7 +35,8 @@ func init() {
 }
 
 func TestMigration(t *testing.T) {
-	db.AutoMigrate(&m.Fund{}, &m.Asset{}, &m.Invest{}, &m.InvestSummary{}, &m.Market{}, &m.DailyIndex{}, &m.CliIndex{})
+	// db.AutoMigrate(&m.EmaHist{})
+	db.AutoMigrate(&m.Fund{}, &m.Asset{}, &m.Invest{}, &m.InvestSummary{}, &m.Market{}, &m.DailyIndex{}, &m.CliIndex{}, &m.EmaHist{})
 }
 
 func TestCreate(t *testing.T) {

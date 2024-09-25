@@ -3,7 +3,7 @@ package scrape
 import (
 	"errors"
 	"fmt"
-	"invest/model"
+	m "invest/model"
 	"net/http"
 	"regexp"
 	"strconv"
@@ -92,53 +92,52 @@ func AlpacaCrypto(target string) (string, error) {
 
 종목 이름 - 타입/심볼을 어디에 저장해 둘 것인가 => DB
 */
-func (s *Scraper) CurrentPrice(category model.Category, code string) (cp float64, err error) {
+func (s *Scraper) CurrentPrice(category m.Category, code string) (cp float64, err error) {
 
 	switch category {
-	case model.Won:
+	case m.Won:
 		return 1, nil
-	case model.Dollar:
+	case m.Dollar:
 		return s.ExchageRate(), nil
-	case model.DomesticStock, model.Gold:
+	case m.DomesticStock, m.Gold:
 		stock, err := s.kisDomesticStockPrice(code)
 		return stock.cp, err
-	case model.DomesticCoin:
+	case m.DomesticCoin:
 		return s.upbitApi(code)
 	}
 
 	return 0, errors.New("미분류된 종목")
 }
 
-func (s *Scraper) TopBottomPrice(category model.Category, code string) (hp float64, lp float64, err error) {
+func (s *Scraper) TopBottomPrice(category m.Category, code string) (hp float64, lp float64, err error) {
 	switch category {
-	case model.DomesticStock:
+	case m.DomesticStock:
 		stock, err := s.kisDomesticStockPrice(code)
 		return stock.hp, stock.lp, err
-	case model.DomesticCoin:
+	case m.DomesticCoin:
 		return 0, 0, nil
 	}
 
 	return 0, 0, errors.New("미분류된 종목")
 }
 
-func (s *Scraper) AssetPriceInfo(category model.Category, code string) (cp, ap, hp, lp float64, err error) {
+func (s *Scraper) ClosingPrice(category m.Category, code string) (cp float64, err error) {
 
 	switch category {
-	case model.Won:
-		return 1, 1, 1, 1, nil
-	case model.Dollar:
+	case m.Won:
+		return 1, nil
+	case m.Dollar:
 		r := s.ExchageRate()
-		return r, r, r, r, nil
-	case model.DomesticStock, model.Gold:
-		stock, err := s.kisDomesticStockPrice(code)
-		return stock.cp, stock.ap, stock.hp, stock.lp, err
-	case model.DomesticCoin:
+		return r, nil
+	case m.DomesticStock, m.Gold:
+		return 0, err
+	case m.DomesticCoin:
 		// todo. 해외 주식 및 코인 정보 정리
 		cp, err = s.upbitApi(code)
-		return cp, ap, hp, lp, err
+		return cp, err
 	}
 
-	return 0, 0, 0, 0, errors.New("미분류된 종목")
+	return 0, errors.New("미분류된 종목")
 }
 
 func (s *Scraper) RealEstateStatus() (string, error) {
@@ -199,7 +198,7 @@ func (s *Scraper) Nasdaq() (float64, error) {
 	return s.kisNasdaqIndex()
 }
 
-// TODO. 현재로는 크롤링/API 못 찾음
+// todo. 현재로는 크롤링/API 못 찾음
 func (s *Scraper) CliIdx() (float64, error) {
 	// need Chromedp
 	return 0, nil

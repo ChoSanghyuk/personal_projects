@@ -13,16 +13,19 @@ type Storage interface {
 
 	RetrieveMarketIndicator(date string) (*m.DailyIndex, *m.CliIndex, error)
 	SaveDailyMarketIndicator(fearGreedIndex uint, nasdaq float64) error
+
+	RetreiveLatestEma(assetId uint) (float64, error)
+	SaveEmaHist(assetId uint, price float64) error
 }
 
 type RtPoller interface {
 	CurrentPrice(category m.Category, code string) (float64, error)
-	AssetPriceInfo(category m.Category, code string) (cp, ap, hp, lp float64, err error)
 	RealEstateStatus() (string, error)
 }
 
 type DailyPoller interface {
 	ExchageRate() float64
+	ClosingPrice(category m.Category, code string) (float64, error)
 	FearGreedIndex() (uint, error)
 	Nasdaq() (float64, error)
 	CliIdx() (float64, error)

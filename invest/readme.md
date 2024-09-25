@@ -292,4 +292,9 @@ https://generalcoder.tistory.com/29
 | SSL/TLS 인증서를 사용 X                                   | SSL/TLS 인증서를 사용하여 통신을 암호화                     |
 
 
+### EMA
+SMAt = (PRICEt - SMAy)/ N+1 + SMAy
 
+a =  2/N+1
+EMAt = a*PRICEt + (1-a)EMAy
+(초기값은 SMA값 사용. https://www.barchart.com/stocks/quotes/AAPL/technical-analysis#google_vignette)

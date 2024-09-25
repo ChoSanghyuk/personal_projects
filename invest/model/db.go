@@ -24,6 +24,14 @@ type Asset struct {
 	BuyPrice  float64
 }
 
+type EmaHist struct {
+	ID      uint
+	AssetID uint
+	Asset   Asset
+	Date    datatypes.Date
+	Ema     float64
+}
+
 type Invest struct {
 	ID      uint
 	FundID  uint

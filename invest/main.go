@@ -31,7 +31,7 @@ func main() {
 
 	scraper := scrape.NewScraper(conf,
 		scrape.WithKIS(conf.KisAppKey(), conf.KisAppSecret()),
-		scrape.WithToken("eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0b2tlbiIsImF1ZCI6ImE5MDlhYWQ0LTk2M2ItNDI0NS1iNDY5LTQzNjVmNjg0NGVmMiIsInByZHRfY2QiOiIiLCJpc3MiOiJ1bm9ndyIsImV4cCI6MTcyNzIyMTUwMCwiaWF0IjoxNzI3MTM1MTAwLCJqdGkiOiJQU1htMG5xSzRHbUxpUlVqWWIxRFVUWG5neWxkT1JsWVdFRDAifQ.Qh543j_dTXEzvzLLv0peaMBxvvpBaaXKe0oyOsG86pjIePTz2Bt0df3_XDwDc1A4YipxssZ5Xw4K_vIo2xX4WQ"),
+		// scrape.WithToken(""), todo. 유효하지 않은 토큰 사용했을 시, 동작 확인
 	)
 
 	db, err := db.NewStorage(conf.Dsn())
@@ -56,7 +56,6 @@ func main() {
 	c.AddFunc(Every15Min, func() { event.AssetEvent(ch) })
 	c.AddFunc(Every15Min, func() { event.RealEstateEvent(ch) })
 	c.AddFunc(Every9Am, func() { event.IndexEvent(ch) })
-	c.AddFunc(PortfolioSpec, func() { event.PortfolioEvent(ch) })
 	c.Start()
 
 	go func() {

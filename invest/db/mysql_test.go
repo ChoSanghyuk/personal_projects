@@ -270,3 +270,20 @@ func TestSaveInvest(t *testing.T) {
 	stg.db.Delete(&invest)
 
 }
+
+func TestRetreiveLatestEma(t *testing.T) {
+	rtn, err := stg.RetreiveLatestEma(2)
+	if err != nil {
+		t.Error(err)
+	}
+	t.Logf("%+v", rtn)
+}
+
+func TestSaveEmaHist(t *testing.T) {
+
+	// err := stg.SaveEmaHist(1, 64425.30)
+	// if err != nil {
+	// 	t.Error(err)
+	// }
+
+}

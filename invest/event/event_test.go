@@ -68,9 +68,7 @@ func TestEventbuySellMsg(t *testing.T) {
 func TestEventportfolioMsg(t *testing.T) {
 
 	stg := &StorageMock{}
-	scrp := &RtPollerMock{
-		price: make(map[string][4]float64),
-	}
+	scrp := &RtPollerMock{}
 	dp := &DailyPollerMock{}
 
 	evt := NewEvent(stg, scrp, dp)
@@ -89,20 +87,29 @@ func TestEventportfolioMsg(t *testing.T) {
 		stg.market = &m.Market{
 			Status: 3,
 		}
-		ivsmLi := []m.InvestSummary{
-			{ID: 1, FundID: 1, AssetID: 1, Asset: m.Asset{ID: 1, Category: m.Gold, Name: "금", Currency: "WON", Code: "1"}, Count: 10, Sum: 50000},
-			{ID: 2, FundID: 1, AssetID: 2, Asset: m.Asset{ID: 2, Category: m.DomesticStock, Name: "삼성전자", Currency: "WON", Code: "2"}, Count: 10, Sum: 100000},
-			{ID: 3, FundID: 1, AssetID: 3, Asset: m.Asset{ID: 3, Category: m.ForeignStock, Name: "애플", Currency: "USD", Code: "3"}, Count: 15, Sum: 1500},
-			{ID: 2, FundID: 1, AssetID: 2, Asset: m.Asset{ID: 4, Category: m.DomesticStock, Name: "하이닉스", Currency: "WON", Code: "4"}, Count: 10, Sum: 100000},
-			{ID: 2, FundID: 1, AssetID: 2, Asset: m.Asset{ID: 5, Category: m.DomesticCoin, Name: "비트코인", Currency: "WON", Code: "5"}, Count: 10, Sum: 100000},
+		stg.ma = map[uint]float64{
+			1: 900,
+			2: 1100,
+			3: 900,
+			4: 1000,
+			5: 900,
 		}
-		scrp.price["5"] = [4]float64{1000, 900, 900, 0}
-		scrp.price["3"] = [4]float64{1000, 900, 1100, 0}
-		scrp.price["4"] = [4]float64{1000, 1000, 1000, 0}
-		scrp.price["2"] = [4]float64{1000, 1100, 1100, 0}
-		scrp.price["1"] = [4]float64{1000, 900, 900, 0}
+		ivsmLi := []m.InvestSummary{
+			{ID: 1, FundID: 1, AssetID: 1, Asset: m.Asset{ID: 1, Top: 900, Category: m.Gold, Name: "금", Currency: "WON", Code: "1"}, Count: 10, Sum: 50000},
+			{ID: 2, FundID: 1, AssetID: 2, Asset: m.Asset{ID: 2, Top: 1100, Category: m.DomesticStock, Name: "삼성전자", Currency: "WON", Code: "2"}, Count: 10, Sum: 100000},
+			{ID: 3, FundID: 1, AssetID: 3, Asset: m.Asset{ID: 3, Top: 1100, Category: m.ForeignStock, Name: "애플", Currency: "USD", Code: "3"}, Count: 15, Sum: 1500},
+			{ID: 2, FundID: 1, AssetID: 2, Asset: m.Asset{ID: 4, Top: 1000, Category: m.DomesticStock, Name: "하이닉스", Currency: "WON", Code: "4"}, Count: 10, Sum: 100000},
+			{ID: 2, FundID: 1, AssetID: 2, Asset: m.Asset{ID: 5, Top: 900, Category: m.DomesticCoin, Name: "비트코인", Currency: "WON", Code: "5"}, Count: 10, Sum: 100000},
+		}
+		pm := map[uint]float64{
+			1: 1000,
+			2: 1000,
+			3: 1000,
+			4: 1000,
+			5: 1000,
+		}
 
-		msg, err := evt.portfolioMsg(ivsmLi)
+		msg, err := evt.portfolioMsg(ivsmLi, pm)
 
 		if err != nil {
 			t.Error(err)
