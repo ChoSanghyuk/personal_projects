@@ -384,6 +384,7 @@ func (s Storage) RetreiveLatestEma(assetId uint) (float64, error) {
 	return ema.Ema, nil
 }
 
+// todo. 초기세팅 고안
 func (s Storage) SaveEmaHist(assetId uint, price float64) error {
 
 	emay, err := s.RetreiveLatestEma(assetId) // todo. 더 효율적으로 조회할 방법

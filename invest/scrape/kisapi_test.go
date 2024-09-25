@@ -15,7 +15,7 @@ func TestKis(t *testing.T) {
 	s := NewScraper(
 		conf,
 		WithKIS(conf.KisAppKey(), conf.KisAppSecret()),
-		WithToken("eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0b2tlbiIsImF1ZCI6IjZmMWYyZDI5LWFhNDgtNGFkMi04M2MwLTRkMmQ4OTUzOWNjNyIsInByZHRfY2QiOiIiLCJpc3MiOiJ1bm9ndyIsImV4cCI6MTcyNzMwNjUzOSwiaWF0IjoxNzI3MjIwMTM5LCJqdGkiOiJQU1htMG5xSzRHbUxpUlVqWWIxRFVUWG5neWxkT1JsWVdFRDAifQ.o9EH8SVSVg04R5SN4SUznjhMmYWLZ3Tsul8jTeqhScSO_sO9PVBQpJPQe7G1NEqHNartokOnf2o0PlXm6gsKwA"),
+		WithToken("eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0b2tlbiIsImF1ZCI6ImM0ODQ1MGEyLTc3ZjAtNDBlMC1hNjgzLTUyZGFiNzQ5MjlkOSIsInByZHRfY2QiOiIiLCJpc3MiOiJ1bm9ndyIsImV4cCI6MTcyNzM5MzgwNywiaWF0IjoxNzI3MzA3NDA3LCJqdGkiOiJQU1htMG5xSzRHbUxpUlVqWWIxRFVUWG5neWxkT1JsWVdFRDAifQ.rU_9EzZqUp0pTywlActJLJvU5PeXTFOLhSRY7mELM6KAmDhXnuNb32nUhjFBPXxwsmfZbTBg3B32z2HZ7ZFB7Q"),
 	)
 
 	t.Run("Token Generate", func(t *testing.T) {
@@ -31,7 +31,15 @@ func TestKis(t *testing.T) {
 		if err != nil {
 			t.Error(err)
 		}
-		t.Log(stock.pp, stock.ap, stock.hp, stock.lp)
+		t.Log(stock.pp, stock.hp, stock.lp)
+	})
+
+	t.Run("Foreign stock", func(t *testing.T) {
+		pp, cp, err := s.kisForeignStockPrice("NAS-MSFT")
+		if err != nil {
+			t.Error(err)
+		}
+		t.Log(pp, cp, err)
 	})
 
 	t.Run("Foreign Index", func(t *testing.T) {

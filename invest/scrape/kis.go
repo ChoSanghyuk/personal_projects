@@ -51,7 +51,6 @@ type KIsResp struct {
 
 type StockPrice struct {
 	pp float64
-	ap float64
 	hp float64
 	lp float64
 }
@@ -93,10 +92,10 @@ func (s *Scraper) kisDomesticStockPrice(code string) (StockPrice, error) {
 		return StockPrice{}, err
 	}
 
-	ap, err := strconv.ParseFloat(rtn.Output["wghn_avrg_stck_prc"], 64) // 가중 평균 주식 가격
-	if err != nil {
-		return StockPrice{}, err
-	}
+	// ap, err := strconv.ParseFloat(rtn.Output["wghn_avrg_stck_prc"], 64) // 가중 평균 주식 가격
+	// if err != nil {
+	// 	return StockPrice{}, err
+	// }
 
 	hp, err := strconv.ParseFloat(rtn.Output["w52_hgpr"], 64)
 	if err != nil {
@@ -110,7 +109,6 @@ func (s *Scraper) kisDomesticStockPrice(code string) (StockPrice, error) {
 
 	return StockPrice{
 		pp: pp,
-		ap: ap,
 		hp: hp,
 		lp: lp,
 	}, nil
@@ -120,15 +118,16 @@ func (s *Scraper) kisDomesticStockPrice(code string) (StockPrice, error) {
 // https://openapi.koreainvestment.com:9443/uapi/overseas-price/v1/quotations/price?AUTH=""&EXCD=%s&SYMB=%s
 func (s *Scraper) kisForeignStockPrice(code string) (pp, cp float64, err error) {
 
-	url := s.t.ApiBaseUrl("KIS_Foreign") // todo. config 지정
-	if url == "" {
-		return 0, 0, errors.New("URL 미존재")
-	}
+	// url := s.t.ApiBaseUrl("") // todo. config 지정
+	// if url == "" {
+	// 	return 0, 0, errors.New("URL 미존재")
+	// }
+	url := "https://openapi.koreainvestment.com:9443/uapi/overseas-price/v1/quotations/price?AUTH=&EXCD=%s&SYMB=%s"
 	/*
 		NYS : 뉴욕
 		NAS : 나스닥
 	*/
-	parmas := strings.Split(code, "/")
+	parmas := strings.Split(code, "-")
 	url = fmt.Sprintf(url, parmas[0], parmas[1]) // Nas
 
 	token, err := s.KisToken()
@@ -151,8 +150,10 @@ func (s *Scraper) kisForeignStockPrice(code string) (pp, cp float64, err error) 
 		return 0, 0, err
 	}
 
+	fmt.Printf("%+v", rtn)
+
 	if rtn.RtCd != "0" {
-		return 0, 0, errors.New("국내 주식현재가 시세 API 실패 코드 반환")
+		return 0, 0, errors.New("해외 주식현재가 시세 API 실패 코드 반환")
 	}
 
 	pp, err = strconv.ParseFloat(rtn.Output["last"], 64)

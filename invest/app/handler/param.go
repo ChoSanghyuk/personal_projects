@@ -23,6 +23,7 @@ type AddAssetReq struct {
 	Currency  string  `json:"currency" validate:"required"`
 	Top       float64 `json:"top"`
 	Bottom    float64 `json:"bottom"`
+	Ema       float64 `json:"ema"`
 	SellPrice float64 `json:"sel_price"`
 	BuyPrice  float64 `json:"buy_price"`
 }

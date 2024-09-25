@@ -69,6 +69,8 @@ func (h *AssetHandler) AddAsset(c *fiber.Ctx) error {
 		return fmt.Errorf("SaveAssetInfo 시 오류 발생. %w", err)
 	}
 
+	// err = h.w.Save todo. ema 받는법
+
 	return c.Status(fiber.StatusOK).SendString("자산 정보 저장 성공")
 }
 
