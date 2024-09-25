@@ -31,7 +31,7 @@ func TestKis(t *testing.T) {
 		if err != nil {
 			t.Error(err)
 		}
-		t.Log(stock.cp, stock.ap, stock.hp, stock.lp)
+		t.Log(stock.pp, stock.ap, stock.hp, stock.lp)
 	})
 
 	t.Run("Foreign Index", func(t *testing.T) {

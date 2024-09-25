@@ -92,7 +92,7 @@ func AlpacaCrypto(target string) (string, error) {
 
 종목 이름 - 타입/심볼을 어디에 저장해 둘 것인가 => DB
 */
-func (s *Scraper) CurrentPrice(category model.Category, code string) (cp float64, err error) {
+func (s *Scraper) CurrentPrice(category model.Category, code string) (pp float64, err error) {
 
 	switch category {
 	case model.Won:
@@ -101,9 +101,12 @@ func (s *Scraper) CurrentPrice(category model.Category, code string) (cp float64
 		return s.ExchageRate(), nil
 	case model.DomesticStock, model.Gold:
 		stock, err := s.kisDomesticStockPrice(code)
-		return stock.cp, err
+		return stock.pp, err
 	case model.DomesticCoin:
 		return s.upbitApi(code)
+	case model.ForeignStock:
+		pp, _, err := s.kisForeignStockPrice(code)
+		return pp, err
 	}
 
 	return 0, errors.New("미분류된 종목")
@@ -114,11 +117,11 @@ func (s *Scraper) TopBottomPrice(category model.Category, code string) (hp float
 	case model.DomesticStock:
 		stock, err := s.kisDomesticStockPrice(code)
 		return stock.hp, stock.lp, err
-	case model.DomesticCoin:
-		return 0, 0, nil
+		// case model.DomesticCoin:
+		// 	return 0, 0, nil
 	}
 
-	return 0, 0, errors.New("미분류된 종목")
+	return 0, 0, errors.New("최고/최저 호출 API 등록")
 }
 
 func (s *Scraper) AssetPriceInfo(category model.Category, code string) (cp, ap, hp, lp float64, err error) {
@@ -131,7 +134,7 @@ func (s *Scraper) AssetPriceInfo(category model.Category, code string) (cp, ap, 
 		return r, r, r, r, nil
 	case model.DomesticStock, model.Gold:
 		stock, err := s.kisDomesticStockPrice(code)
-		return stock.cp, stock.ap, stock.hp, stock.lp, err
+		return stock.pp, stock.ap, stock.hp, stock.lp, err
 	case model.DomesticCoin:
 		// todo. 해외 주식 및 코인 정보 정리
 		cp, err = s.upbitApi(code)

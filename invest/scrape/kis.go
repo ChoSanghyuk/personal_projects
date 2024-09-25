@@ -50,7 +50,7 @@ type KIsResp struct {
 }
 
 type StockPrice struct {
-	cp float64
+	pp float64
 	ap float64
 	hp float64
 	lp float64
@@ -88,7 +88,7 @@ func (s *Scraper) kisDomesticStockPrice(code string) (StockPrice, error) {
 		return StockPrice{}, errors.New("국내 주식현재가 시세 API 실패 코드 반환")
 	}
 
-	cp, err := strconv.ParseFloat(rtn.Output["stck_prpr"], 64)
+	pp, err := strconv.ParseFloat(rtn.Output["stck_prpr"], 64)
 	if err != nil {
 		return StockPrice{}, err
 	}
@@ -109,11 +109,63 @@ func (s *Scraper) kisDomesticStockPrice(code string) (StockPrice, error) {
 	}
 
 	return StockPrice{
-		cp: cp,
+		pp: pp,
 		ap: ap,
 		hp: hp,
 		lp: lp,
 	}, nil
+}
+
+// 해외주식 현재체결가[v1_해외주식-009]
+// https://openapi.koreainvestment.com:9443/uapi/overseas-price/v1/quotations/price?AUTH=""&EXCD=%s&SYMB=%s
+func (s *Scraper) kisForeignStockPrice(code string) (pp, cp float64, err error) {
+
+	url := s.t.ApiBaseUrl("KIS_Foreign") // todo. config 지정
+	if url == "" {
+		return 0, 0, errors.New("URL 미존재")
+	}
+	/*
+		NYS : 뉴욕
+		NAS : 나스닥
+	*/
+	parmas := strings.Split(code, "/")
+	url = fmt.Sprintf(url, parmas[0], parmas[1]) // Nas
+
+	token, err := s.KisToken()
+	if err != nil {
+		return 0, 0, err
+	}
+
+	var rtn KIsResp
+
+	header := map[string]string{
+		"Content-Type":  "application/json",
+		"authorization": "Bearer " + token,
+		"appkey":        s.kis.appKey,
+		"appsecret":     s.kis.appSecret,
+		"tr_id":         "HHDFS00000300",
+	}
+
+	err = sendRequest(url, http.MethodGet, header, nil, &rtn)
+	if err != nil {
+		return 0, 0, err
+	}
+
+	if rtn.RtCd != "0" {
+		return 0, 0, errors.New("국내 주식현재가 시세 API 실패 코드 반환")
+	}
+
+	pp, err = strconv.ParseFloat(rtn.Output["last"], 64) // todo. 현재 cp(current price) pp(present price)로 전부 수정. 종가를 cp로 사용
+	if err != nil {
+		return 0, 0, err
+	}
+
+	cp, err = strconv.ParseFloat(rtn.Output["base"], 64)
+	if err != nil {
+		return 0, 0, err
+	}
+
+	return pp, cp, nil
 }
 
 // 해외주식 종목/지수/환율기간별시세(일/주/월/년)[v1_해외주식-012]
@@ -158,10 +210,10 @@ func (s *Scraper) kisNasdaqIndex() (float64, error) {
 		return 0, errors.New("나스닥 인덱스 API 조회 실패 코드 반환")
 	}
 
-	cp, err := strconv.ParseFloat(rtn.Output.PresentPrice, 64)
+	pp, err := strconv.ParseFloat(rtn.Output.PresentPrice, 64)
 	if err != nil {
 		return 0, err
 	}
 
-	return cp, nil
+	return pp, nil
 }
