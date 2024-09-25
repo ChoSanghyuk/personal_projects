@@ -15,7 +15,7 @@ type Fund struct {
 type Asset struct {
 	ID        uint
 	Name      string
-	Category  string
+	Category  Category
 	Code      string
 	Currency  string
 	Top       float64

@@ -126,7 +126,19 @@ func (h *AssetHandler) Asset(c *fiber.Ctx) error {
 		return fmt.Errorf("RetrieveAsset 오류 발생. %w", err)
 	}
 
-	return c.Status(fiber.StatusOK).JSON(asset)
+	rtn := assetResponse{
+		ID:        asset.ID,
+		Name:      asset.Name,
+		Category:  asset.Category.String(),
+		Code:      asset.Code,
+		Currency:  asset.Currency,
+		Top:       asset.Top,
+		Bottom:    asset.Bottom,
+		SellPrice: asset.SellPrice,
+		BuyPrice:  asset.BuyPrice,
+	}
+
+	return c.Status(fiber.StatusOK).JSON(rtn)
 }
 
 func (h *AssetHandler) AssetList(c *fiber.Ctx) error {
@@ -134,8 +146,13 @@ func (h *AssetHandler) AssetList(c *fiber.Ctx) error {
 	if err != nil {
 		return fmt.Errorf("RetrieveAssetList 오류 발생. %w", err)
 	}
+	rtn := make([]assetListResponse, len(assets)) // memo. pointer slice가 아니라도 값 변경
+	for i, a := range assets {
+		rtn[i].AssetId = a.ID
+		rtn[i].AssetName = a.Name
+	}
 
-	return c.Status(fiber.StatusOK).JSON(assets)
+	return c.Status(fiber.StatusOK).JSON(rtn)
 }
 
 func (h *AssetHandler) AssetHist(c *fiber.Ctx) error {
@@ -144,11 +161,11 @@ func (h *AssetHandler) AssetHist(c *fiber.Ctx) error {
 		return fmt.Errorf("파라미터 id 조회 시 오류 발생. %w", err)
 	}
 
-	fund, err := h.r.RetrieveAssetHist(uint(id))
+	hist, err := h.r.RetrieveAssetHist(uint(id))
 	if err != nil {
 		return fmt.Errorf("RetrieveAssetHist 오류 발생. %w", err)
 	}
 
-	return c.Status(fiber.StatusOK).JSON(fund)
+	return c.Status(fiber.StatusOK).JSON(hist)
 
 }

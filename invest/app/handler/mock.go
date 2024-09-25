@@ -40,7 +40,7 @@ func (mock AssetRetrieverMock) RetrieveAsset(id uint) (*m.Asset, error) {
 		ID:        1,
 		Name:      "bitcoin",
 		Code:      "BTS",
-		Category:  "해외코인",
+		Category:  m.ForeignStock,
 		Currency:  "USD",
 		Top:       9800,
 		Bottom:    6800,

@@ -35,7 +35,6 @@ func init() {
 }
 
 func TestMigration(t *testing.T) {
-
 	db.AutoMigrate(&m.Fund{}, &m.Asset{}, &m.Invest{}, &m.InvestSummary{}, &m.Market{}, &m.DailyIndex{}, &m.CliIndex{})
 }
 
@@ -51,6 +50,19 @@ func TestCreate(t *testing.T) {
 	}
 	t.Log("ID", fund.ID)
 	t.Log("Rows Affected", result.RowsAffected)
+}
+
+func TestCreateAsset(t *testing.T) {
+
+	err := stg.SaveAssetInfo("bitcoin", m.DomesticCoin, "KRW-BTC", "WON", 98000000, 68000000, 88000000, 70000000)
+	if err != nil {
+		t.Error(err)
+	}
+
+	err = stg.SaveAssetInfo("gold", m.Gold, "M04020000", "WON", 111360, 80100, 0, 103630)
+	if err != nil {
+		t.Error(err)
+	}
 }
 
 /*

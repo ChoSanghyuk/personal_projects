@@ -165,11 +165,7 @@ func (e Event) buySellMsg(assetId uint, pm map[uint]float64) (msg string, err er
 	}
 
 	// 자산별 현재 가격 조회
-	category, err := m.ToCategory(a.Category)
-	if err != nil {
-		return "", fmt.Errorf("[AssetEvent] ToCategory시, 에러 발생. %w", err)
-	}
-	cp, err := e.rt.CurrentPrice(category, a.Code)
+	cp, err := e.rt.CurrentPrice(a.Category, a.Code)
 	if err != nil {
 		return "", fmt.Errorf("[AssetEvent] CurrentPrice 시, 에러 발생. %w", err)
 	}
@@ -237,14 +233,8 @@ func (e Event) portfolioMsg(ivsmLi []m.InvestSummary) (msg string, err error) {
 			v = ivsm.Sum
 		}
 
-		category, err := m.ToCategory(ivsm.Asset.Category)
-		if err != nil {
-			msg = fmt.Sprintf("[AssetEvent] investSummary loop내 ToCategory시, 에러 발생. %s", err)
-			return msg, err
-		}
-
 		// 자금 종류별 안전 자산 가치, 변동 자산 가치 총합 계산
-		if category.IsStable() {
+		if ivsm.Asset.Category.IsStable() {
 			stable[ivsm.FundID] = stable[ivsm.FundID] + v
 		} else {
 			volatile[ivsm.FundID] = volatile[ivsm.FundID] + v
@@ -274,12 +264,7 @@ func (e Event) portfolioMsg(ivsmLi []m.InvestSummary) (msg string, err error) {
 				if ivsm.FundID == k {
 
 					a := &ivsm.Asset
-					category, err := m.ToCategory(a.Category)
-					if err != nil {
-						return "", fmt.Errorf("[AssetEvent] ToCategory시, 에러 발생. %w", err)
-					}
-
-					cp, ap, hp, _, err := e.rt.AssetPriceInfo(category, a.Code)
+					cp, ap, hp, _, err := e.rt.AssetPriceInfo(a.Category, a.Code)
 					if err != nil {
 						return "", fmt.Errorf("[AssetEvent] AssetPriceInfo, 에러 발생. %w", err)
 					}
@@ -297,8 +282,16 @@ func (e Event) portfolioMsg(ivsmLi []m.InvestSummary) (msg string, err error) {
 			if r > marketLevel.MaxVolatileAssetRate() {
 				sb.WriteString(fmt.Sprintf("자금 %d 변동 자산 비중 초과. 변동 자산 비율 : %.2f. 현재 시장 단계 : %s(%.1f)\n\n", k, r, marketLevel.String(), marketLevel.MaxVolatileAssetRate()))
 				slices.SortFunc(os, func(a, b priority) int {
-					// todo. 안전 자산일 때 매도 대상 후순위 로직 필요. + category 변환... 너무 번거로움. 방법 필요함
-					return cmp.Compare(b.score, a.score) // 큰 게 앞으로
+					if a.asset.Category.IsStable() == b.asset.Category.IsStable() {
+						return cmp.Compare(b.score, a.score) // 큰 게 앞으로
+					} else {
+						if a.asset.Category.IsStable() {
+							return 1
+						} else {
+							return -1
+						}
+					}
+
 				})
 			} else {
 				sb.WriteString(fmt.Sprintf("자금 %d 변동 자산 비중 부족. 변동 자산 비율 : %.2f. 현재 시장 단계 : %s(%.1f)\n\n", k, r, marketLevel.String(), marketLevel.MinVolatileAssetRate()))
