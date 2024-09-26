@@ -112,7 +112,7 @@ func (s Storage) RetrieveAsset(id uint) (*m.Asset, error) {
 
 	var asset m.Asset
 
-	result := s.db.First(&asset, id)
+	result := s.db.First(&asset, id) // memo. First, Last와 같은 메소드는 대상이 없을 때 error 반환
 	if result.Error != nil {
 		return nil, result.Error
 	}
@@ -154,9 +154,9 @@ func (s Storage) RetrieveAssetIdByCode(code string) uint {
 	return asset.ID
 }
 
-func (s Storage) SaveAssetInfo(name string, category m.Category, code string, currency string, top float64, bottom float64, selPrice float64, buyPrice float64) error {
+func (s Storage) SaveAssetInfo(name string, category m.Category, code string, currency string, top float64, bottom float64, selPrice float64, buyPrice float64) (uint, error) {
 
-	result := s.db.Create(&m.Asset{
+	asset := m.Asset{
 		Name:      name,
 		Category:  category,
 		Code:      code,
@@ -165,13 +165,15 @@ func (s Storage) SaveAssetInfo(name string, category m.Category, code string, cu
 		Bottom:    bottom,
 		SellPrice: selPrice,
 		BuyPrice:  buyPrice,
-	})
-
-	if result.Error != nil {
-		return result.Error
 	}
 
-	return nil
+	result := s.db.Create(&asset)
+
+	if result.Error != nil {
+		return 0, result.Error
+	}
+
+	return asset.ID, nil
 }
 
 // When updating with struct, GORM will only update non-zero fields. You might want to use map to update attributes or use Select to specify fields to update
@@ -376,7 +378,8 @@ func (s Storage) UpdateInvestSummarySum(fundId uint, assetId uint, sum float64) 
 func (s Storage) RetreiveLatestEma(assetId uint) (float64, error) {
 
 	var ema m.EmaHist
-	result := s.db.Where("asset_id", assetId).Order("date desc").First(&ema)
+	// result := s.db.Where("asset_id", assetId).Order("date desc").First(&ema)
+	result := s.db.Where("asset_id", assetId).Last(&ema)
 	if result.Error != nil {
 		return 0, result.Error
 	}
@@ -384,12 +387,11 @@ func (s Storage) RetreiveLatestEma(assetId uint) (float64, error) {
 	return ema.Ema, nil
 }
 
-// todo. 초기세팅 고안
 func (s Storage) SaveEmaHist(assetId uint, price float64) error {
 
-	emay, err := s.RetreiveLatestEma(assetId) // todo. 더 효율적으로 조회할 방법
+	emay, err := s.RetreiveLatestEma(assetId)
 	if err != nil {
-		return err
+		emay = price
 	}
 
 	var ema = m.EmaHist{

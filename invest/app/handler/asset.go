@@ -64,12 +64,15 @@ func (h *AssetHandler) AddAsset(c *fiber.Ctx) error {
 		param.BuyPrice = bottom
 	}
 
-	err = h.w.SaveAssetInfo(param.Name, m.Category(param.Category), param.Code, param.Currency, top, bottom, param.SellPrice, param.BuyPrice)
+	id, err := h.w.SaveAssetInfo(param.Name, m.Category(param.Category), param.Code, param.Currency, top, bottom, param.SellPrice, param.BuyPrice)
 	if err != nil {
 		return fmt.Errorf("SaveAssetInfo 시 오류 발생. %w", err)
 	}
 
-	// err = h.w.Save todo. ema 받는법
+	err = h.w.SaveEmaHist(id, param.Ema)
+	if err != nil {
+		return fmt.Errorf("SaveEmaHist 시 오류 발생. %w", err)
+	}
 
 	return c.Status(fiber.StatusOK).SendString("자산 정보 저장 성공")
 }

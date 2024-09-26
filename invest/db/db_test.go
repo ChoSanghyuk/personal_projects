@@ -55,12 +55,12 @@ func TestCreate(t *testing.T) {
 
 func TestCreateAsset(t *testing.T) {
 
-	err := stg.SaveAssetInfo("bitcoin", m.DomesticCoin, "KRW-BTC", "WON", 98000000, 68000000, 88000000, 70000000)
+	_, err := stg.SaveAssetInfo("bitcoin", m.DomesticCoin, "KRW-BTC", "WON", 98000000, 68000000, 88000000, 70000000)
 	if err != nil {
 		t.Error(err)
 	}
 
-	err = stg.SaveAssetInfo("gold", m.Gold, "M04020000", "WON", 111360, 80100, 0, 103630)
+	_, err = stg.SaveAssetInfo("gold", m.Gold, "M04020000", "WON", 111360, 80100, 0, 103630)
 	if err != nil {
 		t.Error(err)
 	}

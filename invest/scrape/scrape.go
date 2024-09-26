@@ -136,8 +136,10 @@ func (s *Scraper) ClosingPrice(category m.Category, code string) (cp float64, er
 	case m.DomesticStock, m.Gold:
 		return 0, err
 	case m.DomesticCoin:
-		// todo. 해외 주식 및 코인 정보 정리
 		cp, err = s.upbitApi(code)
+		return cp, err
+	case m.ForeignStock:
+		_, cp, err := s.kisForeignStockPrice(code)
 		return cp, err
 	}
 

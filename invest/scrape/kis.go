@@ -118,11 +118,10 @@ func (s *Scraper) kisDomesticStockPrice(code string) (StockPrice, error) {
 // https://openapi.koreainvestment.com:9443/uapi/overseas-price/v1/quotations/price?AUTH=""&EXCD=%s&SYMB=%s
 func (s *Scraper) kisForeignStockPrice(code string) (pp, cp float64, err error) {
 
-	// url := s.t.ApiBaseUrl("") // todo. config 지정
-	// if url == "" {
-	// 	return 0, 0, errors.New("URL 미존재")
-	// }
-	url := "https://openapi.koreainvestment.com:9443/uapi/overseas-price/v1/quotations/price?AUTH=&EXCD=%s&SYMB=%s"
+	url := s.t.ApiBaseUrl("KIS_FOR")
+	if url == "" {
+		return 0, 0, errors.New("URL 미존재")
+	}
 	/*
 		NYS : 뉴욕
 		NAS : 나스닥
@@ -177,7 +176,7 @@ func (s *Scraper) kisForeignStockPrice(code string) (pp, cp float64, err error) 
 func (s *Scraper) kisNasdaqIndex() (float64, error) {
 
 	today := time.Now().Format("20060102")
-	url := fmt.Sprintf("https://openapi.koreainvestment.com:9443/uapi/overseas-price/v1/quotations/inquire-daily-chartprice?FID_COND_MRKT_DIV_CODE=N&FID_INPUT_ISCD=COMP&FID_INPUT_DATE_1=%s&FID_INPUT_DATE_2=%s&FID_PERIOD_DIV_CODE=D", today, today)
+	url := fmt.Sprintf(s.t.ApiBaseUrl("KIS_IDX"), today, today)
 
 	token, err := s.KisToken()
 	if err != nil {

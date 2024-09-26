@@ -31,7 +31,6 @@ func main() {
 
 	scraper := scrape.NewScraper(conf,
 		scrape.WithKIS(conf.KisAppKey(), conf.KisAppSecret()),
-		// scrape.WithToken(""), todo. 유효하지 않은 토큰 사용했을 시, 동작 확인
 	)
 
 	db, err := db.NewStorage(conf.Dsn())

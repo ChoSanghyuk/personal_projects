@@ -77,13 +77,13 @@ type AssetInfoSaverMock struct {
 	err error
 }
 
-func (mock AssetInfoSaverMock) SaveAssetInfo(name string, category m.Category, code string, currency string, top float64, bottom float64, selPrice float64, buyPrice float64) error {
+func (mock AssetInfoSaverMock) SaveAssetInfo(name string, category m.Category, code string, currency string, top float64, bottom float64, selPrice float64, buyPrice float64) (uint, error) {
 	fmt.Println("SaveAssetInfo Called")
 
 	if mock.err != nil {
-		return mock.err
+		return 0, mock.err
 	}
-	return nil
+	return 0, nil
 }
 func (mock AssetInfoSaverMock) UpdateAssetInfo(ID uint, name string, category m.Category, code string, currency string, top float64, bottom float64, selPrice float64, buyPrice float64) error {
 	fmt.Println("UpdateAssetInfo Called")
@@ -96,6 +96,13 @@ func (mock AssetInfoSaverMock) UpdateAssetInfo(ID uint, name string, category m.
 func (mock AssetInfoSaverMock) DeleteAssetInfo(id uint) error {
 	fmt.Println("DeleteAssetInfo Called")
 
+	if mock.err != nil {
+		return mock.err
+	}
+	return nil
+}
+
+func (mock AssetInfoSaverMock) SaveEmaHist(assetId uint, price float64) error {
 	if mock.err != nil {
 		return mock.err
 	}

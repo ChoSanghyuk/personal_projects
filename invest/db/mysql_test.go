@@ -1,6 +1,7 @@
 package db
 
 import (
+	"fmt"
 	m "invest/model"
 	"log"
 	"testing"
@@ -98,10 +99,11 @@ func TestRetrieveAssetHist(t *testing.T) {
 	t.Log(rtn)
 }
 func TestSaveAssetInfo(t *testing.T) {
-	err := stg.SaveAssetInfo("테스트", m.DomesticStock, "test", "WON", 82300, 60000, 80000, 62300)
+	id, err := stg.SaveAssetInfo("테스트", m.DomesticStock, "test", "WON", 82300, 60000, 80000, 62300)
 	if err != nil {
 		t.Error(err)
 	}
+	fmt.Println(id)
 
 	var asset m.Asset
 
@@ -111,12 +113,12 @@ func TestSaveAssetInfo(t *testing.T) {
 	if asset.Name != "테스트" {
 		t.Error()
 	}
-	stg.db.Delete(&asset)
+	// stg.db.Delete(&asset)
 
 }
 func TestUpdateAssetInfo(t *testing.T) {
 
-	err := stg.SaveAssetInfo("테스트", m.DomesticStock, "test", "WON", 82300, 60000, 80000, 62300)
+	_, err := stg.SaveAssetInfo("테스트", m.DomesticStock, "test", "WON", 82300, 60000, 80000, 62300)
 	if err != nil {
 		t.Error(err)
 	}
@@ -142,7 +144,7 @@ func TestUpdateAssetInfo(t *testing.T) {
 }
 func TestDeleteAssetInfo(t *testing.T) {
 
-	err := stg.SaveAssetInfo("테스트", m.DomesticStock, "test", "WON", 82300, 60000, 80000, 62300)
+	_, err := stg.SaveAssetInfo("테스트", m.DomesticStock, "test", "WON", 82300, 60000, 80000, 62300)
 	if err != nil {
 		t.Error(err)
 	}
