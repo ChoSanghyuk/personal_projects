@@ -101,9 +101,15 @@ func (e Event) EmaUpdateEvent(c chan<- string) {
 	}
 
 	for _, a := range assetList {
-		cp, err := e.dp.ClosingPrice(a.Category, a.Code)
+		asset, err := e.stg.RetrieveAsset(a.ID)
 		if err != nil {
-			c <- fmt.Sprintf("[EmaUpdateEvent] PresentPrice 시, 에러 발생. %s", err)
+			c <- fmt.Sprintf("[EmaUpdateEvent] RetrieveAsset 시, 에러 발생. %s", err)
+			return
+		}
+		cp, err := e.dp.ClosingPrice(asset.Category, asset.Code)
+		if err != nil {
+			c <- fmt.Sprintf("[EmaUpdateEvent] ClosingPrice 시, 에러 발생. %s", err)
+			return
 		}
 		e.stg.SaveEmaHist(a.ID, cp)
 	}
@@ -150,10 +156,9 @@ func (e Event) IndexEvent(c chan<- string) {
 	yesterday := time.Now().AddDate(0, 0, -1).Format("2006-01-02")
 	di, _, err := e.stg.RetrieveMarketIndicator(yesterday)
 	if err != nil {
-		c <- fmt.Sprintf("어제자 Nasdaq Index 저장 시 오류 발생. %s", err.Error())
-		c <- fmt.Sprintf("금일 공포 탐욕 지수 : %d\n금일 Nasdaq : %f", fgi, nasdaq)
+		c <- fmt.Sprintf("금일 공포 탐욕 지수 : %d\n금일 Nasdaq : %.2f", fgi, nasdaq)
 	} else {
-		c <- fmt.Sprintf("금일 공포 탐욕 지수 : %d (전일 : %d)\n금일 Nasdaq : %f (전일 : %f)", fgi, di.FearGreedIndex, nasdaq, di.NasDaq)
+		c <- fmt.Sprintf("금일 공포 탐욕 지수 : %d (전일 : %d)\n금일 Nasdaq : %.2f\n   (전일 : %.2f)", fgi, di.FearGreedIndex, nasdaq, di.NasDaq)
 	}
 
 }
@@ -182,11 +187,18 @@ func (e Event) buySellMsg(assetId uint, pm map[uint]float64) (msg string, err er
 
 	// 자산 매도/매수 기준 비교 및 알림 여부 판단. (알림 전송)
 	if a.BuyPrice >= pp && !hasMsgCache(a.ID, false, a.BuyPrice) {
-		msg = fmt.Sprintf("BUY %s. ID : %d. LOWER BOUND : %f. CURRENT PRICE :%f", a.Name, a.ID, a.BuyPrice, pp)
+		msg = fmt.Sprintf("BUY %s. ID : %d. LOWER BOUND : %.2f. CURRENT PRICE :%.2f", a.Name, a.ID, a.BuyPrice, pp)
 		setMsgCache(a.ID, false, a.BuyPrice)
 	} else if a.SellPrice != 0 && a.SellPrice <= pp && !hasMsgCache(a.ID, true, a.SellPrice) {
-		msg = fmt.Sprintf("SELL %s. ID : %d. UPPER BOUND : %f. CURRENT PRICE :%f", a.Name, a.ID, a.SellPrice, pp)
+		msg = fmt.Sprintf("SELL %s. ID : %d. UPPER BOUND : %.2f. CURRENT PRICE :%.2f", a.Name, a.ID, a.SellPrice, pp)
 		setMsgCache(a.ID, true, a.SellPrice)
+	}
+
+	// 최고가/최저가 갱신 여부 판단
+	if a.Top < pp {
+		e.stg.UpdateAssetInfo(assetId, "", 0, "", "", pp, 0, 0, 0)
+	} else if a.Bottom > pp {
+		e.stg.UpdateAssetInfo(assetId, "", 0, "", "", 0, pp, 0, 0)
 	}
 
 	return
@@ -309,7 +321,7 @@ func (e Event) portfolioMsg(ivsmLi []m.InvestSummary, pm map[uint]float64) (msg 
 			}
 
 			for _, p := range os {
-				sb.WriteString(fmt.Sprintf("AssetId : %d, AssetName : %s, PresentPrice : %f, WeighedAveragePrice : %f, HighestPrice : %f\n", p.asset.ID, p.asset.Name, p.pp, p.ap, p.hp))
+				sb.WriteString(fmt.Sprintf("AssetId : %d, AssetName : %s, PresentPrice : %.2f, WeighedAveragePrice : %.2f, HighestPrice : %.2f\n", p.asset.ID, p.asset.Name, p.pp, p.ap, p.hp))
 			}
 		}
 

@@ -6,8 +6,11 @@ import (
 
 type Storage interface {
 	RetrieveMarketStatus(date string) (*m.Market, error)
+
 	RetrieveAssetList() ([]m.Asset, error)
 	RetrieveAsset(id uint) (*m.Asset, error)
+	UpdateAssetInfo(id uint, name string, category m.Category, code string, currency string, top float64, bottom float64, selPrice float64, buyPrice float64) error
+
 	RetreiveFundsSummaryOrderByFundId() ([]m.InvestSummary, error)
 	UpdateInvestSummarySum(fundId uint, assetId uint, sum float64) error
 

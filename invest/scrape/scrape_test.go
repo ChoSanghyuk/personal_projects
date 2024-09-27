@@ -31,12 +31,12 @@ func TestBitcoinApi(t *testing.T) {
 	c, _ := config.NewConfig()
 	s := NewScraper(c)
 
-	rtn, err := s.upbitApi("KRW-BTC")
+	pp, cp, err := s.upbitApi("KRW-BTC")
 	if err != nil {
 		t.Error(err)
 	}
 
-	t.Logf("%f", rtn)
+	t.Logf("현재가 : %f\n시가: %f", pp, cp)
 }
 
 func TestAlpaca(t *testing.T) {

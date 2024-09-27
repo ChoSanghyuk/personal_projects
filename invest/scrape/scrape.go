@@ -104,7 +104,8 @@ func (s *Scraper) PresentPrice(category m.Category, code string) (pp float64, er
 		stock, err := s.kisDomesticStockPrice(code)
 		return stock.pp, err
 	case m.DomesticCoin:
-		return s.upbitApi(code)
+		pp, _, err := s.upbitApi(code)
+		return pp, err
 	case m.ForeignStock:
 		pp, _, err := s.kisForeignStockPrice(code)
 		return pp, err
@@ -131,12 +132,13 @@ func (s *Scraper) ClosingPrice(category m.Category, code string) (cp float64, er
 	case m.Won:
 		return 1, nil
 	case m.Dollar:
-		r := s.ExchageRate()
+		r := s.ExchageRate() // todo. ema 등록 제외 필요?
 		return r, nil
 	case m.DomesticStock, m.Gold:
-		return 0, err
+		stock, err := s.kisDomesticStockPrice(code) // todo. cp이름 op로 다 바꿀까
+		return stock.op, err
 	case m.DomesticCoin:
-		cp, err = s.upbitApi(code)
+		_, cp, err = s.upbitApi(code)
 		return cp, err
 	case m.ForeignStock:
 		_, cp, err := s.kisForeignStockPrice(code)

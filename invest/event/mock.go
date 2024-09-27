@@ -1,6 +1,8 @@
 package event
 
-import md "invest/model"
+import (
+	md "invest/model"
+)
 
 type StorageMock struct {
 	ma     map[uint]float64
@@ -35,6 +37,10 @@ func (m StorageMock) RetrieveAsset(id uint) (*md.Asset, error) {
 		}
 	}
 	return &md.Asset{}, nil
+}
+
+func (m StorageMock) UpdateAssetInfo(id uint, name string, category md.Category, code string, currency string, top float64, bottom float64, selPrice float64, buyPrice float64) error {
+	return nil
 }
 
 func (m StorageMock) RetreiveFundsSummaryOrderByFundId() ([]md.InvestSummary, error) {

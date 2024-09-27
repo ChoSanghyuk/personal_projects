@@ -53,6 +53,7 @@ type StockPrice struct {
 	pp float64
 	hp float64
 	lp float64
+	op float64
 }
 
 func (s *Scraper) kisDomesticStockPrice(code string) (StockPrice, error) {
@@ -92,6 +93,11 @@ func (s *Scraper) kisDomesticStockPrice(code string) (StockPrice, error) {
 		return StockPrice{}, err
 	}
 
+	op, err := strconv.ParseFloat(rtn.Output["stck_oprc"], 64) // 가중 평균 주식 가격
+	if err != nil {
+		return StockPrice{}, err
+	}
+
 	// ap, err := strconv.ParseFloat(rtn.Output["wghn_avrg_stck_prc"], 64) // 가중 평균 주식 가격
 	// if err != nil {
 	// 	return StockPrice{}, err
@@ -109,6 +115,7 @@ func (s *Scraper) kisDomesticStockPrice(code string) (StockPrice, error) {
 
 	return StockPrice{
 		pp: pp,
+		op: op,
 		hp: hp,
 		lp: lp,
 	}, nil

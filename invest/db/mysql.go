@@ -136,7 +136,7 @@ func (s Storage) RetrieveAssetIdByName(name string) uint {
 	var asset m.Asset
 
 	result := s.db.Model(&m.Asset{}).Where("name", name).Select("id").Find(&asset)
-	if result.Error != nil || result.RowsAffected == 0 { // todo. RowsAffected selete된 갯수 파악 가능?
+	if result.Error != nil || result.RowsAffected == 0 {
 		return 0
 	}
 
@@ -147,7 +147,7 @@ func (s Storage) RetrieveAssetIdByCode(code string) uint {
 	var asset m.Asset
 
 	result := s.db.Model(&m.Asset{}).Where("code", code).Select("id").Find(&asset)
-	if result.Error != nil || result.RowsAffected == 0 { // todo. RowsAffected selete된 갯수 파악 가능?
+	if result.Error != nil || result.RowsAffected == 0 { // memo. RowsAffected selete된 갯수 파악 가능
 		return 0
 	}
 

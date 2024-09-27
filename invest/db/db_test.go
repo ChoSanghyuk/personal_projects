@@ -66,6 +66,16 @@ func TestCreateAsset(t *testing.T) {
 	}
 }
 
+func TestRetrieve(t *testing.T) {
+	var asset m.Asset
+
+	result := db.Model(&m.Asset{}).Where("id", 99).Find(&asset)
+	fmt.Println(result.RowsAffected)
+	if result.Error != nil || result.RowsAffected == 0 { // todo. RowsAffected selete된 갯수 파악 가능?
+		return
+	}
+}
+
 /*
 결국은 time.Time 객체인 것이 중요한게 아닌, string형 변환했을 때 DB 타입과 일치하는지가 중요함
 time.Time{}.Local() => '0000-00-00 00:00:00' 라서 Date 타입 및 Timestamp 실패
