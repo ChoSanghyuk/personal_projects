@@ -13,9 +13,9 @@ func TestAssetHandler(t *testing.T) {
 	app := fiber.New()
 
 	readerMock := NewMockAssetRetriever(t)
-	setFundRetrieverMock(readerMock)
+	setAssetRetrieverMock(readerMock)
 	writerMock := NewMockAssetInfoSaver(t)
-	setFundRetrieverMock(writerMock)
+	setAssetSaverMock(writerMock)
 
 	f := AssetHandler{
 		r: readerMock,
