@@ -57,6 +57,7 @@ func (h *InvestHandler) SaveInvest(c *fiber.Ctx) error {
 
 	var assetId uint
 
+	// assetId 미존재 시, name 혹은 code로 Id 구해옴
 	if param.AssetId != 0 {
 		assetId = param.AssetId
 	} else if param.AssetName != "" {
@@ -64,30 +65,32 @@ func (h *InvestHandler) SaveInvest(c *fiber.Ctx) error {
 	} else if param.AssetCode != "" {
 		assetId = h.r.RetrieveAssetIdByCode(param.AssetName)
 	}
-
 	if assetId == 0 {
 		return errors.New("parameter asset 정보 없음")
 	}
 
+	// 투자 이력 저장
 	err = h.w.SaveInvest(param.FundId, assetId, param.Price, param.Count)
 	if err != nil {
 		return fmt.Errorf("SaveInvest 오류 발생. %w", err)
 	}
 
-	err = h.w.UpdateInvestSummaryCount(param.FundId, assetId, param.Count)
+	// 투자 요약 갱신
+	err = h.w.UpdateInvestSummary(param.FundId, assetId, param.Count, param.Price)
 	if err != nil {
 		return fmt.Errorf("UpdateInvestSummaryCount 오류 발생. %w", err)
 	}
 
+	// 현금/달러 갱신
 	asset, err := h.r.RetrieveAsset(assetId)
 	if err != nil {
 		return fmt.Errorf("RetrieveAsset 오류 발생. %w", err)
 	}
 
-	if asset.Currency == model.KRW.String() && asset.Name != model.Won.String() {
-		err = h.w.UpdateInvestSummaryCount(param.FundId, h.cm[model.KRW], -1*param.Price*param.Count)
+	if asset.Currency == model.KRW.String() && asset.Name != model.KRW.String() {
+		err = h.w.UpdateInvestSummary(param.FundId, h.cm[model.KRW], -1*param.Price*param.Count, 1)
 	} else if asset.Currency == model.USD.String() && asset.Name != model.USD.String() {
-		err = h.w.UpdateInvestSummaryCount(param.FundId, h.cm[model.KRW], -1*param.Price*param.Count)
+		err = h.w.UpdateInvestSummary(param.FundId, h.cm[model.KRW], -1*param.Price*param.Count, 1)
 	}
 	if err != nil {
 		return fmt.Errorf("UpdateInvestSummaryCount 오류 발생. %w", err)

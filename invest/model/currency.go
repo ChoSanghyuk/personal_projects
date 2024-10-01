@@ -9,7 +9,7 @@ const (
 	USD
 )
 
-var currencyList = []string{"원화", "달러"}
+var currencyList = []string{"WON", "USD"}
 
 func (c Currency) String() string {
 	return currencyList[c-1]

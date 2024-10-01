@@ -156,8 +156,6 @@ func (s *Scraper) kisForeignStockPrice(code string) (pp, cp float64, err error) 
 		return 0, 0, err
 	}
 
-	fmt.Printf("%+v", rtn)
-
 	if rtn.RtCd != "0" {
 		return 0, 0, errors.New("해외 주식현재가 시세 API 실패 코드 반환")
 	}

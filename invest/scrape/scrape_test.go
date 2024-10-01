@@ -108,7 +108,8 @@ func TestEstateCrwal(t *testing.T) {
 
 func TestExchangeRate(t *testing.T) {
 
-	s := Scraper{}
+	conf, _ := config.NewConfig()
+	s := NewScraper(conf)
 	exrate := s.ExchageRate()
 	t.Log(exrate)
 }

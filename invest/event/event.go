@@ -106,10 +106,14 @@ func (e Event) EmaUpdateEvent(c chan<- string) {
 			c <- fmt.Sprintf("[EmaUpdateEvent] RetrieveAsset 시, 에러 발생. %s", err)
 			return
 		}
+		// EMA 갱신 제외
+		if a.Category == m.Won || a.Category == m.Dollar {
+			continue
+		}
 		cp, err := e.dp.ClosingPrice(asset.Category, asset.Code)
 		if err != nil {
 			c <- fmt.Sprintf("[EmaUpdateEvent] ClosingPrice 시, 에러 발생. %s", err)
-			return
+			continue
 		}
 		e.stg.SaveEmaHist(a.ID, cp)
 	}
@@ -217,6 +221,15 @@ func (e Event) updateFundSummarys(list []m.InvestSummary, pm map[uint]float64) (
 	return nil
 }
 
+type priority struct {
+	asset *m.Asset
+	ap    float64
+	pp    float64
+	hp    float64
+	score float64
+}
+
+// todo 매수 메세지일 때에는 전체 asset 리스트 조회해서.
 func (e Event) portfolioMsg(ivsmLi []m.InvestSummary, pm map[uint]float64) (msg string, err error) {
 	// 현재 시장 단계 조회
 	market, err := e.stg.RetrieveMarketStatus("")
@@ -260,24 +273,19 @@ func (e Event) portfolioMsg(ivsmLi []m.InvestSummary, pm map[uint]float64) (msg 
 	}
 
 	var sb strings.Builder
-	type priority struct {
-		asset *m.Asset
-		ap    float64
-		pp    float64
-		hp    float64
-		score float64
-	}
 	for k := range keySet {
+		os := make([]priority, 0) // ordered slice
+
 		if volatile[k]+stable[k] == 0 {
 			continue
 		}
-
 		r := volatile[k] / (volatile[k] + stable[k])
-		if r > marketLevel.MaxVolatileAssetRate() || r < marketLevel.MinVolatileAssetRate() { // 매도해야 함
+		if r > marketLevel.MaxVolatileAssetRate() || r < marketLevel.MinVolatileAssetRate() {
 			sb.WriteString(strings.Repeat("=", 20))
 			sb.WriteString("\n")
+		}
 
-			os := make([]priority, 0) // ordered slice
+		if r > marketLevel.MaxVolatileAssetRate() { // 매도해야 함
 			for _, ivsm := range ivsmLi {
 				if ivsm.FundID == k {
 
@@ -299,36 +307,57 @@ func (e Event) portfolioMsg(ivsmLi []m.InvestSummary, pm map[uint]float64) (msg 
 				}
 			}
 
-			if r > marketLevel.MaxVolatileAssetRate() {
-				sb.WriteString(fmt.Sprintf("자금 %d 변동 자산 비중 초과. 변동 자산 비율 : %.2f. 현재 시장 단계 : %s(%.1f)\n\n", k, r, marketLevel.String(), marketLevel.MaxVolatileAssetRate()))
-				slices.SortFunc(os, func(a, b priority) int {
-					if a.asset.Category.IsStable() == b.asset.Category.IsStable() {
-						return cmp.Compare(b.score, a.score) // 큰 게 앞으로
+			sb.WriteString(fmt.Sprintf("자금 %d 변동 자산 비중 초과. 변동 자산 비율 : %.2f. 현재 시장 단계 : %s(%.1f)\n\n", k, r, marketLevel.String(), marketLevel.MaxVolatileAssetRate()))
+			slices.SortFunc(os, func(a, b priority) int {
+				if a.asset.Category.IsStable() == b.asset.Category.IsStable() {
+					return cmp.Compare(b.score, a.score) // 큰 게 앞으로
+				} else {
+					if a.asset.Category.IsStable() {
+						return 1
 					} else {
-						if a.asset.Category.IsStable() {
-							return 1
-						} else {
-							return -1
-						}
+						return -1
 					}
+				}
+			})
+		} else if r < marketLevel.MinVolatileAssetRate() {
 
-				})
-			} else {
-				sb.WriteString(fmt.Sprintf("자금 %d 변동 자산 비중 부족. 변동 자산 비율 : %.2f. 현재 시장 단계 : %s(%.1f)\n\n", k, r, marketLevel.String(), marketLevel.MinVolatileAssetRate()))
-				slices.SortFunc(os, func(a, b priority) int {
-					return cmp.Compare(a.score, b.score)
+			li, err := e.stg.RetrieveAssetList()
+			if err != nil {
+				return "", fmt.Errorf("RetrieveAssetList, 에러 발생. %w", err)
+			}
+
+			// 매수 시기에는 전체 List 조회. Todo. 여러 자금에 대해서 공통적으로 반복 수행하게 될 수 있음.
+			for _, a := range li {
+				pp := pm[a.ID]
+				ap, err := e.stg.RetreiveLatestEma(a.ID)
+				if err != nil {
+					return "", fmt.Errorf("RetreiveLatestEma, 에러 발생. %w", err)
+				}
+				hp := a.Top
+
+				os = append(os, priority{
+					asset: &a,
+					ap:    ap,
+					pp:    pp,
+					hp:    hp,
+					score: 0.6*((pp-ap)/pp) + 0.4*((pp-hp)/pp),
 				})
 			}
 
-			for _, p := range os {
-				sb.WriteString(fmt.Sprintf("AssetId : %d, AssetName : %s, PresentPrice : %.2f, WeighedAveragePrice : %.2f, HighestPrice : %.2f\n", p.asset.ID, p.asset.Name, p.pp, p.ap, p.hp))
-			}
+			sb.WriteString(fmt.Sprintf("자금 %d 변동 자산 비중 부족. 변동 자산 비율 : %.2f. 현재 시장 단계 : %s(%.1f)\n\n", k, r, marketLevel.String(), marketLevel.MinVolatileAssetRate()))
+			slices.SortFunc(os, func(a, b priority) int {
+				return cmp.Compare(a.score, b.score)
+			})
+
 		}
 
+		for _, p := range os {
+			sb.WriteString(fmt.Sprintf("AssetId : %d, AssetName : %s, PresentPrice : %.2f, WeighedAveragePrice : %.2f, HighestPrice : %.2f\n", p.asset.ID, p.asset.Name, p.pp, p.ap, p.hp))
+		}
 	}
 
 	msg = sb.String()
-	return
+	return msg, nil
 }
 
 /*

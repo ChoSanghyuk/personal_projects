@@ -15,7 +15,6 @@ func TestKis(t *testing.T) {
 	s := NewScraper(
 		conf,
 		WithKIS(conf.KisAppKey(), conf.KisAppSecret()),
-		WithToken("eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0b2tlbiIsImF1ZCI6IjdkMmY3Y2IxLTk4NzctNGNhZS1iMWY3LTU2ZjJlN2E5OGM4OCIsInByZHRfY2QiOiIiLCJpc3MiOiJ1bm9ndyIsImV4cCI6MTcyNzQ4MDcwMCwiaWF0IjoxNzI3Mzk0MzAwLCJqdGkiOiJQU1htMG5xSzRHbUxpUlVqWWIxRFVUWG5neWxkT1JsWVdFRDAifQ.mNbB10oe2ZtAS8ddP0UPjxMT9HB4g5wMikzk8yZXK8_wo_aDZSdUjj2O-XyDvwTdMBKzDVn-SCLDh2rPJh95mQ"),
 	)
 
 	t.Run("Token Generate", func(t *testing.T) {

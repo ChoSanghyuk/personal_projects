@@ -51,9 +51,9 @@ func (h *FundHandler) TotalStatus(c *fiber.Ctx) error {
 		}
 
 		if is.Asset.Currency == model.USD.String() {
-			funds[is.FundID].Amount = funds[is.FundID].Amount + is.Sum*exchangeRate
+			funds[is.FundID].Amount += is.Sum * exchangeRate
 		} else {
-			funds[is.FundID].Amount = funds[is.FundID].Amount + is.Sum
+			funds[is.FundID].Amount += is.Sum
 		}
 	}
 

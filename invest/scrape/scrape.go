@@ -132,7 +132,7 @@ func (s *Scraper) ClosingPrice(category m.Category, code string) (cp float64, er
 	case m.Won:
 		return 1, nil
 	case m.Dollar:
-		r := s.ExchageRate() // todo. ema 등록 제외 필요?
+		r := s.ExchageRate()
 		return r, nil
 	case m.DomesticStock, m.Gold:
 		stock, err := s.kisDomesticStockPrice(code) // todo. cp이름 op로 다 바꿀까

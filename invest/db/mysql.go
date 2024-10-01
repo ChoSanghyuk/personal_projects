@@ -214,12 +214,12 @@ func (s Storage) RetrieveMarketStatus(date string) (*m.Market, error) {
 	var market m.Market
 
 	if date == "" {
-		result := s.db.First(&market) // Preload("Asset")
+		result := s.db.Last(&market) // Preload("Asset")
 		if result.Error != nil {
 			return nil, result.Error
 		}
 	} else {
-		result := s.db.Where("created_at = ?", date).First(&market, date) // Preload("Asset")
+		result := s.db.Where("created_at = ?", date).Last(&market, date) // Preload("Asset")
 		if result.Error != nil {
 			return nil, result.Error
 		}
@@ -342,19 +342,32 @@ func (s Storage) RetrieveInvestSummaryByFundIdAssetId(fundId uint, assetId uint)
 	return &investSummary, nil
 }
 
-func (s Storage) UpdateInvestSummaryCount(fundId uint, assetId uint, change float64) error {
-	// 조회한 InvestSummary를 count만 변경
-	var investSummary m.InvestSummary
+func (s Storage) UpdateInvestSummary(fundId uint, assetId uint, change float64, price float64) error {
 
+	var investSummary m.InvestSummary
 	result := s.db.Model(&m.InvestSummary{}).
 		Where("fund_id = ?", fundId).
 		Where("asset_id = ?", assetId).
-		First(&investSummary)
+		Select(&investSummary)
+
+	if result.RowsAffected == 0 {
+		investSummary = m.InvestSummary{
+			FundID:  fundId,
+			AssetID: assetId,
+			Count:   change,
+			Sum:     change * price,
+		}
+
+		result = s.db.Model(&m.InvestSummary{}).Create(&investSummary)
+	} else {
+		investSummary.Count += change
+		investSummary.Sum += change * price
+
+		result = s.db.Model(&investSummary).Updates(investSummary)
+	}
 	if result.Error != nil {
 		return result.Error
 	}
-
-	s.db.Model(&investSummary).Update("count", investSummary.Count+change)
 
 	return nil
 }
