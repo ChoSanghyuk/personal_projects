@@ -234,7 +234,7 @@ func (e Event) portfolioMsg(ivsmLi []m.InvestSummary, pm map[uint]float64) (msg 
 	// 현재 시장 단계 조회
 	market, err := e.stg.RetrieveMarketStatus("")
 	if err != nil {
-		msg = fmt.Sprintf("[AssetEvent] RetrieveMarketStatus 시, 에러 발생. %s", err)
+		msg = fmt.Sprintf("[portfolioMsg] RetrieveMarketStatus 시, 에러 발생. %s", err)
 		return
 	}
 	marketLevel := m.MarketLevel(market.Status)
@@ -242,7 +242,7 @@ func (e Event) portfolioMsg(ivsmLi []m.InvestSummary, pm map[uint]float64) (msg 
 	// 환율까지 계산하여 원화로 변환
 	ex := e.dp.ExchageRate()
 	if ex == 0 {
-		msg = "[AssetEvent] ExchageRate 시 환율 값 0 반환"
+		msg = "[ExchageRate] ExchageRate 시 환율 값 0 반환"
 		return
 	}
 
@@ -288,12 +288,14 @@ func (e Event) portfolioMsg(ivsmLi []m.InvestSummary, pm map[uint]float64) (msg 
 		if r > marketLevel.MaxVolatileAssetRate() { // 매도해야 함
 			for _, ivsm := range ivsmLi {
 				if ivsm.FundID == k {
-
 					a := &ivsm.Asset
+					if a.Category == m.Won || a.Category == m.Dollar {
+						continue
+					}
 					pp := pm[a.ID]
 					ap, err := e.stg.RetreiveLatestEma(a.ID)
 					if err != nil {
-						return "", fmt.Errorf("RetreiveLatestEma, 에러 발생. %w", err)
+						return "", fmt.Errorf("RetreiveLatestEma, 에러 발생. ID: %d. %w", a.ID, err)
 					}
 					hp := a.Top
 
@@ -321,17 +323,20 @@ func (e Event) portfolioMsg(ivsmLi []m.InvestSummary, pm map[uint]float64) (msg 
 			})
 		} else if r < marketLevel.MinVolatileAssetRate() {
 
-			li, err := e.stg.RetrieveAssetList()
+			li, err := e.stg.RetrieveTotalAssets()
 			if err != nil {
-				return "", fmt.Errorf("RetrieveAssetList, 에러 발생. %w", err)
+				return "", fmt.Errorf("RetrieveTotalAssets, 에러 발생. %w", err)
 			}
 
 			// 매수 시기에는 전체 List 조회. Todo. 여러 자금에 대해서 공통적으로 반복 수행하게 될 수 있음.
 			for _, a := range li {
+				if a.Category == m.Won || a.Category == m.Dollar {
+					continue
+				}
 				pp := pm[a.ID]
 				ap, err := e.stg.RetreiveLatestEma(a.ID)
 				if err != nil {
-					return "", fmt.Errorf("RetreiveLatestEma, 에러 발생. %w", err)
+					return "", fmt.Errorf("RetreiveLatestEma, 에러 발생. ID: %d. %w", a.ID, err)
 				}
 				hp := a.Top
 

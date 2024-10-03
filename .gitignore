@@ -1,3 +1,4 @@
 # config yaml files
 invest/config/*.yaml
 invest/*.xlsx
+lolche_bot/config/*.yaml

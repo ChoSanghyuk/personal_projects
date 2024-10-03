@@ -10,7 +10,7 @@ func TestBase64(t *testing.T) {
 
 	e := base64.StdEncoding.EncodeToString([]byte(""))
 	fmt.Println(e)
-	d, err := base64.StdEncoding.DecodeString(e)
+	d, err := base64.StdEncoding.DecodeString("NzMxMjcxNDAxOA==")
 	if err != nil {
 		t.Error(err)
 	}
