@@ -34,7 +34,7 @@ func TestKis(t *testing.T) {
 	})
 
 	t.Run("Foreign stock", func(t *testing.T) {
-		pp, cp, err := s.kisForeignStockPrice("NAS-MSFT")
+		pp, cp, err := s.kisForeignPrice("NAS-MSFT")
 		if err != nil {
 			t.Error(err)
 		}
@@ -47,6 +47,22 @@ func TestKis(t *testing.T) {
 			t.Error(err)
 		}
 		t.Log(pp)
+	})
+
+	t.Run("Domestic ETF", func(t *testing.T) {
+		stock, err := s.kisDomesticEtfPrice("360750")
+		if err != nil {
+			t.Error(err)
+		}
+		t.Log(stock.pp, stock.op, stock.hp, stock.lp)
+	})
+
+	t.Run("Foreign ETF", func(t *testing.T) {
+		pp, cp, err := s.kisForeignPrice("AMS-SPY")
+		if err != nil {
+			t.Error(err)
+		}
+		t.Log(pp, cp)
 	})
 
 }

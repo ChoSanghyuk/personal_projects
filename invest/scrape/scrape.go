@@ -60,28 +60,6 @@ func WithToken(token string) func(*Scraper) {
 	}
 }
 
-func AlpacaCrypto(target string) (string, error) {
-
-	client := marketdata.NewClient(marketdata.ClientOpts{})
-	request := marketdata.GetCryptoBarsRequest{
-		TimeFrame: marketdata.OneMin,
-		Start:     time.Now().Add(time.Duration(-10) * time.Minute), // time.Date(2022, 9, 1, 0, 0, 0, 0, time.UTC),
-		End:       time.Now(),
-	}
-
-	bars, err := client.GetCryptoBars(target, request)
-	if err != nil {
-		return "", err
-	}
-
-	if len(bars) == 0 {
-		return "", errors.New("빈 결과값 반환")
-	}
-
-	bar := bars[len(bars)-1]
-	return fmt.Sprintf("%f", bar.Close), nil
-}
-
 /*
 종목 이름만 보고 어디서 가져올 지 정할 수 있어야 함
 종목별로 타입을 지정 => 어떤 base url을 사용할 지 결정
@@ -103,11 +81,14 @@ func (s *Scraper) PresentPrice(category m.Category, code string) (pp float64, er
 	case m.DomesticStock, m.Gold:
 		stock, err := s.kisDomesticStockPrice(code)
 		return stock.pp, err
+	case m.DomesticETF:
+		stock, err := s.kisDomesticEtfPrice(code)
+		return stock.pp, err
 	case m.DomesticCoin:
 		pp, _, err := s.upbitApi(code)
 		return pp, err
-	case m.ForeignStock:
-		pp, _, err := s.kisForeignStockPrice(code)
+	case m.ForeignStock, m.ForeignETF:
+		pp, _, err := s.kisForeignPrice(code)
 		return pp, err
 	}
 
@@ -119,11 +100,14 @@ func (s *Scraper) TopBottomPrice(category m.Category, code string) (hp float64, 
 	case m.DomesticStock:
 		stock, err := s.kisDomesticStockPrice(code)
 		return stock.hp, stock.lp, err
+	case m.DomesticETF:
+		stock, err := s.kisDomesticEtfPrice(code)
+		return stock.hp, stock.lp, err
 		// case model.DomesticCoin:
 		// 	return 0, 0, nil
 	}
 
-	return 0, 0, errors.New("최고/최저 호출 API 등록")
+	return 0, 0, errors.New("최고/최저 호출 API 미존재")
 }
 
 func (s *Scraper) ClosingPrice(category m.Category, code string) (cp float64, err error) {
@@ -140,8 +124,11 @@ func (s *Scraper) ClosingPrice(category m.Category, code string) (cp float64, er
 	case m.DomesticCoin:
 		_, cp, err = s.upbitApi(code)
 		return cp, err
-	case m.ForeignStock:
-		_, cp, err := s.kisForeignStockPrice(code)
+	case m.DomesticETF:
+		stock, err := s.kisDomesticEtfPrice(code) // todo. cp이름 op로 다 바꿀까
+		return stock.op, err
+	case m.ForeignStock, m.ForeignETF:
+		_, cp, err := s.kisForeignPrice(code)
 		return cp, err
 	}
 
@@ -210,4 +197,27 @@ func (s *Scraper) Nasdaq() (float64, error) {
 func (s *Scraper) CliIdx() (float64, error) {
 	// need Chromedp
 	return 0, nil
+}
+
+// depre
+func AlpacaCrypto(target string) (string, error) {
+
+	client := marketdata.NewClient(marketdata.ClientOpts{})
+	request := marketdata.GetCryptoBarsRequest{
+		TimeFrame: marketdata.OneMin,
+		Start:     time.Now().Add(time.Duration(-10) * time.Minute), // time.Date(2022, 9, 1, 0, 0, 0, 0, time.UTC),
+		End:       time.Now(),
+	}
+
+	bars, err := client.GetCryptoBars(target, request)
+	if err != nil {
+		return "", err
+	}
+
+	if len(bars) == 0 {
+		return "", errors.New("빈 결과값 반환")
+	}
+
+	bar := bars[len(bars)-1]
+	return fmt.Sprintf("%f", bar.Close), nil
 }

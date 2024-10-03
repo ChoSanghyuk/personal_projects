@@ -93,7 +93,7 @@ func (s *Scraper) kisDomesticStockPrice(code string) (StockPrice, error) {
 		return StockPrice{}, err
 	}
 
-	op, err := strconv.ParseFloat(rtn.Output["stck_oprc"], 64) // 가중 평균 주식 가격
+	op, err := strconv.ParseFloat(rtn.Output["stck_oprc"], 64) // 시가
 	if err != nil {
 		return StockPrice{}, err
 	}
@@ -123,7 +123,7 @@ func (s *Scraper) kisDomesticStockPrice(code string) (StockPrice, error) {
 
 // 해외주식 현재체결가[v1_해외주식-009]
 // https://openapi.koreainvestment.com:9443/uapi/overseas-price/v1/quotations/price?AUTH=""&EXCD=%s&SYMB=%s
-func (s *Scraper) kisForeignStockPrice(code string) (pp, cp float64, err error) {
+func (s *Scraper) kisForeignPrice(code string) (pp, cp float64, err error) {
 
 	url := s.t.ApiBaseUrl("KIS_FOR")
 	if url == "" {
@@ -221,4 +221,69 @@ func (s *Scraper) kisNasdaqIndex() (float64, error) {
 	}
 
 	return pp, nil
+}
+
+func (s *Scraper) kisDomesticEtfPrice(code string) (StockPrice, error) {
+
+	url := s.t.ApiBaseUrl("KIS_ETF")
+	if url == "" {
+		return StockPrice{}, errors.New("URL 미존재")
+	}
+	url = fmt.Sprintf(url, code)
+
+	token, err := s.KisToken()
+	if err != nil {
+		return StockPrice{}, err
+	}
+
+	var rtn KIsResp
+
+	header := map[string]string{
+		"Content-Type":  "application/json",
+		"authorization": "Bearer " + token,
+		"appkey":        s.kis.appKey,
+		"appsecret":     s.kis.appSecret,
+		"tr_id":         "FHPST02400000",
+	}
+
+	err = sendRequest(url, http.MethodGet, header, nil, &rtn)
+	if err != nil {
+		return StockPrice{}, err
+	}
+
+	if rtn.RtCd != "0" {
+		return StockPrice{}, errors.New("국내 주식현재가 시세 API 실패 코드 반환")
+	}
+
+	pp, err := strconv.ParseFloat(rtn.Output["stck_prpr"], 64)
+	if err != nil {
+		return StockPrice{}, err
+	}
+
+	op, err := strconv.ParseFloat(rtn.Output["stck_oprc"], 64) // 시가
+	if err != nil {
+		return StockPrice{}, err
+	}
+
+	// ap, err := strconv.ParseFloat(rtn.Output["wghn_avrg_stck_prc"], 64) // 가중 평균 주식 가격
+	// if err != nil {
+	// 	return StockPrice{}, err
+	// }
+
+	hp, err := strconv.ParseFloat(rtn.Output["stck_dryy_hgpr"], 64) // 연중 최고가
+	if err != nil {
+		return StockPrice{}, err
+	}
+
+	lp, err := strconv.ParseFloat(rtn.Output["stck_dryy_lwpr"], 64) // 연중 최저가
+	if err != nil {
+		return StockPrice{}, err
+	}
+
+	return StockPrice{
+		pp: pp,
+		op: op,
+		hp: hp,
+		lp: lp,
+	}, nil
 }
