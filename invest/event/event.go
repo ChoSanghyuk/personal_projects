@@ -229,7 +229,6 @@ type priority struct {
 	score float64
 }
 
-// todo 매수 메세지일 때에는 전체 asset 리스트 조회해서.
 func (e Event) portfolioMsg(ivsmLi []m.InvestSummary, pm map[uint]float64) (msg string, err error) {
 	// 현재 시장 단계 조회
 	market, err := e.stg.RetrieveMarketStatus("")
@@ -285,7 +284,7 @@ func (e Event) portfolioMsg(ivsmLi []m.InvestSummary, pm map[uint]float64) (msg 
 			sb.WriteString("\n")
 		}
 
-		if r > marketLevel.MaxVolatileAssetRate() { // 매도해야 함
+		if r > marketLevel.MaxVolatileAssetRate() && !hasPortCache(true) { // 매도 메시지
 			for _, ivsm := range ivsmLi {
 				if ivsm.FundID == k {
 					a := &ivsm.Asset
@@ -321,7 +320,8 @@ func (e Event) portfolioMsg(ivsmLi []m.InvestSummary, pm map[uint]float64) (msg 
 					}
 				}
 			})
-		} else if r < marketLevel.MinVolatileAssetRate() {
+			setPortCache(true)
+		} else if r < marketLevel.MinVolatileAssetRate() && !hasPortCache(false) { // 매수 메시지
 
 			li, err := e.stg.RetrieveTotalAssets()
 			if err != nil {
@@ -353,7 +353,7 @@ func (e Event) portfolioMsg(ivsmLi []m.InvestSummary, pm map[uint]float64) (msg 
 			slices.SortFunc(os, func(a, b priority) int {
 				return cmp.Compare(a.score, b.score)
 			})
-
+			setPortCache(false)
 		}
 
 		for _, p := range os {

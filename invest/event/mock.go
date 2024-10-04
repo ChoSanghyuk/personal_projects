@@ -1,7 +1,6 @@
 package event
 
 import (
-	m "invest/model"
 	md "invest/model"
 )
 
@@ -77,7 +76,7 @@ func (m StorageMock) SaveEmaHist(assetId uint, price float64) error {
 	return nil
 }
 
-func (m StorageMock) RetrieveTotalAssets() ([]m.Asset, error) {
+func (m StorageMock) RetrieveTotalAssets() ([]md.Asset, error) {
 	return nil, nil
 }
 

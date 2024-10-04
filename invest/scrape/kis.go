@@ -165,7 +165,7 @@ func (s *Scraper) kisForeignPrice(code string) (pp, cp float64, err error) {
 		return 0, 0, err
 	}
 
-	cp, err = strconv.ParseFloat(rtn.Output["base"], 64)
+	cp, err = strconv.ParseFloat(rtn.Output["base"], 64) // 전일의 종가
 	if err != nil {
 		return 0, 0, err
 	}

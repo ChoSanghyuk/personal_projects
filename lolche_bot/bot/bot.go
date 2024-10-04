@@ -25,15 +25,50 @@ func NewTeleBot(token string, chatId int64) (*TeleBot, error) {
 	}, nil
 }
 
-func (t TeleBot) Run() { // channel 받아
+func (t TeleBot) Run(offset int) { // channel 받아
 
 	// 텔레그램 updates 지속 수행
+	u := tgbotapi.NewUpdate(offset)
+	u.Timeout = 60
+	updates := t.bot.GetUpdatesChan(u)
 
-	// 덱 갱신 메시지 보내기
+	for update := range updates {
 
-	// 덱 버전 스위칭 메시지
+		if update.Message != nil {
+			switch update.Message.Text {
+			case "/mode":
+				// 현재 모드
+			case "/switch":
+				// 모드 전환
+			case "/update":
+				// 덱 갱신
+			case "/reset":
 
-	// 추천 덱 보내기
+			}
+		}
+		if update.CallbackQuery != nil {
+
+			// optionID, _ := strconv.Atoi(update.CallbackQuery.Data)
+			// buttonText := "☑️ Option " + update.CallbackQuery.Data
+			// if update.CallbackQuery.Data == strconv.Itoa(optionID) {
+			// 	buttonText = "✅ Option " + update.CallbackQuery.Data // Change ☑️ to ✅ (checked)
+			// }
+			buttonText := "COMPLETE"
+
+			// Update the inline keyboard with the new checkbox state
+			newKeyboard := tgbotapi.NewInlineKeyboardMarkup(
+				tgbotapi.NewInlineKeyboardRow(
+					tgbotapi.NewInlineKeyboardButtonData(buttonText, update.CallbackQuery.Data),
+				),
+			)
+
+			// Edit the message with the updated keyboard
+			editMsg := tgbotapi.NewEditMessageReplyMarkup(update.CallbackQuery.Message.Chat.ID, update.CallbackQuery.Message.MessageID, newKeyboard)
+			if _, err := t.bot.Send(editMsg); err != nil {
+				log.Panic(err)
+			}
+		}
+	}
 
 }
 
