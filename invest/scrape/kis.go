@@ -54,6 +54,7 @@ type StockPrice struct {
 	hp float64
 	lp float64
 	op float64
+	ap float64
 }
 
 func (s *Scraper) kisDomesticStockPrice(code string) (StockPrice, error) {
@@ -98,10 +99,10 @@ func (s *Scraper) kisDomesticStockPrice(code string) (StockPrice, error) {
 		return StockPrice{}, err
 	}
 
-	// ap, err := strconv.ParseFloat(rtn.Output["wghn_avrg_stck_prc"], 64) // 가중 평균 주식 가격
-	// if err != nil {
-	// 	return StockPrice{}, err
-	// }
+	ap, err := strconv.ParseFloat(rtn.Output["wghn_avrg_stck_prc"], 64) // 가중 평균 주식 가격
+	if err != nil {
+		return StockPrice{}, err
+	}
 
 	hp, err := strconv.ParseFloat(rtn.Output["w52_hgpr"], 64)
 	if err != nil {
@@ -118,6 +119,7 @@ func (s *Scraper) kisDomesticStockPrice(code string) (StockPrice, error) {
 		op: op,
 		hp: hp,
 		lp: lp,
+		ap: ap,
 	}, nil
 }
 
@@ -264,11 +266,6 @@ func (s *Scraper) kisDomesticEtfPrice(code string) (StockPrice, error) {
 	if err != nil {
 		return StockPrice{}, err
 	}
-
-	// ap, err := strconv.ParseFloat(rtn.Output["wghn_avrg_stck_prc"], 64) // 가중 평균 주식 가격
-	// if err != nil {
-	// 	return StockPrice{}, err
-	// }
 
 	hp, err := strconv.ParseFloat(rtn.Output["stck_dryy_hgpr"], 64) // 연중 최고가
 	if err != nil {

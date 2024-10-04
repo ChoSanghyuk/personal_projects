@@ -14,9 +14,11 @@ type assetMsgSentInfo struct {
 }
 
 var assetMsgCache map[assetMsg]*assetMsgSentInfo
+var portMsgCache map[bool]time.Time
 
 func init() {
 	assetMsgCache = make(map[assetMsg]*assetMsgSentInfo)
+	portMsgCache = make(map[bool]time.Time)
 }
 
 func hasMsgCache(assetId uint, isSell bool, price float64) bool {
@@ -59,8 +61,6 @@ func setMsgCache(assetId uint, isSell bool, price float64) {
 	}
 
 }
-
-var portMsgCache map[bool]time.Time
 
 func hasPortCache(isSell bool) bool {
 

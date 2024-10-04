@@ -15,6 +15,7 @@ func TestKis(t *testing.T) {
 	s := NewScraper(
 		conf,
 		WithKIS(conf.KisAppKey(), conf.KisAppSecret()),
+		WithToken("eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0b2tlbiIsImF1ZCI6IjAyYjI2MThkLTVkMjgtNDE1Ni1hMGVkLTZjODQxZGRiYmVhMyIsInByZHRfY2QiOiIiLCJpc3MiOiJ1bm9ndyIsImV4cCI6MTcyODA4NDEzMCwiaWF0IjoxNzI3OTk3NzMwLCJqdGkiOiJQU2c0QjA4aFFDdzlqTUVvVmRYdGw1b2o1REhJaUpkY2lCZnMifQ.EFeGpl2PJ8md5f7Tgvj9Vw4QysaNpv1EmdwPeqcXD0gcroTc5nVMnAuBUqfeL3kld4HVuVLUEZoj66xiuw7nJg"),
 	)
 
 	t.Run("Token Generate", func(t *testing.T) {
@@ -30,7 +31,7 @@ func TestKis(t *testing.T) {
 		if err != nil {
 			t.Error(err)
 		}
-		t.Log(stock.pp, stock.op, stock.hp, stock.lp)
+		t.Log(stock.pp, stock.op, stock.hp, stock.lp, stock.ap)
 	})
 
 	t.Run("Foreign stock", func(t *testing.T) {
@@ -54,7 +55,7 @@ func TestKis(t *testing.T) {
 		if err != nil {
 			t.Error(err)
 		}
-		t.Log(stock.pp, stock.op, stock.hp, stock.lp)
+		t.Log(stock.pp, stock.op, stock.hp, stock.lp, stock.ap)
 	})
 
 	t.Run("Foreign ETF", func(t *testing.T) {
