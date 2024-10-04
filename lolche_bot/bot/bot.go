@@ -11,6 +11,15 @@ type TeleBot struct {
 	chatId int64
 }
 
+type BotMsg struct {
+	req    string
+	msg    string
+	Update struct {
+		title []string
+		rcmds [][]string
+	}
+}
+
 func NewTeleBot(token string, chatId int64) (*TeleBot, error) {
 
 	bot, err := tgbotapi.NewBotAPI(token)
@@ -25,7 +34,7 @@ func NewTeleBot(token string, chatId int64) (*TeleBot, error) {
 	}, nil
 }
 
-func (t TeleBot) Run(offset int) { // channel 받아
+func (t TeleBot) Run(offset int, c chan BotMsg) { // channel 받아
 
 	// 텔레그램 updates 지속 수행
 	u := tgbotapi.NewUpdate(offset)
@@ -36,14 +45,22 @@ func (t TeleBot) Run(offset int) { // channel 받아
 
 		if update.Message != nil {
 			switch update.Message.Text {
-			case "/mode":
-				// 현재 모드
-			case "/switch":
-				// 모드 전환
+			case "/mode": // 현재 모드
+				c <- BotMsg{req: "mode"}
+			case "/switch": // 모드 전환
+				c <- BotMsg{req: "switch"}
 			case "/update":
-				// 덱 갱신
+				c <- BotMsg{req: "update"}
 			case "/reset":
-
+				c <- BotMsg{req: "reset"}
+			}
+			resp := <-c
+			if resp.req == "update" {
+				for i := 0; i < len(resp.Update.title); i++ {
+					t.sendOptions(resp.Update.title[i], resp.Update.rcmds[i])
+				}
+			} else {
+				t.SendMessage(resp.msg)
 			}
 		}
 		if update.CallbackQuery != nil {
@@ -69,17 +86,16 @@ func (t TeleBot) Run(offset int) { // channel 받아
 			}
 		}
 	}
-
 }
 
-func (t TeleBot) sendOptions(title string, msgs []string, ids []string) {
+func (t TeleBot) sendOptions(title string, msgs []string) {
 
 	msg := tgbotapi.NewMessage(7312714018, title)
 
 	buttons := make([][]tgbotapi.InlineKeyboardButton, len(msgs))
 	for i := 0; i < len(msgs); i++ {
 		buttons[i] = tgbotapi.NewInlineKeyboardRow(
-			tgbotapi.NewInlineKeyboardButtonData("☑️"+msgs[i], ids[i]),
+			tgbotapi.NewInlineKeyboardButtonData("☑️"+msgs[i], msgs[i]),
 		)
 
 	}
@@ -157,6 +173,6 @@ func Temp() {
 	}
 }
 
-// func (t TeleBot) SendMessage(msg string) {
-// 	t.bot.Send(tgbotapi.NewMessage(t.chatId, msg))
-// }
+func (t TeleBot) SendMessage(msg string) {
+	t.bot.Send(tgbotapi.NewMessage(t.chatId, msg))
+}

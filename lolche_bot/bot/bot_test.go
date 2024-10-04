@@ -11,5 +11,5 @@ func TestSendOptions(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	tele.sendOptions("HI", []string{"덱1", "덱2"}, []string{"1", "2"})
+	tele.sendOptions("HI", []string{"덱1", "덱2"})
 }
