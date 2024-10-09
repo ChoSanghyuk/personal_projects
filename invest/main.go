@@ -16,9 +16,9 @@ import (
 )
 
 const (
-	AssetSpec = "0 */15 * * * *" // todo. 우선 코인때문에 주말에도 로직 실행. 이후 분리?
-	IndexSpec = "0 0 9 * * *"    // todo. 주말 제외 및 월요일일때는 금요일과 index 비교
-	EmaSpec   = "0 0 9 * * 2-6"  // 화~토
+	AssetSpec = "0 */15 8-23 * * 1-6" // todo. 우선 코인때문에 주말에도 로직 실행. 이후 분리?
+	IndexSpec = "0 3 9 * * *"         // todo. 주말 제외 및 월요일일때는 금요일과 index 비교
+	EmaSpec   = "0 3 9 * * 2-6"       // 화~토
 )
 
 func main() {

@@ -90,7 +90,7 @@ func (h *InvestHandler) SaveInvest(c *fiber.Ctx) error {
 	if asset.Currency == model.KRW.String() && asset.Name != model.KRW.String() {
 		err = h.w.UpdateInvestSummary(param.FundId, h.cm[model.KRW], -1*param.Price*param.Count, 1)
 	} else if asset.Currency == model.USD.String() && asset.Name != model.USD.String() {
-		err = h.w.UpdateInvestSummary(param.FundId, h.cm[model.KRW], -1*param.Price*param.Count, 1)
+		err = h.w.UpdateInvestSummary(param.FundId, h.cm[model.USD], -1*param.Price*param.Count, 1)
 	}
 	if err != nil {
 		return fmt.Errorf("UpdateInvestSummaryCount 오류 발생. %w", err)

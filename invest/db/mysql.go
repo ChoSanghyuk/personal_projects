@@ -358,7 +358,7 @@ func (s Storage) UpdateInvestSummary(fundId uint, assetId uint, change float64, 
 	result := s.db.Model(&m.InvestSummary{}).
 		Where("fund_id = ?", fundId).
 		Where("asset_id = ?", assetId).
-		Select(&investSummary)
+		Find(&investSummary) // memo. Select는 필드 지정하는 용도. 조회에서 구조체에 넣으려면 Find 사용
 
 	if result.RowsAffected == 0 {
 		investSummary = m.InvestSummary{

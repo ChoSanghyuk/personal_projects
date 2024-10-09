@@ -279,10 +279,6 @@ func (e Event) portfolioMsg(ivsmLi []m.InvestSummary, pm map[uint]float64) (msg 
 			continue
 		}
 		r := volatile[k] / (volatile[k] + stable[k])
-		if r > marketLevel.MaxVolatileAssetRate() || r < marketLevel.MinVolatileAssetRate() {
-			sb.WriteString(strings.Repeat("=", 20))
-			sb.WriteString("\n")
-		}
 
 		if r > marketLevel.MaxVolatileAssetRate() && !hasPortCache(true) { // 매도 메시지
 			for _, ivsm := range ivsmLi {
