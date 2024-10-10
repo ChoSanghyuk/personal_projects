@@ -15,7 +15,7 @@ func Run(stg *db.Storage, scraper *scrape.Scraper) {
 
 	handler.NewAssetHandler(stg, stg, scraper).InitRoute(app)
 	handler.NewFundHandler(stg, stg, scraper).InitRoute(app)
-	handler.NewInvestHandler(stg, stg).InitRoute(app)
+	handler.NewInvestHandler(stg, stg, scraper).InitRoute(app)
 	handler.NewMarketHandler(stg, stg).InitRoute(app)
 
 	app.Get("/shutdown", func(c *fiber.Ctx) error {

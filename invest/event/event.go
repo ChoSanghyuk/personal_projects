@@ -124,7 +124,7 @@ func (e Event) RealEstateEvent(c chan<- string) {
 
 	rtn, err := e.rt.RealEstateStatus()
 	if err != nil {
-		c <- fmt.Sprintf("크롤링 시 오류 발생. %s", err.Error())
+		c <- fmt.Sprintf("[RealEstateEvent] 크롤링 시 오류 발생. %s", err.Error())
 		return
 	}
 
@@ -157,8 +157,14 @@ func (e Event) IndexEvent(c chan<- string) {
 	}
 
 	// 어제꺼 조회
-	yesterday := time.Now().AddDate(0, 0, -1).Format("2006-01-02")
-	di, _, err := e.stg.RetrieveMarketIndicator(yesterday)
+	var former string
+	if time.Now().Weekday() == 1 {
+		former = time.Now().AddDate(0, 0, -3).Format("2006-01-02")
+	} else {
+		former = time.Now().AddDate(0, 0, -1).Format("2006-01-02")
+	}
+
+	di, _, err := e.stg.RetrieveMarketIndicator(former)
 	if err != nil {
 		c <- fmt.Sprintf("금일 공포 탐욕 지수 : %d\n금일 Nasdaq : %.2f", fgi, nasdaq)
 	} else {

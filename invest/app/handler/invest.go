@@ -11,6 +11,7 @@ import (
 type InvestHandler struct {
 	r  AssetRetriever
 	w  InvestSaver
+	e  ExchageRateGetter
 	cm map[model.Currency]uint
 }
 
@@ -19,7 +20,7 @@ func (h *InvestHandler) InitRoute(app *fiber.App) {
 	router.Post("/", h.SaveInvest)
 }
 
-func NewInvestHandler(r AssetRetriever, w InvestSaver) *InvestHandler {
+func NewInvestHandler(r AssetRetriever, w InvestSaver, e ExchageRateGetter) *InvestHandler {
 
 	cm := make(map[model.Currency]uint)
 	li, err := r.RetrieveAssetList()
@@ -38,6 +39,7 @@ func NewInvestHandler(r AssetRetriever, w InvestSaver) *InvestHandler {
 	return &InvestHandler{
 		r:  r,
 		w:  w,
+		e:  e,
 		cm: cm,
 	}
 }
@@ -87,9 +89,12 @@ func (h *InvestHandler) SaveInvest(c *fiber.Ctx) error {
 		return fmt.Errorf("RetrieveAsset 오류 발생. %w", err)
 	}
 
-	if asset.Currency == model.KRW.String() && asset.Name != model.KRW.String() {
+	if assetId == h.cm[model.USD] { // 달러 충전
+		exRate := h.e.ExchageRate()
+		err = h.w.UpdateInvestSummary(param.FundId, h.cm[model.KRW], -1*exRate*param.Count, 1)
+	} else if asset.Currency == model.KRW.String() && asset.Name != model.KRW.String() { // 원화 자산
 		err = h.w.UpdateInvestSummary(param.FundId, h.cm[model.KRW], -1*param.Price*param.Count, 1)
-	} else if asset.Currency == model.USD.String() && asset.Name != model.USD.String() {
+	} else if asset.Currency == model.USD.String() && asset.Name != model.USD.String() { // 달러 자산
 		err = h.w.UpdateInvestSummary(param.FundId, h.cm[model.USD], -1*param.Price*param.Count, 1)
 	}
 	if err != nil {

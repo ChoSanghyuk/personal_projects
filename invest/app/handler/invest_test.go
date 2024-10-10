@@ -15,7 +15,8 @@ func TestInvestGetHandler(t *testing.T) {
 
 	readerMock := AssetRetrieverMock{}
 	writerMock := InvestSaverMock{}
-	f := NewInvestHandler(readerMock, writerMock)
+	exMock := ExchageRateGetterMock{}
+	f := NewInvestHandler(readerMock, writerMock, exMock)
 	f.InitRoute(app)
 	go func() {
 		app.Listen(":3000")

@@ -63,8 +63,7 @@ func (s Scraper) crawl(url string, cssPath string) (string, error) {
 
 	// Check the response status
 	if res.StatusCode != 200 {
-		body, _ := io.ReadAll(res.Body)
-		return "", fmt.Errorf("status code error: %d %s %s", res.StatusCode, res.Status, body)
+		return "", fmt.Errorf("status code error: %d %s", res.StatusCode, res.Status)
 	}
 
 	// Create a goquery document from the response body
