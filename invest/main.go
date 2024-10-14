@@ -63,6 +63,10 @@ func main() {
 		app.Run(db, scraper)
 	}()
 
+	go func() {
+		teleBot.Listen(ch)
+	}()
+
 	for true {
 		msg := <-ch
 		teleBot.SendMessage(msg)
