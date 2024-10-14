@@ -16,9 +16,10 @@ import (
 )
 
 const (
-	AssetSpec = "0 */15 8-23 * * 1-6" // todo. 우선 코인때문에 주말에도 로직 실행. 이후 분리?
-	IndexSpec = "0 3 9 * * 1-5"
-	EmaSpec   = "0 3 9 * * 2-6" // 화~토
+	AssetSpec  = "0 */15 8-23 * * 1-6" // todo. 우선 코인때문에 주말에도 로직 실행. 이후 분리?
+	EstateSpec = "0 */15 9-17 * * 1-5"
+	IndexSpec  = "0 3 9 * * 1-5"
+	EmaSpec    = "0 3 9 * * 2-6" // 화~토
 )
 
 func main() {
@@ -53,7 +54,7 @@ func main() {
 
 	c := cron.New()
 	c.AddFunc(AssetSpec, func() { event.AssetEvent(ch) })
-	c.AddFunc(AssetSpec, func() { event.RealEstateEvent(ch) })
+	c.AddFunc(EstateSpec, func() { event.RealEstateEvent(ch) })
 	c.AddFunc(IndexSpec, func() { event.IndexEvent(ch) })
 	c.AddFunc(EmaSpec, func() { event.EmaUpdateEvent(ch) })
 	c.Start()
