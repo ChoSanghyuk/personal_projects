@@ -106,10 +106,14 @@ func (e Event) EmaUpdateEvent(c chan<- string) {
 			c <- fmt.Sprintf("[EmaUpdateEvent] RetrieveAsset 시, 에러 발생. %s", err)
 			return
 		}
+		// EMA 갱신 제외
+		if a.Category == m.Won || a.Category == m.Dollar {
+			continue
+		}
 		cp, err := e.dp.ClosingPrice(asset.Category, asset.Code)
 		if err != nil {
 			c <- fmt.Sprintf("[EmaUpdateEvent] ClosingPrice 시, 에러 발생. %s", err)
-			return
+			continue
 		}
 		e.stg.SaveEmaHist(a.ID, cp)
 	}
@@ -120,7 +124,7 @@ func (e Event) RealEstateEvent(c chan<- string) {
 
 	rtn, err := e.rt.RealEstateStatus()
 	if err != nil {
-		c <- fmt.Sprintf("크롤링 시 오류 발생. %s", err.Error())
+		c <- fmt.Sprintf("[RealEstateEvent] 크롤링 시 오류 발생. %s", err.Error())
 		return
 	}
 
@@ -153,8 +157,14 @@ func (e Event) IndexEvent(c chan<- string) {
 	}
 
 	// 어제꺼 조회
-	yesterday := time.Now().AddDate(0, 0, -1).Format("2006-01-02")
-	di, _, err := e.stg.RetrieveMarketIndicator(yesterday)
+	var former string
+	if time.Now().Weekday() == 1 {
+		former = time.Now().AddDate(0, 0, -3).Format("2006-01-02")
+	} else {
+		former = time.Now().AddDate(0, 0, -1).Format("2006-01-02")
+	}
+
+	di, _, err := e.stg.RetrieveMarketIndicator(former)
 	if err != nil {
 		c <- fmt.Sprintf("금일 공포 탐욕 지수 : %d\n금일 Nasdaq : %.2f", fgi, nasdaq)
 	} else {
@@ -217,11 +227,19 @@ func (e Event) updateFundSummarys(list []m.InvestSummary, pm map[uint]float64) (
 	return nil
 }
 
+type priority struct {
+	asset *m.Asset
+	ap    float64
+	pp    float64
+	hp    float64
+	score float64
+}
+
 func (e Event) portfolioMsg(ivsmLi []m.InvestSummary, pm map[uint]float64) (msg string, err error) {
 	// 현재 시장 단계 조회
 	market, err := e.stg.RetrieveMarketStatus("")
 	if err != nil {
-		msg = fmt.Sprintf("[AssetEvent] RetrieveMarketStatus 시, 에러 발생. %s", err)
+		msg = fmt.Sprintf("[portfolioMsg] RetrieveMarketStatus 시, 에러 발생. %s", err)
 		return
 	}
 	marketLevel := m.MarketLevel(market.Status)
@@ -229,7 +247,7 @@ func (e Event) portfolioMsg(ivsmLi []m.InvestSummary, pm map[uint]float64) (msg 
 	// 환율까지 계산하여 원화로 변환
 	ex := e.dp.ExchageRate()
 	if ex == 0 {
-		msg = "[AssetEvent] ExchageRate 시 환율 값 0 반환"
+		msg = "[ExchageRate] ExchageRate 시 환율 값 0 반환"
 		return
 	}
 
@@ -260,32 +278,25 @@ func (e Event) portfolioMsg(ivsmLi []m.InvestSummary, pm map[uint]float64) (msg 
 	}
 
 	var sb strings.Builder
-	type priority struct {
-		asset *m.Asset
-		ap    float64
-		pp    float64
-		hp    float64
-		score float64
-	}
 	for k := range keySet {
+		os := make([]priority, 0) // ordered slice
+
 		if volatile[k]+stable[k] == 0 {
 			continue
 		}
-
 		r := volatile[k] / (volatile[k] + stable[k])
-		if r > marketLevel.MaxVolatileAssetRate() || r < marketLevel.MinVolatileAssetRate() { // 매도해야 함
-			sb.WriteString(strings.Repeat("=", 20))
-			sb.WriteString("\n")
 
-			os := make([]priority, 0) // ordered slice
+		if r > marketLevel.MaxVolatileAssetRate() && !hasPortCache(true) { // 매도 메시지
 			for _, ivsm := range ivsmLi {
 				if ivsm.FundID == k {
-
 					a := &ivsm.Asset
+					if a.Category == m.Won || a.Category == m.Dollar {
+						continue
+					}
 					pp := pm[a.ID]
 					ap, err := e.stg.RetreiveLatestEma(a.ID)
 					if err != nil {
-						return "", fmt.Errorf("RetreiveLatestEma, 에러 발생. %w", err)
+						return "", fmt.Errorf("RetreiveLatestEma, 에러 발생. ID: %d. %w", a.ID, err)
 					}
 					hp := a.Top
 
@@ -299,36 +310,61 @@ func (e Event) portfolioMsg(ivsmLi []m.InvestSummary, pm map[uint]float64) (msg 
 				}
 			}
 
-			if r > marketLevel.MaxVolatileAssetRate() {
-				sb.WriteString(fmt.Sprintf("자금 %d 변동 자산 비중 초과. 변동 자산 비율 : %.2f. 현재 시장 단계 : %s(%.1f)\n\n", k, r, marketLevel.String(), marketLevel.MaxVolatileAssetRate()))
-				slices.SortFunc(os, func(a, b priority) int {
-					if a.asset.Category.IsStable() == b.asset.Category.IsStable() {
-						return cmp.Compare(b.score, a.score) // 큰 게 앞으로
+			sb.WriteString(fmt.Sprintf("자금 %d 변동 자산 비중 초과. 변동 자산 비율 : %.2f. 현재 시장 단계 : %s(%.1f)\n\n", k, r, marketLevel.String(), marketLevel.MaxVolatileAssetRate()))
+			slices.SortFunc(os, func(a, b priority) int {
+				if a.asset.Category.IsStable() == b.asset.Category.IsStable() {
+					return cmp.Compare(b.score, a.score) // 큰 게 앞으로
+				} else {
+					if a.asset.Category.IsStable() {
+						return 1
 					} else {
-						if a.asset.Category.IsStable() {
-							return 1
-						} else {
-							return -1
-						}
+						return -1
 					}
+				}
+			})
+			setPortCache(true)
+		} else if r < marketLevel.MinVolatileAssetRate() && !hasPortCache(false) { // 매수 메시지
 
-				})
-			} else {
-				sb.WriteString(fmt.Sprintf("자금 %d 변동 자산 비중 부족. 변동 자산 비율 : %.2f. 현재 시장 단계 : %s(%.1f)\n\n", k, r, marketLevel.String(), marketLevel.MinVolatileAssetRate()))
-				slices.SortFunc(os, func(a, b priority) int {
-					return cmp.Compare(a.score, b.score)
+			li, err := e.stg.RetrieveTotalAssets()
+			if err != nil {
+				return "", fmt.Errorf("RetrieveTotalAssets, 에러 발생. %w", err)
+			}
+
+			// 매수 시기에는 전체 List 조회. Todo. 여러 자금에 대해서 공통적으로 반복 수행하게 될 수 있음.
+			for _, a := range li {
+				if a.Category == m.Won || a.Category == m.Dollar {
+					continue
+				}
+				pp := pm[a.ID]
+				ap, err := e.stg.RetreiveLatestEma(a.ID)
+				if err != nil {
+					return "", fmt.Errorf("RetreiveLatestEma, 에러 발생. ID: %d. %w", a.ID, err)
+				}
+				hp := a.Top
+
+				os = append(os, priority{
+					asset: &a,
+					ap:    ap,
+					pp:    pp,
+					hp:    hp,
+					score: 0.6*((pp-ap)/pp) + 0.4*((pp-hp)/pp),
 				})
 			}
 
-			for _, p := range os {
-				sb.WriteString(fmt.Sprintf("AssetId : %d, AssetName : %s, PresentPrice : %.2f, WeighedAveragePrice : %.2f, HighestPrice : %.2f\n", p.asset.ID, p.asset.Name, p.pp, p.ap, p.hp))
-			}
+			sb.WriteString(fmt.Sprintf("자금 %d 변동 자산 비중 부족. 변동 자산 비율 : %.2f. 현재 시장 단계 : %s(%.1f)\n\n", k, r, marketLevel.String(), marketLevel.MinVolatileAssetRate()))
+			slices.SortFunc(os, func(a, b priority) int {
+				return cmp.Compare(a.score, b.score)
+			})
+			setPortCache(false)
 		}
 
+		for _, p := range os {
+			sb.WriteString(fmt.Sprintf("AssetId : %d, AssetName : %s, PresentPrice : %.2f, WeighedAveragePrice : %.2f, HighestPrice : %.2f\n", p.asset.ID, p.asset.Name, p.pp, p.ap, p.hp))
+		}
 	}
 
 	msg = sb.String()
-	return
+	return msg, nil
 }
 
 /*

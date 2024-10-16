@@ -14,9 +14,11 @@ type assetMsgSentInfo struct {
 }
 
 var assetMsgCache map[assetMsg]*assetMsgSentInfo
+var portMsgCache map[bool]time.Time
 
 func init() {
 	assetMsgCache = make(map[assetMsg]*assetMsgSentInfo)
+	portMsgCache = make(map[bool]time.Time)
 }
 
 func hasMsgCache(assetId uint, isSell bool, price float64) bool {
@@ -58,4 +60,19 @@ func setMsgCache(assetId uint, isSell bool, price float64) {
 		cache.sentTime = time.Now()
 	}
 
+}
+
+func hasPortCache(isSell bool) bool {
+
+	sendTime := portMsgCache[isSell]
+
+	if (sendTime == time.Time{} || sendTime.Before(time.Now().Add(-2*time.Hour))) { // 보낸 시간이 2시간보다 전이라면
+		return false
+	} else {
+		return true
+	}
+}
+
+func setPortCache(isSell bool) {
+	portMsgCache[isSell] = time.Now()
 }

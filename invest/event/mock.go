@@ -76,6 +76,10 @@ func (m StorageMock) SaveEmaHist(assetId uint, price float64) error {
 	return nil
 }
 
+func (m StorageMock) RetrieveTotalAssets() ([]md.Asset, error) {
+	return nil, nil
+}
+
 type RtPollerMock struct {
 	pp     float64
 	estate string

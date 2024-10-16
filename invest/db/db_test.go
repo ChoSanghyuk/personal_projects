@@ -71,7 +71,7 @@ func TestRetrieve(t *testing.T) {
 
 	result := db.Model(&m.Asset{}).Where("id", 99).Find(&asset)
 	fmt.Println(result.RowsAffected)
-	if result.Error != nil || result.RowsAffected == 0 { // todo. RowsAffected selete된 갯수 파악 가능?
+	if result.Error != nil || result.RowsAffected == 0 {
 		return
 	}
 }

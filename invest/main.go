@@ -16,9 +16,9 @@ import (
 )
 
 const (
-	Every15Min    = "0 */15 * * * *"
-	Every9Am      = "0 0 9 * * *"
-	PortfolioSpec = "0 5 10,22 * * *"
+	AssetSpec = "0 */15 8-23 * * 1-6" // todo. 우선 코인때문에 주말에도 로직 실행. 이후 분리?
+	IndexSpec = "0 3 9 * * 1-5"
+	EmaSpec   = "0 3 9 * * 2-6" // 화~토
 )
 
 func main() {
@@ -52,14 +52,18 @@ func main() {
 	}
 
 	c := cron.New()
-	c.AddFunc(Every15Min, func() { event.AssetEvent(ch) })
-	c.AddFunc(Every15Min, func() { event.RealEstateEvent(ch) })
-	c.AddFunc(Every9Am, func() { event.IndexEvent(ch) })
-	c.AddFunc(Every9Am, func() { event.EmaUpdateEvent(ch) })
+	c.AddFunc(AssetSpec, func() { event.AssetEvent(ch) })
+	c.AddFunc(AssetSpec, func() { event.RealEstateEvent(ch) })
+	c.AddFunc(IndexSpec, func() { event.IndexEvent(ch) })
+	c.AddFunc(EmaSpec, func() { event.EmaUpdateEvent(ch) })
 	c.Start()
 
 	go func() {
 		app.Run(db, scraper)
+	}()
+
+	go func() {
+		teleBot.Listen(ch)
 	}()
 
 	for true {

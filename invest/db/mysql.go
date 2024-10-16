@@ -108,6 +108,16 @@ func (s Storage) RetrieveAssetList() ([]m.Asset, error) {
 	return assets, nil
 }
 
+func (s Storage) RetrieveTotalAssets() ([]m.Asset, error) {
+	var assets []m.Asset
+
+	result := s.db.Model(&m.Asset{}).Find(&assets)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return assets, nil
+}
+
 func (s Storage) RetrieveAsset(id uint) (*m.Asset, error) {
 
 	var asset m.Asset
@@ -214,12 +224,12 @@ func (s Storage) RetrieveMarketStatus(date string) (*m.Market, error) {
 	var market m.Market
 
 	if date == "" {
-		result := s.db.First(&market) // Preload("Asset")
+		result := s.db.Last(&market) // Preload("Asset")
 		if result.Error != nil {
 			return nil, result.Error
 		}
 	} else {
-		result := s.db.Where("created_at = ?", date).First(&market, date) // Preload("Asset")
+		result := s.db.Where("created_at = ?", date).Last(&market, date) // Preload("Asset")
 		if result.Error != nil {
 			return nil, result.Error
 		}
@@ -342,19 +352,32 @@ func (s Storage) RetrieveInvestSummaryByFundIdAssetId(fundId uint, assetId uint)
 	return &investSummary, nil
 }
 
-func (s Storage) UpdateInvestSummaryCount(fundId uint, assetId uint, change float64) error {
-	// 조회한 InvestSummary를 count만 변경
-	var investSummary m.InvestSummary
+func (s Storage) UpdateInvestSummary(fundId uint, assetId uint, change float64, price float64) error {
 
+	var investSummary m.InvestSummary
 	result := s.db.Model(&m.InvestSummary{}).
 		Where("fund_id = ?", fundId).
 		Where("asset_id = ?", assetId).
-		First(&investSummary)
+		Find(&investSummary) // memo. Select는 필드 지정하는 용도. 조회에서 구조체에 넣으려면 Find 사용
+
+	if result.RowsAffected == 0 {
+		investSummary = m.InvestSummary{
+			FundID:  fundId,
+			AssetID: assetId,
+			Count:   change,
+			Sum:     change * price,
+		}
+
+		result = s.db.Model(&m.InvestSummary{}).Create(&investSummary)
+	} else {
+		investSummary.Count += change
+		investSummary.Sum += change * price
+
+		result = s.db.Model(&investSummary).Updates(investSummary)
+	}
 	if result.Error != nil {
 		return result.Error
 	}
-
-	s.db.Model(&investSummary).Update("count", investSummary.Count+change)
 
 	return nil
 }

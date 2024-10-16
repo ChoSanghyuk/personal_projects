@@ -289,3 +289,20 @@ func TestSaveEmaHist(t *testing.T) {
 	// }
 
 }
+
+func TestRetrieveInvestSummary(t *testing.T) {
+
+	fundId := 1
+	assetId := 12
+
+	var investSummary m.InvestSummary
+	result := db.Model(&m.InvestSummary{}).
+		Where("fund_id = ?", fundId).
+		Where("asset_id = ?", assetId).
+		Find(&investSummary)
+
+	if result.RowsAffected == 0 {
+		t.Error("RowsAffected : 0")
+	}
+	t.Log(investSummary)
+}

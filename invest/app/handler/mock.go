@@ -265,7 +265,7 @@ func (mock InvestSaverMock) SaveInvest(fundId uint, assetId uint, price float64,
 	return nil
 }
 
-func (mock InvestSaverMock) UpdateInvestSummaryCount(fundId uint, assetId uint, change float64) error {
+func (mock InvestSaverMock) UpdateInvestSummary(fundId uint, assetId uint, change float64, price float64) error {
 	fmt.Println("UpdateInvestSummaryCount Called")
 
 	if mock.err != nil {
