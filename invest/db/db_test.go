@@ -2,6 +2,8 @@ package db
 
 import (
 	"database/sql"
+	"fmt"
+	m "invest/model"
 	"log"
 	"testing"
 	"time"
@@ -9,6 +11,7 @@ import (
 	"gorm.io/datatypes"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 )
 
 var db *gorm.DB
@@ -23,20 +26,22 @@ func init() {
 
 	db, err = gorm.Open(mysql.New(mysql.Config{
 		Conn: sqlDB,
-	}), &gorm.Config{})
+	}), &gorm.Config{
+		Logger: logger.Default.LogMode(logger.Info),
+	})
 	if err != nil {
 		log.Fatal(err)
 	}
 }
 
 func TestMigration(t *testing.T) {
-	db.AutoMigrate(&Fund{}, &Asset{}, &FundStatus{}, &InvestHistory{}, &CliIdx{}, &Market{})
+	// db.AutoMigrate(&m.EmaHist{})
+	db.AutoMigrate(&m.Fund{}, &m.Asset{}, &m.Invest{}, &m.InvestSummary{}, &m.Market{}, &m.DailyIndex{}, &m.CliIndex{}, &m.EmaHist{})
 }
 
 func TestCreate(t *testing.T) {
-	fund := Fund{
-		Name:   "개인",
-		Amount: 1000000,
+	fund := m.Fund{
+		Name: "개인",
 	}
 
 	result := db.Create(&fund)
@@ -44,8 +49,31 @@ func TestCreate(t *testing.T) {
 	if result.Error != nil {
 		t.Fatal(result.Error)
 	}
-	t.Log("ID", fund.Id)
+	t.Log("ID", fund.ID)
 	t.Log("Rows Affected", result.RowsAffected)
+}
+
+func TestCreateAsset(t *testing.T) {
+
+	_, err := stg.SaveAssetInfo("bitcoin", m.DomesticCoin, "KRW-BTC", "WON", 98000000, 68000000, 88000000, 70000000)
+	if err != nil {
+		t.Error(err)
+	}
+
+	_, err = stg.SaveAssetInfo("gold", m.Gold, "M04020000", "WON", 111360, 80100, 0, 103630)
+	if err != nil {
+		t.Error(err)
+	}
+}
+
+func TestRetrieve(t *testing.T) {
+	var asset m.Asset
+
+	result := db.Model(&m.Asset{}).Where("id", 99).Find(&asset)
+	fmt.Println(result.RowsAffected)
+	if result.Error != nil || result.RowsAffected == 0 { // todo. RowsAffected selete된 갯수 파악 가능?
+		return
+	}
 }
 
 /*
@@ -54,14 +82,25 @@ time.Time{}.Local() => '0000-00-00 00:00:00' 라서 Date 타입 및 Timestamp �
 time.Now() => '2024-08-16 08:47:20.346' Date 타입 및 Timestamp 성공
 */
 func TestTime(t *testing.T) {
-	db.AutoMigrate(&Sample{})
+	db.AutoMigrate(&m.Sample{})
 
 	// date, _ := time.Parse("2006-01-02", "2021-11-22")
 
-	d := Sample{
+	d := m.Sample{
 		Date: datatypes.Date(time.Now()),
 		Time: time.Now(),
 	}
 
 	db.Debug().Create(&d)
+}
+
+func TestSelectFirst(t *testing.T) {
+	var dailyIdx m.DailyIndex
+
+	result := db.Where("created_at = ?", "2024-09-21").Select(&dailyIdx)
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+
+	fmt.Printf("%+v", dailyIdx)
 }

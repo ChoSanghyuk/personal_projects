@@ -12,30 +12,28 @@ import (
 var configByte []byte
 
 type Config struct {
-	Gold struct {
-		API   apiConfig   `yaml:"api"`
-		Crawl crawlConfig `yaml:"crawl"`
-		Bound bound       `yaml:"bound"`
-	} `yaml:"gold"`
-	Bitcoin struct {
-		API   apiConfig   `yaml:"api"`
-		Crawl crawlConfig `yaml:"crawl"`
-		Bound bound       `yaml:"bound"`
-	} `yaml:"bitcoin"`
-	RealEstate struct {
-		Crawl crawlConfig `yaml:"crawl"`
-	} `yaml:"estate"`
+	Api      map[string]apiConfig   `yaml:"api"`
+	Crawl    map[string]crawlConfig `yaml:"crawl"`
+	Telegram struct {
+		ChatId string `yaml:"chatId"`
+		Token  string `yaml:"token"`
+	} `yaml:"telegram"`
+	Key struct {
+		KIS map[string]*string `yaml:"KIS"`
+	} `yaml:"key"`
 
-	Email struct {
-		SMTP   SMTP   `yaml:"smtp"`
-		Target string `yaml:"target"`
-	} `yaml:"email"`
+	Db struct { // "root:root@tcp(127.0.0.1:3300)/investdb?charset=utf8mb4&parseTime=True&loc=Local"
+		User     string `yaml:"user"`
+		Password string `yaml:"pwd"`
+		IP       string `yaml:"ip"`
+		Port     string `yaml:"port"`
+		Scheme   string `yaml:"scheme"`
+	} `yaml:"db"`
 }
 
 type apiConfig struct {
-	Url    string `yaml:"url"`
-	ID     string `yaml:"id"`
-	ApiKey string `yaml:"api-key"`
+	Url    string            `yaml:"url"`
+	Header map[string]string `yaml:"header"`
 }
 
 type crawlConfig struct {
@@ -43,50 +41,44 @@ type crawlConfig struct {
 	CssPath string `yaml:"css-path"`
 }
 
-type bound struct {
-	Lower float64 `yaml:"lower"`
-	Upper float64 `yaml:"upper"`
-}
+func NewConfig() (*Config, error) {
 
-type SMTP struct {
-	ServerI   string `yaml:"server"`
-	PortI     string `yaml:"port"`
-	UserI     string `yaml:"user"`
-	PasswordI string `yaml:"password"`
-}
-
-var ConfigInfo Config = Config{}
-
-func init() {
+	var ConfigInfo Config = Config{}
 
 	err := yaml.Unmarshal(configByte, &ConfigInfo)
 	if err != nil {
-		fmt.Println(err)
+		return nil, err
 	}
 
-	util.Decode(&ConfigInfo.Email.SMTP.PasswordI)
-	util.Decode(&ConfigInfo.Gold.API.ApiKey)
-	util.Decode(&ConfigInfo.Bitcoin.API.ID)
-	util.Decode(&ConfigInfo.Bitcoin.API.ApiKey)
+	// util.Decode(&ConfigInfo.Gold.API.ApiKey)
+	util.Decode(&ConfigInfo.Telegram.ChatId)
+	util.Decode(&ConfigInfo.Telegram.Token)
+	util.Decode(ConfigInfo.Key.KIS["appkey"])
+	util.Decode(ConfigInfo.Key.KIS["appsecret"])
 
+	return &ConfigInfo, nil
 }
 
-func (s SMTP) Server() string {
-	return s.ServerI
+func (c Config) KisAppKey() string {
+	return *c.Key.KIS["appkey"]
 }
 
-func NewConfigInfo() *Config {
-	return &ConfigInfo
+func (c Config) KisAppSecret() string {
+	return *c.Key.KIS["appsecret"]
 }
 
-func (s SMTP) Port() string {
-	return s.PortI
+func (c Config) Dsn() string {
+	return fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local", c.Db.User, c.Db.Password, c.Db.IP, c.Db.Port, c.Db.Scheme)
 }
 
-func (s SMTP) User() string {
-	return s.UserI
+func (c Config) ApiBaseUrl(target string) string {
+	return c.Api[target].Url
 }
 
-func (s SMTP) Password() string {
-	return s.PasswordI
+func (c Config) ApiHeader(target string) map[string]string {
+	return c.Api[target].Header
+}
+
+func (c Config) CrawlUrlCasspath(target string) (url string, cssPath string) {
+	return c.Crawl[target].Url, c.Crawl[target].CssPath
 }
