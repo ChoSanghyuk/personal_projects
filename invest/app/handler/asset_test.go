@@ -22,9 +22,16 @@ func TestAssetHandler(t *testing.T) {
 	app := fiber.New()
 	middleware.SetupMiddleware(app)
 
+<<<<<<< HEAD
+	readerMock := NewMockAssetRetriever(t)
+	setAssetRetrieverMock(readerMock)
+	writerMock := NewMockAssetInfoSaver(t)
+	setAssetSaverMock(writerMock)
+=======
 	readerMock := AssetRetrieverMock{}
 	writerMock := AssetInfoSaverMock{}
 	topBottomPriceGetterMock := TopBottomPriceGetterMock{}
+>>>>>>> 5073cbe5841c3ccae9498da3b4f890f984f527a4
 
 	f := NewAssetHandler(readerMock, writerMock, topBottomPriceGetterMock)
 	f.InitRoute(app)
