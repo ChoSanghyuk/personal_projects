@@ -53,10 +53,23 @@ func NewConfig() (*Config, error) {
 	// util.Decode(&ConfigInfo.Gold.API.ApiKey)
 	util.Decode(&ConfigInfo.Telegram.ChatId)
 	util.Decode(&ConfigInfo.Telegram.Token)
-	util.Decode(ConfigInfo.Key.KIS["appkey"])
-	util.Decode(ConfigInfo.Key.KIS["appsecret"])
+	// util.Decode(ConfigInfo.Key.KIS["appkey"])
+	// util.Decode(ConfigInfo.Key.KIS["appsecret"])
 
 	return &ConfigInfo, nil
+}
+
+func (c Config) InitKIS(key string) (err error) {
+	*c.Key.KIS["appkey"], err = decrypt([]byte(key), *c.Key.KIS["appkey"])
+	if err != nil {
+		return err
+	}
+
+	*c.Key.KIS["appsecret"], err = decrypt([]byte(key), *c.Key.KIS["appsecret"])
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func (c Config) KisAppKey() string {

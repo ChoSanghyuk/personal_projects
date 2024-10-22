@@ -75,3 +75,20 @@ type assetResponse struct {
 	SellPrice float64
 	BuyPrice  float64
 }
+
+type HistResponse struct {
+	FundId    uint    `json:"fund_id"`
+	AssetId   uint    `json:"asset_id"`
+	AssetName string  `json:"asset_name"`
+	Count     float64 `json:"count"`
+	Price     float64 `json:"price"`
+	CreatedAt string  `json:"created_at"`
+}
+
+type fundAssetsResponse struct {
+	FundId    uint    `json:"fund_id"`
+	AssetId   uint    `json:"asset_id"`
+	AssetName string  `json:"asset_name"`
+	Count     float64 `json:"count"`
+	Sum       float64 `json:"sum"`
+}

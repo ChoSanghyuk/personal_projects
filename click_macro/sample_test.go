@@ -21,7 +21,7 @@ func TestSample2(t *testing.T) {
 func TestScrollDown(t *testing.T) {
 
 	time.Sleep(2 * time.Second)
-	r.ScrollDir(1, "down") // 한칸 내리기
+	r.ScrollDir(3, "down") // 한칸 내리기
 }
 
 func TestRightClickEvent(t *testing.T) {

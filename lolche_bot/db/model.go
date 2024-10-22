@@ -13,3 +13,8 @@ type pbe struct {
 	Name string
 	gorm.Model
 }
+
+type mode struct {
+	ID    uint
+	IsPbe bool
+}

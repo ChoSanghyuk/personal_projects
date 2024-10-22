@@ -33,7 +33,7 @@ func hasMsgCache(assetId uint, isSell bool, price float64) bool {
 	}
 
 	diff := time.Since(cache.sentTime)
-	if diff <= 24*time.Hour { // 유효한 캐시
+	if diff <= 6*time.Hour { // 유효한 캐시
 		return cache.price == price && cache.isMsgSent
 	}
 

@@ -30,6 +30,32 @@ func main() {
 		panic(err)
 	}
 
+	ch := make(chan string)
+
+	chatId, err := strconv.ParseInt(conf.Telegram.ChatId, 10, 64)
+	if err != nil {
+		panic(err)
+	}
+	teleBot, err := bot.NewTeleBot(conf.Telegram.Token, chatId)
+	if err != nil {
+		panic(err)
+	}
+
+	for {
+		key := teleBot.InitKey()
+		err = conf.InitKIS(key)
+
+		if err != nil {
+			teleBot.SendMessage(err.Error())
+		} else {
+			break
+		}
+	}
+
+	go func() {
+		teleBot.Listen(ch)
+	}()
+
 	scraper := scrape.NewScraper(conf,
 		scrape.WithKIS(conf.KisAppKey(), conf.KisAppSecret()),
 	)
@@ -40,18 +66,6 @@ func main() {
 	}
 	event := event.NewEvent(db, scraper, scraper)
 
-	ch := make(chan string)
-
-	chatId, err := strconv.ParseInt(conf.Telegram.ChatId, 10, 64)
-	if err != nil {
-		panic(err)
-	}
-
-	teleBot, err := bot.NewTeleBot(conf.Telegram.Token, chatId)
-	if err != nil {
-		panic(err)
-	}
-
 	c := cron.New()
 	c.AddFunc(AssetSpec, func() { event.AssetEvent(ch) })
 	c.AddFunc(EstateSpec, func() { event.RealEstateEvent(ch) })
@@ -61,10 +75,6 @@ func main() {
 
 	go func() {
 		app.Run(db, scraper)
-	}()
-
-	go func() {
-		teleBot.Listen(ch)
 	}()
 
 	for true {

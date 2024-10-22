@@ -51,7 +51,7 @@ func (s Storage) RetreiveFundSummaryByFundId(id uint) ([]m.InvestSummary, error)
 
 	var fundsSummary []m.InvestSummary
 
-	result := s.db.Model(&m.InvestSummary{}).Preload("Fund").Where("fund_id", id).Find(&fundsSummary) // .Order("asset_id")
+	result := s.db.Model(&m.InvestSummary{}).Preload("Asset").Where("fund_id", id).Find(&fundsSummary) // .Order("asset_id")
 
 	if result.Error != nil {
 		return nil, result.Error
@@ -64,7 +64,10 @@ func (s Storage) RetreiveFundSummaryByFundId(id uint) ([]m.InvestSummary, error)
 func (s Storage) RetreiveAFundInvestsById(id uint) ([]m.Invest, error) {
 	var invets []m.Invest
 
-	result := s.db.Model(&m.Invest{}).Where(&m.Invest{FundID: id}, "fund_id").Find(&invets) // .Order("asset_id")
+	result := s.db.Model(&m.Invest{}).
+		Where(&m.Invest{FundID: id}, "fund_id").
+		Preload("Asset").
+		Find(&invets) // .Order("asset_id")
 
 	if result.Error != nil {
 		return nil, result.Error
@@ -134,7 +137,7 @@ func (s Storage) RetrieveAssetHist(id uint) ([]m.Invest, error) {
 
 	var invests []m.Invest
 
-	result := s.db.Model(&m.Invest{}).Find(&invests, id) // Preload("Asset")
+	result := s.db.Model(&m.Invest{}).Where("asset_id = ?", id).Preload("Asset").Find(&invests)
 	if result.Error != nil {
 		return nil, result.Error
 	}

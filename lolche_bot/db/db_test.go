@@ -8,5 +8,5 @@ func TestMigration(t *testing.T) {
 		t.Error(err)
 		return
 	}
-	s.db.AutoMigrate(&main{}, &pbe{})
+	s.db.AutoMigrate(&main{}, &pbe{}, &mode{})
 }

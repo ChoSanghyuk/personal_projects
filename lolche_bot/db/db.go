@@ -31,27 +31,36 @@ func NewStorage() (*Storage, error) {
 }
 
 func (s Storage) SaveMain(name string) error {
-	main := main{
-		Name: name,
+
+	var cnt int64
+	s.db.Model(&main{}).Where("name = ?", name).Count(&cnt)
+
+	if cnt == 0 {
+		dec := main{
+			Name: name,
+		}
+		result := s.db.Create(&dec)
+		if result.Error != nil {
+			return result.Error
+		}
 	}
 
-	result := s.db.Create(&main)
-
-	if result.Error != nil {
-		return result.Error
-	}
 	return nil
 }
 
 func (s Storage) SavePbe(name string) error {
-	main := pbe{
-		Name: name,
-	}
 
-	result := s.db.Create(&main)
+	var cnt int64
+	s.db.Model(&pbe{}).Where("name = ?", name).Count(&cnt)
 
-	if result.Error != nil {
-		return result.Error
+	if cnt == 0 {
+		dec := pbe{
+			Name: name,
+		}
+		result := s.db.Create(&dec)
+		if result.Error != nil {
+			return result.Error
+		}
 	}
 	return nil
 }
@@ -64,8 +73,24 @@ func (s Storage) DeleteAllMain() error {
 	return nil
 }
 
-func (s Storage) DeleteAllPbe(name string) error {
-	result := s.db.Unscoped().Where("1 = 1").Delete(&pbe{})
+func (s Storage) DeleteAllPbe() error {
+	result := s.db.Unscoped().Where("1 = 1").Delete(&pbe{}) // memo. Unscopred : deleted_at으로 관리되던 삭제 여부 무시하고 수행. (delete면 싹 다 삭제. select면 deleted_at 되어있어도 조회)
+	if result.Error != nil {
+		return result.Error
+	}
+	return nil
+}
+
+func (s Storage) DeleteMain(name string) error {
+	result := s.db.Where("name = ?", name).Delete(&main{})
+	if result.Error != nil {
+		return result.Error
+	}
+	return nil
+}
+
+func (s Storage) DeletePbe(name string) error {
+	result := s.db.Where("name = ?", name).Delete(&pbe{})
 	if result.Error != nil {
 		return result.Error
 	}
@@ -102,4 +127,22 @@ func (s Storage) AllPbe() ([]string, error) {
 		decs[i] = pbes[i].Name
 	}
 	return decs, nil
+}
+
+func (s Storage) Mode() bool {
+	m := mode{}
+	s.db.Model(&mode{}).Last(&m)
+	return !m.IsPbe // default 값을 false로 하기 위해 main.go에서의 변수명과 반대로 저장
+}
+
+func (s Storage) SaveMode(isMain bool) {
+	m := mode{}
+	s.db.Last(&m)
+	m.IsPbe = !isMain
+	if m.ID == 0 {
+		s.db.Model(&mode{}).Create(&m)
+	} else {
+		s.db.Updates(m)
+	}
+
 }

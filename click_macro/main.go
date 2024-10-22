@@ -7,7 +7,15 @@ import (
 )
 
 func main() {
-	lgtwins()
+
+	for {
+		if time.Now().Minute() == 0 {
+			r.KeyPress("f5")
+			break
+		}
+		// time.Sleep(time.Mi)
+	}
+	nanjibbq()
 }
 
 /****************************************************** Inner Function *************************************************/

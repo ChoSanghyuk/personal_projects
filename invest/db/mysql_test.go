@@ -92,7 +92,7 @@ func TestRetrieveAsset(t *testing.T) {
 }
 func TestRetrieveAssetHist(t *testing.T) {
 
-	rtn, err := stg.RetrieveAssetHist(1)
+	rtn, err := stg.RetrieveAssetHist(2)
 	if err != nil {
 		t.Error(err)
 	}

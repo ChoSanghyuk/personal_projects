@@ -29,6 +29,8 @@ func TestGoldApi(t *testing.T) {
 func TestBitcoinApi(t *testing.T) {
 
 	c, _ := config.NewConfig()
+	c.InitKIS("")
+
 	s := NewScraper(c)
 
 	pp, cp, err := s.upbitApi("KRW-BTC")
@@ -51,6 +53,7 @@ func TestGoldCrwal(t *testing.T) {
 
 	s := Scraper{}
 	conf, _ := config.NewConfig()
+	conf.InitKIS("")
 
 	url := conf.Crawl["gold"].Url
 	cssPath := conf.Crawl["gold"].CssPath
@@ -69,6 +72,7 @@ func TestBitcoinCrwal(t *testing.T) {
 
 	s := Scraper{}
 	conf, _ := config.NewConfig()
+	conf.InitKIS("")
 
 	t.Run("Crwal", func(t *testing.T) {
 		url := conf.Crawl["bitcoin"].Url
@@ -90,6 +94,7 @@ func TestEstateCrwal(t *testing.T) {
 
 	s := Scraper{}
 	conf, _ := config.NewConfig()
+	conf.InitKIS("")
 
 	t.Run("Crwal", func(t *testing.T) {
 		url := conf.Crawl["estate"].Url
@@ -109,6 +114,8 @@ func TestEstateCrwal(t *testing.T) {
 func TestExchangeRate(t *testing.T) {
 
 	conf, _ := config.NewConfig()
+	conf.InitKIS("")
+
 	s := NewScraper(conf)
 	exrate := s.ExchageRate()
 	t.Log(exrate)
@@ -117,6 +124,8 @@ func TestExchangeRate(t *testing.T) {
 func TestFearGreedIndex(t *testing.T) {
 
 	conf, _ := config.NewConfig()
+	conf.InitKIS("")
+
 	s := NewScraper(conf)
 
 	rtn, err := s.FearGreedIndex()

@@ -1,6 +1,7 @@
 package bot
 
 import (
+	"bytes"
 	"encoding/json"
 	"io"
 	"net/http"
@@ -9,8 +10,9 @@ import (
 )
 
 type TeleBot struct {
-	bot    *tgbotapi.BotAPI
-	chatId int64
+	bot     *tgbotapi.BotAPI
+	chatId  int64
+	updates tgbotapi.UpdatesChannel
 }
 
 func NewTeleBot(token string, chatId int64) (*TeleBot, error) {
@@ -21,10 +23,22 @@ func NewTeleBot(token string, chatId int64) (*TeleBot, error) {
 	}
 	bot.Debug = true
 
+	u := tgbotapi.NewUpdate(0)
+	u.Timeout = 60
+	updates := bot.GetUpdatesChan(u)
+
 	return &TeleBot{
-		bot:    bot,
-		chatId: chatId,
+		bot:     bot,
+		chatId:  chatId,
+		updates: updates,
 	}, nil
+}
+
+func (t TeleBot) InitKey() string {
+	t.SendMessage("Enter decrypt key for invest server")
+	update := <-t.updates
+
+	return update.Message.Text
 }
 
 func (t TeleBot) SendMessage(msg string) {
@@ -32,11 +46,8 @@ func (t TeleBot) SendMessage(msg string) {
 }
 
 func (t TeleBot) Listen(ch chan string) {
-	u := tgbotapi.NewUpdate(0)
-	u.Timeout = 60
-	updates := t.bot.GetUpdatesChan(u)
 
-	for update := range updates {
+	for update := range t.updates {
 		if update.Message != nil {
 			txt := update.Message.Text
 			if txt[0] != '/' {
@@ -88,15 +99,36 @@ func httpsend(path string) (string, error) {
 	}
 
 	var jsonData interface{}
+
 	err = json.Unmarshal(body, &jsonData)
 	if err != nil {
 		return "", err
 	}
 
-	pretty, err := json.MarshalIndent(jsonData, "", "\t")
+	// pretty, err := json.MarshalIndent(jsonData, "", "\t") // memo. 단순 MarshalIndent 사용하면, &을 \u0026로 바꿔버림.
+	// if err != nil {
+	// 	return "", err
+	// }
+
+	// return string(pretty), nil
+	var buffer bytes.Buffer
+	encoder := json.NewEncoder(&buffer)
+	encoder.SetEscapeHTML(false) // Disable HTML escaping
+
+	// Marshal with indentation
+	encoder.SetIndent("", "\t")
+	err = encoder.Encode(jsonData)
 	if err != nil {
 		return "", err
 	}
 
-	return string(pretty), nil
+	return buffer.String(), nil
 }
+
+/*
+var buffer bytes.Buffer
+encoder := json.NewEncoder(&buffer)
+encoder.SetEscapeHTML(false) // Disable HTML escaping
+err := encoder.Encode(v)
+return buffer.Bytes(), err
+*/

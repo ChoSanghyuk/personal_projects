@@ -94,7 +94,19 @@ func (h *FundHandler) FundAssets(c *fiber.Ctx) error {
 		return fmt.Errorf("RetreiveFundSummaryById 시 오류 발생. %w", err)
 	}
 
-	return c.Status(fiber.StatusOK).JSON(funds)
+	resp := make([]fundAssetsResponse, len(funds))
+
+	for i, f := range funds {
+		resp[i] = fundAssetsResponse{
+			FundId:    f.FundID,
+			AssetId:   f.AssetID,
+			AssetName: f.Asset.Name,
+			Count:     f.Count,
+			Sum:       f.Sum,
+		}
+	}
+
+	return c.Status(fiber.StatusOK).JSON(resp)
 }
 
 // 자금별 투자 이력
@@ -105,10 +117,21 @@ func (h *FundHandler) FundHist(c *fiber.Ctx) error {
 		return fmt.Errorf("파라미터 id 조회 시 오류 발생. %w", err)
 	}
 
-	fund, err := h.r.RetreiveAFundInvestsById(uint(id))
+	invests, err := h.r.RetreiveAFundInvestsById(uint(id))
 	if err != nil {
 		return fmt.Errorf("RetreiveAFundInvestsById 시 오류 발생. %w", err)
 	}
+	fundHists := make([]HistResponse, len(invests))
+	for i, iv := range invests {
+		fundHists[i] = HistResponse{
+			FundId:    iv.FundID,
+			AssetId:   iv.AssetID,
+			AssetName: iv.Asset.Name,
+			Count:     iv.Count,
+			Price:     iv.Price,
+			CreatedAt: iv.CreatedAt.Format("20060102"),
+		}
+	}
 
-	return c.Status(fiber.StatusOK).JSON(fund)
+	return c.Status(fiber.StatusOK).JSON(fundHists)
 }

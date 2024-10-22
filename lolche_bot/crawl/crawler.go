@@ -1,4 +1,4 @@
-package crwal
+package crawl
 
 import (
 	"fmt"
@@ -8,24 +8,24 @@ import (
 	"github.com/PuerkitoBio/goquery"
 )
 
-type crawler struct {
+type Crawler struct {
 }
 
-func (c crawler) CurrentMeta() ([]string, error) {
+func (c Crawler) CurrentMeta() ([]string, error) {
 	url := "https://lolchess.gg/meta"
 	css := "#__next > div > div.css-1x48m3k.eetc6ox0 > div.content > div > section > div.css-s9pipd.e2kj5ne0 > div > div > div > div.css-5x9ld.emls75t2 > div.css-35tzvc.emls75t4 > div"
 
 	return c.crawl(url, css)
 }
 
-func (c crawler) PbeMeta() ([]string, error) {
+func (c Crawler) PbeMeta() ([]string, error) {
 	url := "https://lolchess.gg/meta?pbe=true"
 	css := "#__next > div > div.css-1x48m3k.eetc6ox0 > div.content > div > section > div.css-s9pipd.e2kj5ne0 > div > div > div > div.css-5x9ld.emls75t2 > div.css-35tzvc.emls75t4 > div"
 
 	return c.crawl(url, css)
 }
 
-func (s crawler) crawl(url string, cssPath string) ([]string, error) {
+func (s Crawler) crawl(url string, cssPath string) ([]string, error) {
 
 	// Send the request
 	res, err := http.Get(url)

@@ -2,6 +2,7 @@ package config
 
 import (
 	_ "embed"
+	"strconv"
 
 	"gopkg.in/yaml.v3"
 )
@@ -26,6 +27,7 @@ func NewConfig() (*Config, error) {
 	return &ConfigInfo, nil
 }
 
-func (c Config) Telebot() (token string, chatId string) {
-	return c.TeleBot.Token, c.TeleBot.ChatId
+func (c Config) Telebot() (token string, chatId int64) {
+	chatId, _ = strconv.ParseInt(c.TeleBot.ChatId, 10, 64)
+	return c.TeleBot.Token, chatId
 }

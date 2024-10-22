@@ -77,7 +77,7 @@ func (s *Scraper) PresentPrice(category m.Category, code string) (pp float64, er
 	case m.Won:
 		return 1, nil
 	case m.Dollar:
-		return s.ExchageRate(), nil
+		return 1, nil
 	case m.DomesticStock, m.Gold:
 		stock, err := s.kisDomesticStockPrice(code)
 		return stock.pp, err

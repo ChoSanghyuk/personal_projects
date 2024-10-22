@@ -4,8 +4,22 @@ import (
 	hook "github.com/robotn/gohook"
 )
 
-func lgtwins() {
+func lgtwinsCns() {
+	hook.Register(hook.KeyDown, []string{"1"}, func(e hook.Event) {
+		moveClick(289, 529) // 요일 선택
+	})
 
+	hook.Register(hook.KeyDown, []string{"2"}, func(e hook.Event) {
+		moveClick(734, 413) // 수량
+		moveClick(715, 464) // 2매
+		moveClick(852, 723) // 예매
+	})
+
+	s := hook.Start()
+	<-hook.Process(s)
+}
+
+func lgtwins() {
 	x, y := 898, 560
 
 	hook.Register(hook.KeyDown, []string{"1"}, func(e hook.Event) {

@@ -171,6 +171,18 @@ func (h *AssetHandler) AssetHist(c *fiber.Ctx) error {
 		return fmt.Errorf("RetrieveAssetHist 오류 발생. %w", err)
 	}
 
-	return c.Status(fiber.StatusOK).JSON(hist)
+	resp := make([]HistResponse, len(hist))
+	for i, h := range hist {
+		resp[i] = HistResponse{
+			FundId:    h.FundID,
+			AssetId:   h.AssetID,
+			AssetName: h.Asset.Name,
+			Count:     h.Count,
+			Price:     h.Price,
+			CreatedAt: h.CreatedAt.Format("20060102"),
+		}
+	}
+
+	return c.Status(fiber.StatusOK).JSON(resp)
 
 }

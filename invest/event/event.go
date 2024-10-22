@@ -285,6 +285,7 @@ func (e Event) portfolioMsg(ivsmLi []m.InvestSummary, pm map[uint]float64) (msg 
 			continue
 		}
 		r := volatile[k] / (volatile[k] + stable[k])
+		fmt.Printf("%f = %f/%f\n", r, volatile[k], (volatile[k] + stable[k]))
 
 		if r > marketLevel.MaxVolatileAssetRate() && !hasPortCache(true) { // 매도 메시지
 			for _, ivsm := range ivsmLi {

@@ -11,6 +11,7 @@ func TestKis(t *testing.T) {
 	if err != nil {
 		panic(err)
 	}
+	conf.InitKIS("")
 
 	s := NewScraper(
 		conf,

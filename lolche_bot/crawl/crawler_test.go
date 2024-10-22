@@ -1,4 +1,4 @@
-package crwal
+package crawl
 
 import (
 	"fmt"
@@ -9,7 +9,7 @@ func TestCrawl(t *testing.T) {
 	url := "https://lolchess.gg/meta"
 	css := "#__next > div > div.css-1x48m3k.eetc6ox0 > div.content > div > section > div.css-s9pipd.e2kj5ne0 > div > div > div > div.css-5x9ld.emls75t2 > div.css-35tzvc.emls75t4 > div"
 
-	crwaler := crawler{}
+	crwaler := Crawler{}
 	rtn, err := crwaler.crawl(url, css)
 	if err != nil {
 		t.Error(err)
@@ -21,7 +21,7 @@ func TestCrawl(t *testing.T) {
 
 func TestCurrentMeta(t *testing.T) {
 
-	crwaler := crawler{}
+	crwaler := Crawler{}
 	rtn, err := crwaler.CurrentMeta()
 	if err != nil {
 		t.Error(err)
@@ -33,7 +33,7 @@ func TestCurrentMeta(t *testing.T) {
 
 func TestPbeMeta(t *testing.T) {
 
-	crwaler := crawler{}
+	crwaler := Crawler{}
 	rtn, err := crwaler.PbeMeta()
 	if err != nil {
 		t.Error(err)
