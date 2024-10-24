@@ -17,7 +17,19 @@ func TestSample2(t *testing.T) {
 	sample2()
 }
 
+func TestSaveBlog(t *testing.T) {
+	time.Sleep(3 * time.Second)
+	saveBlogAsPdf()
+}
+
 /******************************************* Individual function Test *************************************************/
+
+func TestKeyTap(t *testing.T) {
+
+	time.Sleep(2 * time.Second)
+	r.KeyPress(r.KeyP, r.Lctrl) // 인증되었습니다
+}
+
 func TestScrollDown(t *testing.T) {
 
 	time.Sleep(2 * time.Second)

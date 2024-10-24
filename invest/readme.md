@@ -204,76 +204,99 @@
 
 
 
+### EMA
+
+```
+SMAt = (PRICEt - SMAy)/ N+1 + SMAy
+
+a =  2/N+1
+EMAt = a*PRICEt + (1-a)EMAy
+```
 
 
-
-
-event
-
-1.. 대상들을 읽어서  <= DB
-
-2.. 해당 대상의 가격 정보를 어디서 조회할지 가져옴 <= config
-
-3.. 크롤링 수행 <= scrape
-
-4.. 알람 대상인지 확인 <= 자체
-
-5.. 대상 시, 알람. <= channel
-
-
-
-1.. 
-
-
-
-1. 해당 가격으로 알림이 보내졌으면 스탑
-지속시간이 하루인 캐시를 소스 내에 정의
-
-
-
-
-2. 이동평균 가격 기점으로
-   많이 높으면 -> 우선 매도 대상
-   많이 낮으면 -> 우선 매수 대상
+초기값은 SMA값 사용 : :link:https://www.barchart.com/stocks/quotes/AAPL/technical-analysis#google_vignette
 
 
 
 
 
-
-The root by default listens only to localhost connections. need to create a new user, who can listen to all IP connections.
-create user if not exists `duck`@`%`
- % wildcard indicates that the duck user should listen to all IPs.
-
-Your default MySQL config only accepts connections from 127.0.0.1 and not from any other IP address. To resolve this, we must update the config to allow binding (accepting) connections from all IP addresses. You can set specific IP addresses, but WSL’s IP addresses vary, so this is an easier alternative.
-Update the bind-address property from 127.0.0.1 to 0.0.0.0 in the MySQL Config file located at /etc/mysql/mysql.conf.d/mysqld.cnf and restart the MySQL server
+## 작업 기록
 
 
-## DB 설정
+
+### Mock 설정
+
+- 설치 및 생성
+
+    ```sh
+    go install github.com/vektra/mockery/v2@v2.44.1
+    go generate ./...
+    ```
+
+- 주석으로 대상 지정
+  - `//go:generate mockery --name {interface name} --case underscore --inpackage`
+
+- 일괄 행동 정의
+  - mockery는  mock의 메소드별 행동을 명시적으로 정의해야 함.
+  - 모든 메소드에 대해서 행동을 지정하기 위해서는 reflect를 사용하여 모든 메소드들을 loop 돌면서 지정 가능
+
+    ```go
+    ref := reflect.TypeOf(MyInterface)
+    for i :=0; i < ref.NumMethod(); i++{
+        method := ref.Method(i)
+        mockObj.On(method.Name).Return(nil)
+    }
+    
+    ```
+
+
+
+### mysql설정
+
+- docker container
 
 ```sh
-$ docker run -v /invest/db:/var/lib/mysql --name investDb -e MYSQL_ROOT_PASSWORD=root -d -p 3306:3306 mysql 
+$ docker run -v /invest/db:/var/lib/mysql --name investDb -e MYSQL_ROOT_PASSWORD=root -d -p 3306:3306 mysql --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
 ```
 
+:bulb: root 계정은 기본값으로 localhost로부터의 연결만 가능
 
-## Mock 설정
-```sh
-go install github.com/vektra/mockery/v2@v2.44.1
-go generate ./...
-```
+- `{계정}`@`%` 생성 : `%`는 wildcard로 모든 ip에 대해 응답 가능 설정
 
-//go:generate mockery --name {interface name} --case underscore --inpackage
+- schema 및 초기 세팅
 
-mockery는  mock의 메소드별 행동을 명시적으로 정의해야 함.
-모든 메소드에 대해서 행동을 지정하기 위해서는 reflect를 사용하여 모든 메소드들을 loop 돌면서 지정 가능
-```go
-ref := reflect.TypeOf(MyInterface)
-for i :=0; i < ref.NumMethod(); i++{
-    method := ref.Method(i)
-    mockObj.On(method.Name).Return(nil)
-}
+  ```bash
+  docker exec -i -t 컨테이너이름 bash
+  mysql -u root -p # 이후 비밀번호 입력
+  SHOW DATABASES;
+  CREATE SCHEMA {스키마} DEFAULT CHARACTER SET utf8;
+  USE {스키마}
+  ```
 
-```
+  
+
+### go 설정
+
+- ~/.profile 설정
+
+    ```sh
+    export GOROOT=/usr/local/go 
+    export PATH=$PATH:$GOROOT/bin
+    export GOPATH=$HOME/go 
+    export PATH=$PATH:$GOPATH/bin
+    ```
+
+    `. ./.profile` 로 즉시 적용
+
+- `GOMODCACHE` 설정
+  
+  - `go env -w GOMODCACHE=$HOME/golang/pkg/mod`
+
+:bulb: GOROOT VS GOPATH VS GOMODCACHE
+
+- GOROOT : Go의 본거지로, Go관련된 실행파일, SDK 등이 위치
+- GOPATH : `go get` 명령으로 받아오거나 자신이 직접 작성하는 모든 Go 프로젝트와 라이브러리가 이곳에 위치
+- GOMODCACHE : Go Modules cache 위치하는 장소
 
 
 
@@ -291,10 +314,3 @@ https://generalcoder.tistory.com/29
 | 데이터를 제3자가 가로챌 경우, 그 내용을 쉽게 읽을 수 있음 | 데이터를 가로채도 내용을 읽을 수 없음                       |
 | SSL/TLS 인증서를 사용 X                                   | SSL/TLS 인증서를 사용하여 통신을 암호화                     |
 
-
-### EMA
-SMAt = (PRICEt - SMAy)/ N+1 + SMAy
-
-a =  2/N+1
-EMAt = a*PRICEt + (1-a)EMAy
-(초기값은 SMA값 사용. https://www.barchart.com/stocks/quotes/AAPL/technical-analysis#google_vignette)
