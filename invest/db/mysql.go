@@ -61,6 +61,20 @@ func (s Storage) RetreiveFundSummaryByFundId(id uint) ([]m.InvestSummary, error)
 
 }
 
+func (s Storage) RetreiveFundSummaryByAssetId(id uint) ([]m.InvestSummary, error) {
+
+	var fundsSummary []m.InvestSummary
+
+	result := s.db.Model(&m.InvestSummary{}).Where("asset_id", id).Find(&fundsSummary) // .Order("asset_id")
+
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	return fundsSummary, nil
+
+}
+
 func (s Storage) RetreiveAFundInvestsById(id uint) ([]m.Invest, error) {
 	var invets []m.Invest
 
@@ -257,7 +271,7 @@ func (s Storage) RetrieveMarketIndicator(date string) (*m.DailyIndex, *m.CliInde
 		// 	return nil, nil, result.Error
 		// }
 	} else {
-		// todo. createdAt에 대해서는 왜 First가 where절 못 만드는지
+		// memo. createdAt을 PK로 지정했더라도, First에 인자로 넣어서 where절 만들 수 없음
 		result := s.db.Where("created_at = ?", date).First(&dailyIdx) // Preload("Asset")
 		if result.Error != nil {
 			return nil, nil, result.Error

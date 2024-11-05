@@ -119,13 +119,13 @@ func (s *Scraper) ClosingPrice(category m.Category, code string) (cp float64, er
 		r := s.ExchageRate()
 		return r, nil
 	case m.DomesticStock, m.Gold:
-		stock, err := s.kisDomesticStockPrice(code) // todo. cp이름 op로 다 바꿀까
+		stock, err := s.kisDomesticStockPrice(code)
 		return stock.op, err
 	case m.DomesticCoin:
 		_, cp, err = s.upbitApi(code)
 		return cp, err
 	case m.DomesticETF:
-		stock, err := s.kisDomesticEtfPrice(code) // todo. cp이름 op로 다 바꿀까
+		stock, err := s.kisDomesticEtfPrice(code)
 		return stock.op, err
 	case m.ForeignStock, m.ForeignETF:
 		_, cp, err := s.kisForeignPrice(code)

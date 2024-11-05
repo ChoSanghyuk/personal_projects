@@ -24,6 +24,8 @@ func NewEvent(stg Storage, rtPoller RtPoller, dailyPoller DailyPoller) *Event {
 	}
 }
 
+var portfolioMsgForm string = "자금 %d 변동 자산 비중 %s.\n  변동 자산 비율 : %.2f.\n  (%.2f/%.2f)\n  현재 시장 단계 : %s(%.1f)\n\n"
+
 /*
 작업 1. 자산의 현재가와 자산의 매도/매수 기준 비교하여 알림 전송
   - 보유 자산 list
@@ -89,6 +91,32 @@ func (e Event) AssetEvent(c chan<- string) {
 		c <- msg
 	}
 
+}
+
+func (e Event) CoinEvent(c chan<- string) {
+
+	// 등록 자산 목록 조회
+	assetList, err := e.stg.RetrieveAssetList()
+	if err != nil {
+		c <- fmt.Sprintf("[AssetEvent] RetrieveAssetList 시, 에러 발생. %s", err)
+		return
+	}
+	priceMap := make(map[uint]float64)
+
+	// 등록 자산 매수/매도 기준 충족 시, 채널로 메시지 전달
+	for _, a := range assetList {
+		if a.Category == m.DomesticCoin { // 코인에 대해서만 수행
+			msg, err := e.buySellMsg(a.ID, priceMap)
+			if err != nil {
+				c <- fmt.Sprintf("[AssetEvent] buySellMsg시, 에러 발생. %s", err)
+				return
+			}
+			if msg != "" {
+				c <- msg
+			}
+		}
+
+	}
 }
 
 func (e Event) EmaUpdateEvent(c chan<- string) {
@@ -191,15 +219,13 @@ func (e Event) buySellMsg(assetId uint, pm map[uint]float64) (msg string, err er
 		return "", fmt.Errorf("[AssetEvent] PresentPrice 시, 에러 발생. %w", err)
 	}
 
-	log.Printf("%s 현재 가격 %.3f", a.Name, pp)
-
 	pm[assetId] = pp
 
 	// 자산 매도/매수 기준 비교 및 알림 여부 판단. (알림 전송)
 	if a.BuyPrice >= pp && !hasMsgCache(a.ID, false, a.BuyPrice) {
 		msg = fmt.Sprintf("BUY %s. ID : %d. LOWER BOUND : %.2f. CURRENT PRICE :%.2f", a.Name, a.ID, a.BuyPrice, pp)
 		setMsgCache(a.ID, false, a.BuyPrice)
-	} else if a.SellPrice != 0 && a.SellPrice <= pp && !hasMsgCache(a.ID, true, a.SellPrice) {
+	} else if a.SellPrice != 0 && a.SellPrice <= pp && e.hasIt(a.ID) && !hasMsgCache(a.ID, true, a.SellPrice) {
 		msg = fmt.Sprintf("SELL %s. ID : %d. UPPER BOUND : %.2f. CURRENT PRICE :%.2f", a.Name, a.ID, a.SellPrice, pp)
 		setMsgCache(a.ID, true, a.SellPrice)
 	}
@@ -212,6 +238,24 @@ func (e Event) buySellMsg(assetId uint, pm map[uint]float64) (msg string, err er
 	}
 
 	return
+}
+
+func (e Event) hasIt(id uint) bool {
+	li, err := e.stg.RetreiveFundSummaryByAssetId(id)
+	if err != nil {
+		return true // db 문제로 오류 발생 시, 우선 보유 가정
+	}
+
+	cnt := 0.0
+	for _, e := range li {
+		cnt += e.Count
+	}
+	if cnt > 0 {
+		return true
+	} else {
+		return false
+	}
+
 }
 
 func (e Event) updateFundSummarys(list []m.InvestSummary, pm map[uint]float64) (err error) {
@@ -285,7 +329,6 @@ func (e Event) portfolioMsg(ivsmLi []m.InvestSummary, pm map[uint]float64) (msg 
 			continue
 		}
 		r := volatile[k] / (volatile[k] + stable[k])
-		fmt.Printf("%f = %f/%f\n", r, volatile[k], (volatile[k] + stable[k]))
 
 		if r > marketLevel.MaxVolatileAssetRate() && !hasPortCache(true) { // 매도 메시지
 			for _, ivsm := range ivsmLi {
@@ -311,7 +354,15 @@ func (e Event) portfolioMsg(ivsmLi []m.InvestSummary, pm map[uint]float64) (msg 
 				}
 			}
 
-			sb.WriteString(fmt.Sprintf("자금 %d 변동 자산 비중 초과. 변동 자산 비율 : %.2f. 현재 시장 단계 : %s(%.1f)\n\n", k, r, marketLevel.String(), marketLevel.MaxVolatileAssetRate()))
+			sb.WriteString(fmt.Sprintf(portfolioMsgForm, // "자금 %d 변동 자산 비중 %s.\n  변동 자산 비율 : %.2f.\n  (%.2f/%.2f)\n  현재 시장 단계 : %s(%.1f)\n\n"
+				k,
+				"초과",
+				r,
+				volatile[k],
+				volatile[k]+stable[k],
+				marketLevel.String(),
+				marketLevel.MaxVolatileAssetRate()),
+			)
 			slices.SortFunc(os, func(a, b priority) int {
 				if a.asset.Category.IsStable() == b.asset.Category.IsStable() {
 					return cmp.Compare(b.score, a.score) // 큰 게 앞으로
@@ -323,9 +374,8 @@ func (e Event) portfolioMsg(ivsmLi []m.InvestSummary, pm map[uint]float64) (msg 
 					}
 				}
 			})
-			setPortCache(true)
-		} else if r < marketLevel.MinVolatileAssetRate() && !hasPortCache(false) { // 매수 메시지
-
+			setPortCache(true) // 매수 포트폴리오 메시지 캐시 갱신
+		} else if !hasDailyCache() || (r < marketLevel.MinVolatileAssetRate() && !hasPortCache(false)) { // 매수 메시지
 			li, err := e.stg.RetrieveTotalAssets()
 			if err != nil {
 				return "", fmt.Errorf("RetrieveTotalAssets, 에러 발생. %w", err)
@@ -352,15 +402,25 @@ func (e Event) portfolioMsg(ivsmLi []m.InvestSummary, pm map[uint]float64) (msg 
 				})
 			}
 
-			sb.WriteString(fmt.Sprintf("자금 %d 변동 자산 비중 부족. 변동 자산 비율 : %.2f. 현재 시장 단계 : %s(%.1f)\n\n", k, r, marketLevel.String(), marketLevel.MinVolatileAssetRate()))
+			if r < marketLevel.MinVolatileAssetRate() {
+				sb.WriteString(fmt.Sprintf(portfolioMsgForm, // "자금 %d 변동 자산 비중 %s.\n  변동 자산 비율 : %.2f.\n  (%.2f/%.2f)\n  현재 시장 단계 : %s(%.1f)\n\n"
+					k,
+					"부족",
+					r,
+					volatile[k],
+					volatile[k]+stable[k],
+					marketLevel.String(),
+					marketLevel.MaxVolatileAssetRate()),
+				)
+			}
 			slices.SortFunc(os, func(a, b priority) int {
 				return cmp.Compare(a.score, b.score)
 			})
-			setPortCache(false)
+			setPortCache(false) // 매도 포트폴리오 메시지 캐시 갱신
 		}
 
 		for _, p := range os {
-			sb.WriteString(fmt.Sprintf("AssetId : %d, AssetName : %s, PresentPrice : %.2f, WeighedAveragePrice : %.2f, HighestPrice : %.2f\n", p.asset.ID, p.asset.Name, p.pp, p.ap, p.hp))
+			sb.WriteString(fmt.Sprintf("AssetId : %d\n  AssetName : %s\n  PresentPrice : %.2f\n  WeighedAveragePrice : %.2f\n  HighestPrice : %.2f\n\n", p.asset.ID, p.asset.Name, p.pp, p.ap, p.hp))
 		}
 	}
 

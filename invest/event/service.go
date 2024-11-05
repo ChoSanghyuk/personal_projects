@@ -14,6 +14,7 @@ type Storage interface {
 
 	RetreiveFundsSummaryOrderByFundId() ([]m.InvestSummary, error)
 	UpdateInvestSummarySum(fundId uint, assetId uint, sum float64) error
+	RetreiveFundSummaryByAssetId(id uint) ([]m.InvestSummary, error)
 
 	RetrieveMarketIndicator(date string) (*m.DailyIndex, *m.CliIndex, error)
 	SaveDailyMarketIndicator(fearGreedIndex uint, nasdaq float64) error

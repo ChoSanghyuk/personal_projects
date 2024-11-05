@@ -15,6 +15,7 @@ type assetMsgSentInfo struct {
 
 var assetMsgCache map[assetMsg]*assetMsgSentInfo
 var portMsgCache map[bool]time.Time
+var dailyCache time.Time
 
 func init() {
 	assetMsgCache = make(map[assetMsg]*assetMsgSentInfo)
@@ -75,4 +76,13 @@ func hasPortCache(isSell bool) bool {
 
 func setPortCache(isSell bool) {
 	portMsgCache[isSell] = time.Now()
+}
+
+func hasDailyCache() bool {
+
+	if (dailyCache == time.Time{} || dailyCache.Before(time.Now().Add(-24*time.Hour))) {
+		return false
+	} else {
+		return true
+	}
 }

@@ -67,6 +67,40 @@ func (t TeleBot) Listen(ch chan string) {
 				/market
 				/market/indicators/{date?}
 				`
+			case "/form":
+				ch <- `
+				Asset
+				{
+				  ("id" : , )
+				  "name": "",
+				  "category": ,
+				  "code": "",
+				  "currency": "",
+				  "top": ,
+				  "bottom": ,
+				  "ema": ,
+				  "sel_price": ,
+				  "buy_price": 
+				}
+
+				Invest
+				{
+				  "fund_id" : ,
+				  "asset_id" : ,
+				  "price" : ,
+				  "count" :
+				}
+
+				AddFunds
+				{
+				  "name" : ""
+				}
+				
+				SaveMarketStatus
+				{
+				  "status" : 
+				}
+				`
 			default:
 				rtn, err := httpsend(txt)
 				if err != nil {

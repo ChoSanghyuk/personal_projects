@@ -31,15 +31,15 @@ func (c MarketLevel) MaxVolatileAssetRate() float64 {
 func (c MarketLevel) MinVolatileAssetRate() float64 {
 	switch c {
 	case MAJOR_BEAR:
-		return 0.1
-	case BEAR:
 		return 0.2
-	case VOLATILIY:
+	case BEAR:
 		return 0.3
-	case BULL:
+	case VOLATILIY:
 		return 0.4
-	case MAJOR_BULL:
+	case BULL:
 		return 0.5
+	case MAJOR_BULL:
+		return 0.6
 	}
 	return 0
 }
