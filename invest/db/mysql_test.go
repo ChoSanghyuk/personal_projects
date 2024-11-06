@@ -13,7 +13,7 @@ var stg *Storage
 
 func init() {
 
-	dsn := "root:root@tcp(127.0.0.1:3300)/investdb?charset=utf8mb4&parseTime=True&loc=Local"
+	dsn := "root:root@tcp(127.0.0.1:3306)/investdb?charset=utf8mb4&parseTime=True&loc=Local"
 	s, err := NewStorage(dsn, &gorm.Config{
 		SkipDefaultTransaction: true,
 	})

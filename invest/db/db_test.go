@@ -18,7 +18,7 @@ var db *gorm.DB
 
 func init() {
 
-	dsn := "root:root@tcp(127.0.0.1:3300)/investdb?charset=utf8mb4&parseTime=True&loc=Local"
+	dsn := "root:root@tcp(127.0.0.1:3306)/investdb?charset=utf8mb4&parseTime=True&loc=Local"
 	sqlDB, err := sql.Open("mysql", dsn)
 	if err != nil {
 		log.Fatal(err)
