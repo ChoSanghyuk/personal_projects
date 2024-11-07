@@ -40,7 +40,7 @@
 		<dependency>
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
-			<version>20.0</version>
+			<version>32.0.0</version>
 		</dependency>
 
 		<!-- 여러 utility 기능 제공 -->
