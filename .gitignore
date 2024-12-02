@@ -2,3 +2,5 @@
 invest/config/*.yaml
 invest/*.xlsx
 lolche_bot/config/*.yaml
+capture_macro/go/*.pdf
+capture_macro/go/book/

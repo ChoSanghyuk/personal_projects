@@ -15,7 +15,7 @@ from reportlab.lib.utils import ImageReader
 # 기본 폴더, 이미지를 저장할 폴더, 책의 이름을 지정합니다.
 my_dir = "./book/"
 img_dir = f'{my_dir}img/'
-book_name = "토비의스프링2"
+book_name = "이펙티브_러스트"
 
 
 # 마우스 트레이서라는 프로그램을 통해, 전자책의 사각형 꼭지점의 좌표들을 기록합니다.
@@ -27,7 +27,7 @@ width, height = right-left, bottom - top
 btn_x, btn_y = 1865, 510
 
 # 전자책의 시작, 끝 페이지 기록
-start_page, end_page = 1, 838
+start_page, end_page = 1, 10
 
 # 전자책을 넘기고 스크롤 하는 함수를 작성합니다.
 # 전자책을 최대한 확대후 캡처하기 때문에, 옆 페이지로 넘긴 후에 한 스크롤 내리는 모션 추가합니다.
