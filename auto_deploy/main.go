@@ -24,5 +24,12 @@ func main() {
 		}
 		return nil
 	})
+	app.Post("/lolche_bot_rust", func(c *fiber.Ctx) error {
+		cmd := exec.Command("./deploy_lolche_bot_rust.sh")
+		if err := cmd.Run(); err != nil {
+			return c.SendString(err.Error())
+		}
+		return nil
+	})
 	app.Listen(":10000")
 }
