@@ -261,7 +261,11 @@ class _FundsState extends State<Funds> with SingleTickerProviderStateMixin {
                               setState(() => _showDollar = !_showDollar);
                             }
                           },
-                          child: Text(_showDollar ? '\$${data.amountDollar}' : '₩${data.amount}'),
+                          child: Text(
+                            double.parse(_showDollar ? data.amountDollar : data.amount) == 0 
+                                ? '-' 
+                                : (_showDollar ? '\$${data.amountDollar}' : '₩${data.amount}')
+                          ),
                         ),
                       ),
                       DataCell(Text('${data.profitRate}%')),
@@ -274,7 +278,11 @@ class _FundsState extends State<Funds> with SingleTickerProviderStateMixin {
                               setState(() => _showDollar = !_showDollar);
                             }
                           },
-                          child: Text(_showDollar ? '\$${data.priceDollar}' : '₩${data.price}'),
+                          child: Text(
+                            double.parse(_showDollar ? data.priceDollar : data.price) == 0
+                                ? '-'
+                                : (_showDollar ? '\$${data.priceDollar}' : '₩${data.price}')
+                          ),
                         ),
                       ),
                     ],

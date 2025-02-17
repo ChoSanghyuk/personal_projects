@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../routes/app_routes.dart';
-import 'funds.dart'; 
+import 'funds.dart';
+import 'assets.dart';  // Add this import at the top
 
 
 class HomeScreen extends StatefulWidget {
@@ -40,7 +41,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   screen = const Funds();
                   break;
                 case AppRoutes.screen4:
-                  screen = const Screen4();
+                  screen = const AssetsScreen();  // Replace Screen4 with AssetsScreen
                   break;
                 case AppRoutes.screen5:
                   screen = const Screen5();
@@ -123,11 +124,11 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                         child: Padding(
                           padding: EdgeInsets.all(8.0),
-                          child: Icon(Icons.looks_4),
+                          child: Icon(Icons.account_balance_wallet),  // Changed icon to wallet
                         ),
                       ),
                     ),
-                    label: 'Screen 4',
+                    label: 'Assets',  // Changed label to Assets
                   ),
                   BottomNavigationBarItem(
                     icon: Padding(
