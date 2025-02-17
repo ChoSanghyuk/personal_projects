@@ -16,6 +16,11 @@ import (
 	"github.com/vcaesar/imgo"
 )
 
+func TestRefresh(t *testing.T) {
+	time.Sleep(3 * time.Second)
+	robotgo.KeyTap("r", "cmd")
+}
+
 func TestLocation(t *testing.T) {
 
 	hook.Register(hook.MouseDown, nil, func(e hook.Event) {
@@ -71,5 +76,9 @@ func TestAllFileNames(t *testing.T) {
 
 func TestPDF(t *testing.T) {
 	imp, _ := pdfcpu.Import("form:A3, pos:c, s:1.0", types.POINTS)
-	pdfcpu.ImportImagesFile([]string{"./book/img1.png", "./book/img2.png", "./book/img3.png"}, "out.pdf", imp, nil)
+	pdfcpu.ImportImagesFile([]string{"./book/img001.png", "./book/img002.png", "./book/img003.png"}, "out.pdf", imp, nil)
+}
+
+func TestMergeToPDH(t *testing.T) {
+	mergeToPDH("./book", "이펙티브_러스트")
 }

@@ -8,7 +8,7 @@ import (
 func kintexcamping() {
 
 	nth := 1
-	isSeq := false
+	isSeq := true
 
 	weekendXy := [][2]int{
 		{224, 231},

@@ -8,14 +8,14 @@ import (
 
 func main() {
 
-	for {
-		if time.Now().Minute() == 0 {
-			r.KeyPress("f5")
-			break
-		}
-		// time.Sleep(time.Mi)
-	}
-	nanjibbq()
+	// for {
+	// 	if time.Now().Minute() == 0 {
+	// 		r.KeyPress("f5")
+	// 		break
+	// 	}
+	// 	// time.Sleep(time.Mi)
+	// }
+	kintexcamping()
 }
 
 /****************************************************** Inner Function *************************************************/
