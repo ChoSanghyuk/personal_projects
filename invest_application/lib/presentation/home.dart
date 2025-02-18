@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import '../routes/app_routes.dart';
 import 'funds.dart';
 import 'assets.dart';  // Add this import at the top
+import 'hist.dart';
+import 'market.dart';  // Add this import at the top
 
 
 class HomeScreen extends StatefulWidget {
@@ -32,7 +34,7 @@ class _HomeScreenState extends State<HomeScreen> {
               Widget screen;
               switch (settings.name ?? _currentRoute) {
                 case AppRoutes.screen1:
-                  screen = const Screen1();
+                  screen = const MarketScreen();  // Replace Screen1 with MarketScreen
                   break;
                 case AppRoutes.screen2:
                   screen = const Screen2();
@@ -44,10 +46,10 @@ class _HomeScreenState extends State<HomeScreen> {
                   screen = const AssetsScreen();  // Replace Screen4 with AssetsScreen
                   break;
                 case AppRoutes.screen5:
-                  screen = const Screen5();
+                  screen = const HistScreen();  // Replace Screen5 with HistScreen
                   break;
                 default:
-                  screen = const Screen1();
+                  screen = const Funds();
               }
               return MaterialPageRoute(builder: (_) => screen, settings: settings);
             },
@@ -75,11 +77,11 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                         child: Padding(
                           padding: EdgeInsets.all(8.0),
-                          child: Icon(Icons.looks_one),
+                          child: Icon(Icons.show_chart),  // Change icon to show_chart
                         ),
                       ),
                     ),
-                    label: 'Screen 1',
+                    label: 'Market',  // Change label to Market
                   ),
                   BottomNavigationBarItem(
                     icon: Padding(
@@ -140,11 +142,11 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                         child: Padding(
                           padding: EdgeInsets.all(8.0),
-                          child: Icon(Icons.looks_5),
+                          child: Icon(Icons.history),  // Changed to history icon
                         ),
                       ),
                     ),
-                    label: 'Screen 5',
+                    label: 'History',  // Changed label to History
                   ),
                 ],
                 onTap: (index) {

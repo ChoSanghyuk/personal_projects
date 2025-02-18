@@ -34,7 +34,6 @@ class Funds extends StatefulWidget {
 }
 
 class _FundsState extends State<Funds> with SingleTickerProviderStateMixin {
-  late TabController _tabController;
   late List<FundData> fundsData;
   bool _sortAscending = false;
   int _sortColumnIndex = 1;
@@ -83,31 +82,20 @@ class _FundsState extends State<Funds> with SingleTickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this);
     fundsData = FundsApiMock.getFundsData();
     _sortedData = FundsApiMock.getFundsTableData();
-    _sortColumnIndex = 1;  // Amount column
-    _sortAscending = false;  // Descending order
-    _sort(_sortColumnIndex, _sortAscending);  // Apply initial sort
+    _sortColumnIndex = 1;
+    _sortAscending = false;
+    _sort(_sortColumnIndex, _sortAscending);
   }
 
   void _sort(int columnIndex, bool ascending) {
     setState(() {
-      // if (_sortColumnIndex == columnIndex) {
-      //   if (_sortAscending == ascending) {
-      //     _sortedData = FundsApiMock.getFundsTableData();
-      //     _sortColumnIndex = 0;
-      //     _sortAscending = true;
-      //     return;
-      //   }
-      // }
-
       _sortColumnIndex = columnIndex;
       _sortAscending = ascending;
 
       _sortedData.sort((a, b) {
-        // Handle string comparisons
-        if (columnIndex == 0 || columnIndex == 3) {  // Name or Division columns
+        if (columnIndex == 0 || columnIndex == 3) {
           var aValue = columnIndex == 0 ? a.name : a.division;
           var bValue = columnIndex == 0 ? b.name : b.division;
           return ascending
@@ -115,7 +103,6 @@ class _FundsState extends State<Funds> with SingleTickerProviderStateMixin {
               : bValue.compareTo(aValue);
         }
 
-        // Handle numeric string comparisons
         var aValue = '';
         var bValue = '';
         
@@ -140,7 +127,6 @@ class _FundsState extends State<Funds> with SingleTickerProviderStateMixin {
             return 0;
         }
         
-        // Compare as numbers for proper numeric sorting
         return ascending
             ? double.parse(aValue).compareTo(double.parse(bValue))
             : double.parse(bValue).compareTo(double.parse(aValue));
@@ -150,7 +136,6 @@ class _FundsState extends State<Funds> with SingleTickerProviderStateMixin {
 
   @override
   void dispose() {
-    _tabController.dispose();
     super.dispose();
   }
 
@@ -158,6 +143,7 @@ class _FundsState extends State<Funds> with SingleTickerProviderStateMixin {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         title: const Text('Funds Distribution'),
         actions: [
           IconButton(
@@ -181,16 +167,9 @@ class _FundsState extends State<Funds> with SingleTickerProviderStateMixin {
               },
             ),
         ],
-        bottom: TabBar(
-          controller: _tabController,
-          tabs: const [
-            Tab(text: 'Fund 1'),
-            Tab(text: 'Fund 2'),
-            Tab(text: 'Fund 3'),
-          ],
-        ),
       ),
       body: SingleChildScrollView(
+        padding: const EdgeInsets.only(bottom: 100),
         child: Column(
           children: [
             SizedBox(
@@ -288,17 +267,6 @@ class _FundsState extends State<Funds> with SingleTickerProviderStateMixin {
                     ],
                   )).toList(),
                 ),
-              ),
-            ),
-            SizedBox(
-              height: 300,  // Fixed height for TabBarView
-              child: TabBarView(
-                controller: _tabController,
-                children: const [
-                  Center(child: Text('Fund 1 Content')),
-                  Center(child: Text('Fund 2 Content')),
-                  Center(child: Text('Fund 3 Content')),
-                ],
               ),
             ),
           ],

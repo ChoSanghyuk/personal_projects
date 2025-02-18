@@ -4,6 +4,7 @@ class AssetsApiMock {
   List<Asset> getAssets() {
     return [
       Asset(
+        id: '1',
         name: 'Bitcoin',
         category: 'Cryptocurrency',
         code: 'BTC',
@@ -14,6 +15,7 @@ class AssetsApiMock {
         sell: 27300,
       ),
       Asset(
+         id: '2',
         name: 'Ethereum',
         category: 'Cryptocurrency',
         code: 'ETH',
@@ -24,6 +26,7 @@ class AssetsApiMock {
         sell: 1990,
       ),
       Asset(
+         id: '3',
         name: 'Cardano',
         category: 'Cryptocurrency',
         code: 'ADA',
@@ -34,6 +37,7 @@ class AssetsApiMock {
         sell: 0.37,
       ),
       Asset(
+         id: '4',
         name: 'Solana',
         category: 'Cryptocurrency',
         code: 'SOL',
@@ -44,6 +48,7 @@ class AssetsApiMock {
         sell: 109.80,
       ),
       Asset(
+         id: '5',
         name: 'Polkadot',
         category: 'Cryptocurrency',
         code: 'DOT',
@@ -54,6 +59,7 @@ class AssetsApiMock {
         sell: 7.30,
       ),
       Asset(
+         id: '6',
         name: 'Ripple',
         category: 'Cryptocurrency',
         code: 'XRP',
@@ -64,10 +70,11 @@ class AssetsApiMock {
         sell: 0.57,
       ),
       Asset(
-        name: 'Avalanche',
-        category: 'Cryptocurrency',
-        code: 'AVAX',
-        currency: 'USD',
+         id: '7',
+        name: '삼성전자',
+        category: '국내주식',
+        code: '005600',
+        currency: 'WON',
         bottom: 32.00,
         top: 42.00,
         buy: 37.50,
