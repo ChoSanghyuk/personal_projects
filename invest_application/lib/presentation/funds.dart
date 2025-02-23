@@ -169,7 +169,7 @@ class _FundsState extends State<Funds> with SingleTickerProviderStateMixin {
         ],
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.only(bottom: 100),
+        // padding: const EdgeInsets.only(bottom: 100), // 바텀 패딩 관련. 필요시 주석 해제
         child: Column(
           children: [
             SizedBox(

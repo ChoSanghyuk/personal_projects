@@ -22,157 +22,258 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: Stack(
-        children: [
-          Navigator(
-            initialRoute: _currentRoute,
-            key: ValueKey(_currentRoute),
-            onGenerateRoute: (settings) {
-              Widget screen;
-              switch (settings.name ?? _currentRoute) {
-                case AppRoutes.screen1:
-                  screen = const MarketScreen();  // Replace Screen1 with MarketScreen
-                  break;
-                case AppRoutes.screen2:
-                  screen = const Screen2();
-                  break;
-                case AppRoutes.funds:
-                  screen = const Funds();
-                  break;
-                case AppRoutes.screen4:
-                  screen = const AssetsScreen();  // Replace Screen4 with AssetsScreen
-                  break;
-                case AppRoutes.screen5:
-                  screen = const HistScreen();  // Replace Screen5 with HistScreen
-                  break;
-                default:
-                  screen = const Funds();
-              }
-              return MaterialPageRoute(builder: (_) => screen, settings: settings);
-            },
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       body: Stack(
+//         children: [
+//           Navigator(
+//             initialRoute: _currentRoute,
+//             key: ValueKey(_currentRoute),
+//             onGenerateRoute: (settings) {
+//               Widget screen;
+//               switch (settings.name ?? _currentRoute) {
+//                 case AppRoutes.screen1:
+//                   screen = const MarketScreen();  // Replace Screen1 with MarketScreen
+//                   break;
+//                 case AppRoutes.screen2:
+//                   screen = const Screen2();
+//                   break;
+//                 case AppRoutes.funds:
+//                   screen = const Funds();
+//                   break;
+//                 case AppRoutes.screen4:
+//                   screen = const AssetsScreen();  // Replace Screen4 with AssetsScreen
+//                   break;
+//                 case AppRoutes.screen5:
+//                   screen = const HistScreen();  // Replace Screen5 with HistScreen
+//                   break;
+//                 default:
+//                   screen = const Funds();
+//               }
+//               return MaterialPageRoute(builder: (_) => screen, settings: settings);
+//             },
+//           ),
+//           Align(
+//             alignment: Alignment.bottomCenter,
+//             child: Container(
+//               decoration: BoxDecoration(
+//                 border: Border(
+//                   top: BorderSide(color: Colors.blue, width: 1),
+//                 ),
+//               ),
+//               child: BottomNavigationBar(
+//                 type: BottomNavigationBarType.fixed,
+//                 selectedItemColor: Colors.blue,
+//                 unselectedItemColor: Colors.grey,
+//                 items: [
+//                   BottomNavigationBarItem(
+//                     icon: Padding(
+//                       padding: EdgeInsets.all(8.0),
+//                       child: Container(
+//                         decoration: BoxDecoration(
+//                           border: Border.all(color: Colors.blue, width: 1),
+//                           borderRadius: BorderRadius.all(Radius.circular(8)),
+//                         ),
+//                         child: Padding(
+//                           padding: EdgeInsets.all(8.0),
+//                           child: Icon(Icons.show_chart),  // Change icon to show_chart
+//                         ),
+//                       ),
+//                     ),
+//                     label: 'Market',  // Change label to Market
+//                   ),
+//                   BottomNavigationBarItem(
+//                     icon: Padding(
+//                       padding: EdgeInsets.all(8.0),
+//                       child: Container(
+//                         decoration: BoxDecoration(
+//                           border: Border.all(color: Colors.blue, width: 1),
+//                           borderRadius: BorderRadius.all(Radius.circular(8)),
+//                         ),
+//                         child: Padding(
+//                           padding: EdgeInsets.all(8.0),
+//                           child: Icon(Icons.looks_two),
+//                         ),
+//                       ),
+//                     ),
+//                     label: 'Screen 2',
+//                   ),
+//                   BottomNavigationBarItem(
+//                     icon: Padding(
+//                       padding: EdgeInsets.all(8.0),
+//                       child: Container(
+//                         decoration: BoxDecoration(
+//                           color: Colors.blue.withOpacity(0.1),
+//                           border: Border.all(color: Colors.blue, width: 1),
+//                           borderRadius: BorderRadius.all(Radius.circular(8)),
+//                         ),
+//                         child: Padding(
+//                           padding: EdgeInsets.all(8.0),
+//                           child: Icon(Icons.home, color: Colors.blue),
+//                         ),
+//                       ),
+//                     ),
+//                     label: 'Home',
+//                   ),
+//                   BottomNavigationBarItem(
+//                     icon: Padding(
+//                       padding: EdgeInsets.all(8.0),
+//                       child: Container(
+//                         decoration: BoxDecoration(
+//                           border: Border.all(color: Colors.blue, width: 1),
+//                           borderRadius: BorderRadius.all(Radius.circular(8)),
+//                         ),
+//                         child: Padding(
+//                           padding: EdgeInsets.all(8.0),
+//                           child: Icon(Icons.account_balance_wallet),  // Changed icon to wallet
+//                         ),
+//                       ),
+//                     ),
+//                     label: 'Assets',  // Changed label to Assets
+//                   ),
+//                   BottomNavigationBarItem(
+//                     icon: Padding(
+//                       padding: EdgeInsets.all(8.0),
+//                       child: Container(
+//                         decoration: BoxDecoration(
+//                           border: Border.all(color: Colors.blue, width: 1),
+//                           borderRadius: BorderRadius.all(Radius.circular(8)),
+//                         ),
+//                         child: Padding(
+//                           padding: EdgeInsets.all(8.0),
+//                           child: Icon(Icons.history),  // Changed to history icon
+//                         ),
+//                       ),
+//                     ),
+//                     label: 'History',  // Changed label to History
+//                   ),
+//                 ],
+//                 onTap: (index) {
+//                   _onTabTapped([
+//                     AppRoutes.screen1,
+//                     AppRoutes.screen2,
+//                     AppRoutes.funds,
+//                     AppRoutes.screen4,
+//                     AppRoutes.screen5
+//                   ][index]);
+//                 },
+//                 currentIndex: [
+//                   AppRoutes.screen1,
+//                   AppRoutes.screen2,
+//                   AppRoutes.funds,
+//                   AppRoutes.screen4,
+//                   AppRoutes.screen5
+//                 ].indexOf(_currentRoute),
+//               ),
+//             ),
+//           ),
+//         ],
+//       ),
+//     );
+//   }
+@override
+Widget build(BuildContext context) {
+  return Scaffold(
+    body: Navigator(
+      initialRoute: _currentRoute,
+      key: ValueKey(_currentRoute),
+      onGenerateRoute: (settings) {
+        Widget screen;
+        switch (settings.name ?? _currentRoute) {
+          case AppRoutes.screen1:
+            screen = const MarketScreen();
+            break;
+          case AppRoutes.screen2:
+            screen = const Screen2();
+            break;
+          case AppRoutes.funds:
+            screen = const Funds();
+            break;
+          case AppRoutes.screen4:
+            screen = const AssetsScreen();
+            break;
+          case AppRoutes.screen5:
+            screen = const HistScreen();
+            break;
+          default:
+            screen = const Funds();
+        }
+        return MaterialPageRoute(builder: (_) => screen, settings: settings);
+      },
+    ),
+    bottomNavigationBar: Container(
+      decoration: BoxDecoration(
+        border: Border(top: BorderSide(color: Colors.blue, width: 1)),
+      ),
+      child: BottomNavigationBar(
+        type: BottomNavigationBarType.fixed,
+        selectedItemColor: Colors.blue,
+        unselectedItemColor: Colors.grey,
+        items: [
+          BottomNavigationBarItem(
+            icon: _buildNavItem(Icons.show_chart),
+            label: 'Market',
           ),
-          Align(
-            alignment: Alignment.bottomCenter,
-            child: Container(
-              decoration: BoxDecoration(
-                border: Border(
-                  top: BorderSide(color: Colors.blue, width: 1),
-                ),
-              ),
-              child: BottomNavigationBar(
-                type: BottomNavigationBarType.fixed,
-                selectedItemColor: Colors.blue,
-                unselectedItemColor: Colors.grey,
-                items: [
-                  BottomNavigationBarItem(
-                    icon: Padding(
-                      padding: EdgeInsets.all(8.0),
-                      child: Container(
-                        decoration: BoxDecoration(
-                          border: Border.all(color: Colors.blue, width: 1),
-                          borderRadius: BorderRadius.all(Radius.circular(8)),
-                        ),
-                        child: Padding(
-                          padding: EdgeInsets.all(8.0),
-                          child: Icon(Icons.show_chart),  // Change icon to show_chart
-                        ),
-                      ),
-                    ),
-                    label: 'Market',  // Change label to Market
-                  ),
-                  BottomNavigationBarItem(
-                    icon: Padding(
-                      padding: EdgeInsets.all(8.0),
-                      child: Container(
-                        decoration: BoxDecoration(
-                          border: Border.all(color: Colors.blue, width: 1),
-                          borderRadius: BorderRadius.all(Radius.circular(8)),
-                        ),
-                        child: Padding(
-                          padding: EdgeInsets.all(8.0),
-                          child: Icon(Icons.looks_two),
-                        ),
-                      ),
-                    ),
-                    label: 'Screen 2',
-                  ),
-                  BottomNavigationBarItem(
-                    icon: Padding(
-                      padding: EdgeInsets.all(8.0),
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: Colors.blue.withOpacity(0.1),
-                          border: Border.all(color: Colors.blue, width: 1),
-                          borderRadius: BorderRadius.all(Radius.circular(8)),
-                        ),
-                        child: Padding(
-                          padding: EdgeInsets.all(8.0),
-                          child: Icon(Icons.home, color: Colors.blue),
-                        ),
-                      ),
-                    ),
-                    label: 'Home',
-                  ),
-                  BottomNavigationBarItem(
-                    icon: Padding(
-                      padding: EdgeInsets.all(8.0),
-                      child: Container(
-                        decoration: BoxDecoration(
-                          border: Border.all(color: Colors.blue, width: 1),
-                          borderRadius: BorderRadius.all(Radius.circular(8)),
-                        ),
-                        child: Padding(
-                          padding: EdgeInsets.all(8.0),
-                          child: Icon(Icons.account_balance_wallet),  // Changed icon to wallet
-                        ),
-                      ),
-                    ),
-                    label: 'Assets',  // Changed label to Assets
-                  ),
-                  BottomNavigationBarItem(
-                    icon: Padding(
-                      padding: EdgeInsets.all(8.0),
-                      child: Container(
-                        decoration: BoxDecoration(
-                          border: Border.all(color: Colors.blue, width: 1),
-                          borderRadius: BorderRadius.all(Radius.circular(8)),
-                        ),
-                        child: Padding(
-                          padding: EdgeInsets.all(8.0),
-                          child: Icon(Icons.history),  // Changed to history icon
-                        ),
-                      ),
-                    ),
-                    label: 'History',  // Changed label to History
-                  ),
-                ],
-                onTap: (index) {
-                  _onTabTapped([
-                    AppRoutes.screen1,
-                    AppRoutes.screen2,
-                    AppRoutes.funds,
-                    AppRoutes.screen4,
-                    AppRoutes.screen5
-                  ][index]);
-                },
-                currentIndex: [
-                  AppRoutes.screen1,
-                  AppRoutes.screen2,
-                  AppRoutes.funds,
-                  AppRoutes.screen4,
-                  AppRoutes.screen5
-                ].indexOf(_currentRoute),
-              ),
-            ),
+          BottomNavigationBarItem(
+            icon: _buildNavItem(Icons.looks_two),
+            label: 'Screen 2',
+          ),
+          BottomNavigationBarItem(
+            icon: _buildNavItem(Icons.home),
+            label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: _buildNavItem(Icons.account_balance_wallet),
+            label: 'Assets',
+          ),
+          BottomNavigationBarItem(
+            icon: _buildNavItem(Icons.history),
+            label: 'History',
           ),
         ],
+        onTap: (index) {
+          _onTabTapped([
+            AppRoutes.screen1,
+            AppRoutes.screen2,
+            AppRoutes.funds,
+            AppRoutes.screen4,
+            AppRoutes.screen5
+          ][index]);
+        },
+        currentIndex: [
+          AppRoutes.screen1,
+          AppRoutes.screen2,
+          AppRoutes.funds,
+          AppRoutes.screen4,
+          AppRoutes.screen5
+        ].indexOf(_currentRoute),
       ),
-    );
-  }
+    ),
+  );
 }
+
+// 하단 내비게이션 아이템을 깔끔히 하기 위한 메소드 (선택 사항)
+Widget _buildNavItem(IconData icon) {
+  return Padding(
+    padding: EdgeInsets.all(8.0),
+    child: Container(
+      decoration: BoxDecoration(
+        border: Border.all(color: Colors.blue, width: 1),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Padding(
+        padding: EdgeInsets.all(8.0),
+        child: Icon(icon),
+      ),
+    ),
+  );
+}
+
+
+}
+
+
 
 class Screen1 extends StatelessWidget {
   const Screen1({super.key});

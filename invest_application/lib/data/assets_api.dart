@@ -94,4 +94,19 @@ class AssetsApiHttp implements AssetsApi {
       throw Exception('Failed to load categories: $e');
     }
   }
+
+  Future<List<String>> getCurrencies() async {
+    try {
+      final url = ConfigLoader.getUrl();
+      final response = await http.get(Uri.parse('$url/currencies'));
+      if (response.statusCode == 200) {
+        final List<dynamic> jsonList = json.decode(utf8.decode(response.bodyBytes));
+        return List<String>.from(jsonList);
+      } else {
+        throw Exception('Failed to load currencies: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Failed to load currencies: $e');
+    }
+  }
 }

@@ -71,7 +71,7 @@ class _MarketScreenState extends State<MarketScreen> {
       ),
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 116.0),
+          padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 16.0), // 바텀 패딩 관련. 필요시 바텀 값 116
           child: RefreshIndicator(
             onRefresh: _loadData,
             child: SingleChildScrollView(

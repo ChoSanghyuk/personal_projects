@@ -85,15 +85,15 @@ class _HistScreenState extends State<HistScreen> with SingleTickerProviderStateM
         controller: _tabController,
         children: [
           Padding(
-            padding: const EdgeInsets.only(bottom: 100),
+            padding: const EdgeInsets.only(bottom: 10), // 바텀 패딩 관련. 필요시 100
             child: _buildHistoryList(1),
           ),
           Padding(
-            padding: const EdgeInsets.only(bottom: 100),
+            padding: const EdgeInsets.only(bottom: 10), // 바텀 패딩 관련. 필요시 100
             child: _buildHistoryList(2),
           ),
           Padding(
-            padding: const EdgeInsets.only(bottom: 100),
+            padding: const EdgeInsets.only(bottom: 10), // 바텀 패딩 관련. 필요시 100
             child: _buildHistoryList(3),
           ),
         ],

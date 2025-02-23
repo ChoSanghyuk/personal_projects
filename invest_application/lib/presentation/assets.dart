@@ -41,6 +41,7 @@ class _AssetsScreenState extends State<AssetsScreen> {
   String? selectedCategory;
   List<Asset>? assets;
   List<String>? categories;
+  List<String>? currencies;
 
   @override
   void initState() {
@@ -52,9 +53,11 @@ class _AssetsScreenState extends State<AssetsScreen> {
     final assetsApi = AssetsApiHttp();
     final loadedAssets = await assetsApi.getAssets();
     final loadedCategories = await assetsApi.getCategories();
+    final loadedCurrencies = await assetsApi.getCurrencies();
     setState(() {
       assets = loadedAssets;
       categories = loadedCategories;
+      currencies = loadedCurrencies;
     });
   }
 
@@ -93,7 +96,7 @@ class _AssetsScreenState extends State<AssetsScreen> {
         ],
       ),
       body: ListView.builder(
-        padding: const EdgeInsets.only(bottom: 100),
+        // padding: const EdgeInsets.only(bottom: 100), // 바텀 패딩 관련. 필요시 주석 해제
         itemCount: filteredAssets.length + 1,
         itemBuilder: (context, index) {
           if (index == filteredAssets.length) {
@@ -102,7 +105,7 @@ class _AssetsScreenState extends State<AssetsScreen> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => const AssetEditScreen(asset: null),
+                    builder: (context) => AssetEditScreen(asset: null, categories: categories, currencies: currencies),
                   ),
                 );
               },
@@ -129,7 +132,7 @@ class _AssetsScreenState extends State<AssetsScreen> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => AssetEditScreen(asset: asset),
+                  builder: (context) => AssetEditScreen(asset: asset, categories: categories, currencies: currencies),
                 ),
               );
             },
@@ -225,8 +228,10 @@ class _AssetsScreenState extends State<AssetsScreen> {
 
 class AssetEditScreen extends StatefulWidget {
   final Asset? asset;
+  final List<String>? categories;
+  final List<String>? currencies;
 
-  const AssetEditScreen({super.key, this.asset});
+  const AssetEditScreen({super.key, this.asset, this.categories, this.currencies});
 
   @override
   State<AssetEditScreen> createState() => _AssetEditScreenState();
@@ -321,7 +326,7 @@ class _AssetEditScreenState extends State<AssetEditScreen> {
       ),
       body: Padding(
         padding: EdgeInsets.only(
-          bottom: MediaQuery.of(context).viewInsets.bottom + 80,
+          // bottom: MediaQuery.of(context).viewInsets.bottom + 80, // 바텀 패딩 관련. 필요시 100
         ),
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(16),
@@ -339,9 +344,22 @@ class _AssetEditScreenState extends State<AssetEditScreen> {
                 decoration: const InputDecoration(labelText: 'Name'),
               ),
               const SizedBox(height: 16),
-              TextField(
-                controller: categoryController,
-                decoration: const InputDecoration(labelText: 'Category'),
+              Container(
+                child: DropdownButtonFormField<String>(
+                  value: widget.asset?.category,
+                  decoration: const InputDecoration(labelText: 'Category'),
+                  items: widget.categories?.map((String category) {
+                    return DropdownMenuItem<String>(
+                      value: category,
+                      child: Text(category),
+                    );
+                  }).toList(),
+                  onChanged: (String? newValue) {
+                    setState(() {
+                      categoryController.text = newValue ?? '';
+                    });
+                  },
+                ),
               ),
               const SizedBox(height: 16),
               TextField(
@@ -349,9 +367,22 @@ class _AssetEditScreenState extends State<AssetEditScreen> {
                 decoration: const InputDecoration(labelText: 'Code'),
               ),
               const SizedBox(height: 16),
-              TextField(
-                controller: currencyController,
-                decoration: const InputDecoration(labelText: 'Currency'),
+              Container(
+                child: DropdownButtonFormField<String>(
+                  value: widget.asset?.currency,
+                  decoration: const InputDecoration(labelText: 'Currency'),
+                  items: widget.currencies?.map((String currency) {
+                    return DropdownMenuItem<String>(
+                      value: currency,
+                      child: Text(currency),
+                    );
+                  }).toList(),
+                  onChanged: (String? newValue) {
+                    setState(() {
+                      currencyController.text = newValue ?? '';
+                    });
+                  },
+                ),
               ),
               const SizedBox(height: 16),
               TextField(
@@ -386,4 +417,3 @@ class _AssetEditScreenState extends State<AssetEditScreen> {
     );
   }
 }
-// todo. scroll 말아 올라와지는거 시뮬 문제인건가??
