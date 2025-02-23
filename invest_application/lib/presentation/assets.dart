@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../data/assets_api_mock.dart';
-
+import '../data/assets_api.dart';
 class Asset {
   final String id;
   final String name;
@@ -23,6 +23,11 @@ class Asset {
     required this.buy,
     required this.sell,
   });
+  
+  @override
+  String toString() {
+    return 'Asset(id: $id, name: $name, category: $category, code: $code, currency: $currency, bottom: $bottom, top: $top, buy: $buy, sell: $sell)';
+  }
 }
 
 class AssetsScreen extends StatefulWidget {
@@ -34,20 +39,28 @@ class AssetsScreen extends StatefulWidget {
 
 class _AssetsScreenState extends State<AssetsScreen> {
   String? selectedCategory;
-  late List<Asset> assets;
-  late List<String> categories;
+  List<Asset>? assets;
+  List<String>? categories;
 
   @override
   void initState() {
     super.initState();
-    final assetsApi = AssetsApiMock();
-    assets = assetsApi.getAssets();
-    categories = assets.map((e) => e.category).toSet().toList();
+    _loadAssets();
+  }
+
+  Future<void> _loadAssets() async {
+    final assetsApi = AssetsApiHttp();
+    final loadedAssets = await assetsApi.getAssets();
+    final loadedCategories = await assetsApi.getCategories();
+    setState(() {
+      assets = loadedAssets;
+      categories = loadedCategories;
+    });
   }
 
   List<Asset> get filteredAssets {
-    if (selectedCategory == null) return assets;
-    return assets.where((asset) => asset.category == selectedCategory).toList();
+    if (selectedCategory == null) return assets ?? [];
+    return assets!.where((asset) => asset.category == selectedCategory).toList();
   }
 
   @override
@@ -69,7 +82,7 @@ class _AssetsScreenState extends State<AssetsScreen> {
                 value: null,
                 child: Text('All Categories'),
               ),
-              ...categories.map(
+              ...categories!.map(
                 (category) => PopupMenuItem(
                   value: category,
                   child: Text(category),
@@ -273,7 +286,7 @@ class _AssetEditScreenState extends State<AssetEditScreen> {
       sell: double.tryParse(sellController.text) ?? 0.0,
     );
 
-    final assetsApi = AssetsApiMock();
+    final assetsApi = AssetsApiHttp();
     try {
       final success = await assetsApi.updateAsset(updatedAsset);
       if (success) {

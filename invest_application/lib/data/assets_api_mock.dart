@@ -87,7 +87,7 @@ class AssetsApiMock {
   Future<bool> updateAsset(Asset asset) async {
     // Simulate network delay
     await Future.delayed(const Duration(milliseconds: 500));
-    
+    print('updateAsset: $asset');
     // Mock successful update
     return true;
   }

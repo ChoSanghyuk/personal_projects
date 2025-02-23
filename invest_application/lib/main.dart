@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
 import 'presentation/home.dart'; // Import your home screen
+import 'data/config_loader.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized(); // Ensures async code runs before app starts
+  await ConfigLoader.loadConfig(); // Load config before app runs
+
+
   runApp(const MyApp());
 }
 
