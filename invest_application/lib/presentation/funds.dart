@@ -40,6 +40,7 @@ class _FundsState extends State<Funds> with SingleTickerProviderStateMixin {
   late List<FundTableData> _sortedData;
   int? _selectedSection;
   bool _showDollar = false;
+  int _selectedTabIndex = 0;
 
   List<PieChartSectionData> getSections() {
     return fundsData.asMap().entries.map((entry) {
@@ -67,10 +68,10 @@ class _FundsState extends State<Funds> with SingleTickerProviderStateMixin {
     setState(() {
       if (_selectedSection == index) {
         _selectedSection = null;
-        _sortedData = FundsApiMock.getFundsTableData();
+        _sortedData = FundsApiMock.getFundsTableData(_selectedTabIndex + 1);
       } else {
         _selectedSection = index;
-        _sortedData = FundsApiMock.getFundsTableData()
+        _sortedData = FundsApiMock.getFundsTableData(_selectedTabIndex + 1)
             .where((data) => 
                 (color == Colors.orange && data.isStable) ||
                 (color == Colors.purple && !data.isStable))
@@ -82,8 +83,8 @@ class _FundsState extends State<Funds> with SingleTickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
-    fundsData = FundsApiMock.getFundsData();
-    _sortedData = FundsApiMock.getFundsTableData();
+    fundsData = FundsApiMock.getFundsData(1);
+    _sortedData = FundsApiMock.getFundsTableData(1);
     _sortColumnIndex = 1;
     _sortAscending = false;
     _sort(_sortColumnIndex, _sortAscending);
@@ -134,6 +135,14 @@ class _FundsState extends State<Funds> with SingleTickerProviderStateMixin {
     });
   }
 
+  void _onTabChanged(int index) {
+    setState(() {
+      _selectedTabIndex = index;
+      fundsData = FundsApiMock.getFundsData(index + 1);
+      _sortedData = FundsApiMock.getFundsTableData(index + 1);
+    });
+  }
+
   @override
   void dispose() {
     super.dispose();
@@ -141,136 +150,161 @@ class _FundsState extends State<Funds> with SingleTickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        title: const Text('Funds Distribution'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: () {
-              setState(() {
-                _sortedData = FundsApiMock.getFundsTableData();
-                fundsData = FundsApiMock.getFundsData();
-                _selectedSection = null;
-              });
-            },
+    return DefaultTabController(
+      length: 3, // Number of tabs
+      child: Scaffold(
+        appBar: AppBar(
+          automaticallyImplyLeading: false,
+          title: const Text('Funds Distribution'),
+          bottom: TabBar(
+            onTap: _onTabChanged,
+            tabs: const [
+              Tab(text: 'Fund 1'),
+              Tab(text: 'Fund 2'),
+              Tab(text: 'Fund 3'),
+            ],
           ),
-          if (_selectedSection != null)
+          actions: [
             IconButton(
-              icon: const Icon(Icons.clear),
+              icon: const Icon(Icons.refresh),
               onPressed: () {
                 setState(() {
+                  _sortedData = FundsApiMock.getFundsTableData(_selectedTabIndex + 1);
+                  fundsData = FundsApiMock.getFundsData(_selectedTabIndex + 1);
                   _selectedSection = null;
-                  _sortedData = FundsApiMock.getFundsTableData();
                 });
               },
             ),
-        ],
-      ),
-      body: SingleChildScrollView(
-        // padding: const EdgeInsets.only(bottom: 100), // 바텀 패딩 관련. 필요시 주석 해제
-        child: Column(
-          children: [
-            SizedBox(
-              height: 300,
-              child: PieChart(
-                PieChartData(
-                  sections: getSections(),
-                  sectionsSpace: 0,
-                  centerSpaceRadius: 40,
-                  pieTouchData: PieTouchData(
-                    touchCallback: (FlTouchEvent event, pieTouchResponse) {
-                      if (event is! FlTapUpEvent || 
-                          pieTouchResponse == null || 
-                          pieTouchResponse.touchedSection == null) return;
-                      
-                      final sectionIndex = pieTouchResponse.touchedSection!.touchedSectionIndex;
-                      if (sectionIndex >= 0 && sectionIndex < fundsData.length) {
-                        _onPieChartSectionClicked(sectionIndex, fundsData[sectionIndex].color);
-                      }
-                    },
-                  ),
-                ),
+            if (_selectedSection != null)
+              IconButton(
+                icon: const Icon(Icons.clear),
+                onPressed: () {
+                  setState(() {
+                    _selectedSection = null;
+                    _sortedData = FundsApiMock.getFundsTableData(_selectedTabIndex + 1);
+                  });
+                },
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: DataTable(
-                  sortAscending: _sortAscending,
-                  sortColumnIndex: _sortColumnIndex,
-                  columns: [
-                    DataColumn(
-                      label: const Text('Name'),
-                      onSort: (columnIndex, ascending) => _sort(columnIndex, ascending),
-                    ),
-                    DataColumn(
-                      label: const Text('Amount'),
-                      onSort: (columnIndex, ascending) => _sort(columnIndex, ascending),
-                    ),
-                    DataColumn(
-                      label: const Text('Profit Rate'),
-                      onSort: (columnIndex, ascending) => _sort(columnIndex, ascending),
-                    ),
-                    DataColumn(
-                      label: const Text('Division'),
-                      onSort: (columnIndex, ascending) => _sort(columnIndex, ascending),
-                    ),
-                    DataColumn(
-                      label: const Text('Quantity'),
-                      onSort: (columnIndex, ascending) => _sort(columnIndex, ascending),
-                    ),
-                    DataColumn(
-                      label: const Text('Price'),
-                      onSort: (columnIndex, ascending) => _sort(columnIndex, ascending),
-                    ),
-                  ],
-                  rows: _sortedData.map((data) => DataRow(
-                    color: MaterialStateProperty.all(
-                      data.isStable ? Colors.orange.withOpacity(0.2) : Colors.purple.withOpacity(0.2),
-                    ),
-                    cells: [
-                      DataCell(Text(data.name)),
-                      DataCell(
-                        InkWell(
-                          onTap: () {
-                            if (double.parse(data.amountDollar) > 0) {
-                              setState(() => _showDollar = !_showDollar);
-                            }
-                          },
-                          child: Text(
-                            double.parse(_showDollar ? data.amountDollar : data.amount) == 0 
-                                ? '-' 
-                                : (_showDollar ? '\$${data.amountDollar}' : '₩${data.amount}')
-                          ),
-                        ),
-                      ),
-                      DataCell(Text('${data.profitRate}%')),
-                      DataCell(Text(data.division)),
-                      DataCell(Text(data.quantity)),
-                      DataCell(
-                        InkWell(
-                          onTap: () {
-                            if (double.parse(data.priceDollar) > 0) {
-                              setState(() => _showDollar = !_showDollar);
-                            }
-                          },
-                          child: Text(
-                            double.parse(_showDollar ? data.priceDollar : data.price) == 0
-                                ? '-'
-                                : (_showDollar ? '\$${data.priceDollar}' : '₩${data.price}')
-                          ),
-                        ),
-                      ),
-                    ],
-                  )).toList(),
-                ),
-              ),
-            ),
           ],
         ),
+        body: TabBarView(
+          children: [
+            // Content for Fund 1
+            _buildFundContent(),
+            // Content for Fund 2
+            _buildFundContent(),
+            // Content for Fund 3
+            _buildFundContent(),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // New method to build the fund content
+  Widget _buildFundContent() {
+    return SingleChildScrollView(
+      // padding: const EdgeInsets.only(bottom: 100), // 바텀 패딩 관련. 필요시 주석 해제
+      child: Column(
+        children: [
+          SizedBox(
+            height: 300,
+            child: PieChart(
+              PieChartData(
+                sections: getSections(),
+                sectionsSpace: 0,
+                centerSpaceRadius: 40,
+                pieTouchData: PieTouchData(
+                  touchCallback: (FlTouchEvent event, pieTouchResponse) {
+                    if (event is! FlTapUpEvent || 
+                        pieTouchResponse == null || 
+                        pieTouchResponse.touchedSection == null) return;
+                    
+                    final sectionIndex = pieTouchResponse.touchedSection!.touchedSectionIndex;
+                    if (sectionIndex >= 0 && sectionIndex < fundsData.length) {
+                      _onPieChartSectionClicked(sectionIndex, fundsData[sectionIndex].color);
+                    }
+                  },
+                ),
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: DataTable(
+                sortAscending: _sortAscending,
+                sortColumnIndex: _sortColumnIndex,
+                columns: [
+                  DataColumn(
+                    label: const Text('Name'),
+                    onSort: (columnIndex, ascending) => _sort(columnIndex, ascending),
+                  ),
+                  DataColumn(
+                    label: const Text('Amount'),
+                    onSort: (columnIndex, ascending) => _sort(columnIndex, ascending),
+                  ),
+                  DataColumn(
+                    label: const Text('Profit Rate'),
+                    onSort: (columnIndex, ascending) => _sort(columnIndex, ascending),
+                  ),
+                  DataColumn(
+                    label: const Text('Division'),
+                    onSort: (columnIndex, ascending) => _sort(columnIndex, ascending),
+                  ),
+                  DataColumn(
+                    label: const Text('Quantity'),
+                    onSort: (columnIndex, ascending) => _sort(columnIndex, ascending),
+                  ),
+                  DataColumn(
+                    label: const Text('Price'),
+                    onSort: (columnIndex, ascending) => _sort(columnIndex, ascending),
+                  ),
+                ],
+                rows: _sortedData.map((data) => DataRow(
+                  color: MaterialStateProperty.all(
+                    data.isStable ? Colors.orange.withOpacity(0.2) : Colors.purple.withOpacity(0.2),
+                  ),
+                  cells: [
+                    DataCell(Text(data.name)),
+                    DataCell(
+                      InkWell(
+                        onTap: () {
+                          if (double.parse(data.amountDollar) > 0) {
+                            setState(() => _showDollar = !_showDollar);
+                          }
+                        },
+                        child: Text(
+                          double.parse(_showDollar ? data.amountDollar : data.amount) == 0 
+                              ? '-' 
+                              : (_showDollar ? '\$${data.amountDollar}' : '₩${data.amount}')
+                        ),
+                      ),
+                    ),
+                    DataCell(Text('${data.profitRate}%')),
+                    DataCell(Text(data.division)),
+                    DataCell(Text(data.quantity)),
+                    DataCell(
+                      InkWell(
+                        onTap: () {
+                          if (double.parse(data.priceDollar) > 0) {
+                            setState(() => _showDollar = !_showDollar);
+                          }
+                        },
+                        child: Text(
+                          double.parse(_showDollar ? data.priceDollar : data.price) == 0
+                              ? '-'
+                              : (_showDollar ? '\$${data.priceDollar}' : '₩${data.price}')
+                        ),
+                      ),
+                    ),
+                  ],
+                )).toList(),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

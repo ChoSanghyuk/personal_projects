@@ -147,11 +147,14 @@ class _AssetsScreenState extends State<AssetsScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(
-                          asset.name,
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
+                        Expanded(
+                          child: Text(
+                            asset.name,
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
                         Container(
@@ -185,32 +188,64 @@ class _AssetsScreenState extends State<AssetsScreen> {
                             Text(
                               'Bottom: ${asset.currency} ${asset.bottom}',
                               style: TextStyle(color: Colors.grey[600]),
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 1,
                             ),
                             const SizedBox(height: 4),
                             Text(
                               'Top: ${asset.currency} ${asset.top}',
                               style: TextStyle(color: Colors.grey[600]),
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 1,
                             ),
+                            if (asset.buy.toString().length > 8 || asset.sell.toString().length > 8) ...[ // overflow 발생 방지
+                              const SizedBox(height: 4),
+                              Text(
+                                'Buy: ${asset.currency} ${asset.buy}',
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.green,
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 1,
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                'Sell: ${asset.currency} ${asset.sell}',
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.green,
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 1,
+                              ),
+                            ]
                           ],
                         ),
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
-                            Text(
-                              'Buy: ${asset.currency} ${asset.buy}',
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: Colors.green,
+                            if (asset.buy.toString().length <= 8 || asset.sell.toString().length <= 8) ...[ // overflow 발생 방지
+                              Text(
+                                'Buy: ${asset.currency} ${asset.buy}',
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.green,
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 1,
                               ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              'Sell: ${asset.currency} ${asset.sell}',
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: Colors.green,
+                              const SizedBox(height: 4),
+                              Text(
+                                'Sell: ${asset.currency} ${asset.sell}',
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.green,
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 1,
                               ),
-                            ),
+                            ] 
                           ],
                         ),
                       ],

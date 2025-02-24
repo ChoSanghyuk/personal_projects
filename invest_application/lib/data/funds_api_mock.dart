@@ -16,7 +16,8 @@ class FundsApiMock {
     _useAlternativeData = !_useAlternativeData;
   }
 
-  static List<FundData> getFundsData() {
+  static List<FundData> getFundsData(int fundId) {
+    
     toggleDataSet();
     if (_useAlternativeData) {
       return [
@@ -30,7 +31,8 @@ class FundsApiMock {
     ];
   }
 
-  static List<FundTableData> getFundsTableData() {
+  static List<FundTableData> getFundsTableData(int fundId) {
+  
     return [
       FundTableData(
         name: '금',
