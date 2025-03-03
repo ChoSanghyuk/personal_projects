@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../data/assets_api_mock.dart';
+import '../data/assets_api_mock.dart'; 
 import '../data/assets_api.dart';
 class Asset {
   final String id;
@@ -50,7 +50,7 @@ class _AssetsScreenState extends State<AssetsScreen> {
   }
 
   Future<void> _loadAssets() async {
-    final assetsApi = AssetsApiHttp();
+    final AssetsApi assetsApi = AssetsApiHttp();
     final loadedAssets = await assetsApi.getAssets();
     final loadedCategories = await assetsApi.getCategories();
     final loadedCurrencies = await assetsApi.getCurrencies();

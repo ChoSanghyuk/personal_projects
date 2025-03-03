@@ -1,6 +1,16 @@
 import 'package:flutter/material.dart';
+import '../data/funds_api.dart';
 import '../data/funds_api_mock.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:intl/intl.dart';
+
+class FundData {
+  final String name;
+  final double value;
+  final Color color;
+
+  FundData(this.name, this.value, this.color);
+}
 
 class FundTableData {
   final String name;
@@ -34,13 +44,17 @@ class Funds extends StatefulWidget {
 }
 
 class _FundsState extends State<Funds> with SingleTickerProviderStateMixin {
-  late List<FundData> fundsData;
+  final FundsApi fundsApi = FundsApiHttp();
+  List<FundData> fundsData = List.empty();
   bool _sortAscending = false;
   int _sortColumnIndex = 1;
-  late List<FundTableData> _sortedData;
+  List<FundTableData> _sortedData = List.empty();
+  List<FundTableData> backupTableData = List.empty();
   int? _selectedSection;
   bool _showDollar = false;
   int _selectedTabIndex = 0;
+  final DollarAmountFormat = NumberFormat("#,##0.00", "en_US");
+  final WonAmountFormat = NumberFormat("#,###0.00", "ko_KR");
 
   List<PieChartSectionData> getSections() {
     return fundsData.asMap().entries.map((entry) {
@@ -68,10 +82,10 @@ class _FundsState extends State<Funds> with SingleTickerProviderStateMixin {
     setState(() {
       if (_selectedSection == index) {
         _selectedSection = null;
-        _sortedData = FundsApiMock.getFundsTableData(_selectedTabIndex + 1);
+        _sortedData = backupTableData; // todo. 눌렀을 때 또 불러오지 말고, 그냥 있던거에서 필터링
       } else {
         _selectedSection = index;
-        _sortedData = FundsApiMock.getFundsTableData(_selectedTabIndex + 1)
+        _sortedData = backupTableData
             .where((data) => 
                 (color == Colors.orange && data.isStable) ||
                 (color == Colors.purple && !data.isStable))
@@ -81,13 +95,24 @@ class _FundsState extends State<Funds> with SingleTickerProviderStateMixin {
   }
 
   @override
-  void initState() {
+  void initState()  { // 이게 초기 상태 지정으로 보임
     super.initState();
-    fundsData = FundsApiMock.getFundsData(1);
-    _sortedData = FundsApiMock.getFundsTableData(1);
-    _sortColumnIndex = 1;
-    _sortAscending = false;
-    _sort(_sortColumnIndex, _sortAscending);
+    _loadFunds();
+    
+  }
+
+  Future<void> _loadFunds() async {
+    final loadedFundsData = await fundsApi.getFundsData(1);
+    final loadedTableData = await fundsApi.getFundsTableData(1);
+    
+    setState(() {
+      fundsData = loadedFundsData;
+      backupTableData = loadedTableData;
+      _sortedData = loadedTableData;
+      _sortColumnIndex = 1;
+      _sortAscending = false;
+      _sort(_sortColumnIndex, _sortAscending);
+    });
   }
 
   void _sort(int columnIndex, bool ascending) {
@@ -135,11 +160,14 @@ class _FundsState extends State<Funds> with SingleTickerProviderStateMixin {
     });
   }
 
-  void _onTabChanged(int index) {
-    setState(() {
+  void _onTabChanged(int index) async {
+    final loadedFundData = await fundsApi.getFundsData(index + 1);
+    final loeadedFundTable = await fundsApi.getFundsTableData(index + 1);
+    setState(()  {
       _selectedTabIndex = index;
-      fundsData = FundsApiMock.getFundsData(index + 1);
-      _sortedData = FundsApiMock.getFundsTableData(index + 1);
+      fundsData = loadedFundData;
+      _sortedData = loeadedFundTable;
+      _sort(_sortColumnIndex, _sortAscending);
     });
   }
 
@@ -167,10 +195,13 @@ class _FundsState extends State<Funds> with SingleTickerProviderStateMixin {
           actions: [
             IconButton(
               icon: const Icon(Icons.refresh),
-              onPressed: () {
-                setState(() {
-                  _sortedData = FundsApiMock.getFundsTableData(_selectedTabIndex + 1);
-                  fundsData = FundsApiMock.getFundsData(_selectedTabIndex + 1);
+              onPressed: () async {
+                final loeadedFundTable = await fundsApi.getFundsTableData(_selectedTabIndex + 1);
+                final loadedFundData = await fundsApi.getFundsData(_selectedTabIndex + 1);
+                setState(() async {
+                  backupTableData = loeadedFundTable;
+                  _sortedData = backupTableData;
+                  fundsData = loadedFundData;
                   _selectedSection = null;
                 });
               },
@@ -181,7 +212,7 @@ class _FundsState extends State<Funds> with SingleTickerProviderStateMixin {
                 onPressed: () {
                   setState(() {
                     _selectedSection = null;
-                    _sortedData = FundsApiMock.getFundsTableData(_selectedTabIndex + 1);
+                    _sortedData = backupTableData; // 이건 저장해둔 거 가져오자
                   });
                 },
               ),
@@ -278,7 +309,7 @@ class _FundsState extends State<Funds> with SingleTickerProviderStateMixin {
                         child: Text(
                           double.parse(_showDollar ? data.amountDollar : data.amount) == 0 
                               ? '-' 
-                              : (_showDollar ? '\$${data.amountDollar}' : '₩${data.amount}')
+                              : (_showDollar ? '\$${DollarAmountFormat.format(double.parse(data.amountDollar))}' : '₩${WonAmountFormat.format(double.parse(data.amount))}')
                         ),
                       ),
                     ),
@@ -295,7 +326,7 @@ class _FundsState extends State<Funds> with SingleTickerProviderStateMixin {
                         child: Text(
                           double.parse(_showDollar ? data.priceDollar : data.price) == 0
                               ? '-'
-                              : (_showDollar ? '\$${data.priceDollar}' : '₩${data.price}')
+                              : (_showDollar ? '\$${double.parse(data.priceDollar).toStringAsFixed(2)}' : '₩${double.parse(data.price).toStringAsFixed(2)}')
                         ),
                       ),
                     ),

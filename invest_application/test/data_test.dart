@@ -1,10 +1,15 @@
 // put getAssetsTest() in assets_api.dart
 
-import '../lib/data/assets_api.dart';
-import '../lib/data/config_loader.dart';
-import '../lib/presentation/assets.dart';
+import 'package:invest_application/data/assets_api.dart';
+import 'package:invest_application/data/funds_api.dart';
+import 'package:invest_application/data/config_loader.dart';
+import 'package:invest_application/data/hist_api.dart';
+import 'package:invest_application/data/market_api.dart';
+import 'package:invest_application/presentation/assets.dart';
 import 'package:test/test.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
+
 
 void main() {
   test('getAssetsTest', () async {
@@ -39,4 +44,46 @@ void main() {
     final categories = await api.getCategories();
     print(categories);
   });
+
+  test('getFundsDataTest', () async {
+    WidgetsFlutterBinding.ensureInitialized(); 
+    await ConfigLoader.loadConfig(); 
+
+    final api = FundsApiHttp();
+    final fundsPortion = await api.getFundsData(1);
+    expect(fundsPortion.length, 2);
+  });
+
+  test('getFundsTableDataTest', () async {
+    WidgetsFlutterBinding.ensureInitialized(); 
+    await ConfigLoader.loadConfig(); 
+
+    final api = FundsApiHttp();
+    final data = await api.getFundsTableData(1);
+    print(data);
+  });
+
+test('getHistTest', () async {
+    WidgetsFlutterBinding.ensureInitialized(); 
+    await ConfigLoader.loadConfig(); 
+
+    final api = HistoryApiHttp();
+    final DateTimeRange dateRange = DateTimeRange(
+      start: DateTime(2025, 1, 1),
+      end: DateTime(2025, 2, 27),
+    );
+    final data = await api.getInvestmentHistory(1, dateRange);
+    print(data);
+  });
+
+  test('getindexTest', () async {
+    WidgetsFlutterBinding.ensureInitialized(); 
+    await ConfigLoader.loadConfig(); 
+
+    final api = MarketApiHttp();
+    
+    final data = await api.getIndexs();
+    print(data);
+  });
+
 }

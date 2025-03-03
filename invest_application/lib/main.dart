@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'presentation/home.dart'; // Import your home screen
 import 'data/config_loader.dart';
+import 'presentation/home.dart'; // Import your home screen
+// import 'services/notifications_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized(); // Ensures async code runs before app starts
@@ -24,3 +25,62 @@ class MyApp extends StatelessWidget {
     );
   }
 }
+
+/*
+import 'package:flutter/material.dart';
+
+void main() {
+  runApp(MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: 'Popup Alarm Example',
+      theme: ThemeData(primarySwatch: Colors.blue),
+      home: HomeScreen(),
+    );
+  }
+}
+
+class HomeScreen extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text("Popup Alarm Example")),
+      body: Center(
+        child: ElevatedButton(
+          onPressed: () {
+            showPopupMessage(context); // Show dialog
+          },
+          child: Text("Show Alarm"),
+        ),
+      ),
+    );
+  }
+}
+
+void showPopupMessage(BuildContext context) {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: Text("Alarm"),
+        content: Text("This is your alarm message!"),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop(); // Close dialog
+            },
+            child: Text("OK"),
+          ),
+        ],
+      );
+    },
+  );
+}
+*/
+
+

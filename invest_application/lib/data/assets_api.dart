@@ -18,6 +18,8 @@ class AssetTest {
 abstract class AssetsApi {
   Future<List<Asset>> getAssets();
   Future<bool> updateAsset(Asset asset);
+  Future<List<String>> getCategories();
+  Future<List<String>> getCurrencies();
 }
 
 class AssetsApiHttp implements AssetsApi {
@@ -27,7 +29,7 @@ class AssetsApiHttp implements AssetsApi {
   Future<List<Asset>> getAssets() async {
     try {
       final url = ConfigLoader.getUrl();
-      print('getAssets: $url/assets');
+      // print('getAssets: $url/assets');
       final response = await http.get(Uri.parse('$url/assets'));
       
       if (response.statusCode == 200) {

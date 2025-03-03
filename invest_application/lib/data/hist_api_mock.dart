@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import '../presentation/hist.dart';
+import 'hist_api.dart';
 
-class HistoryApiMock {
+class HistoryApiHttpMock implements HistoryApi{
+
   // Simulate API delay
   Future<List<InvestmentRecord>> getInvestmentHistory(
     int fundId, 
@@ -18,21 +20,21 @@ class HistoryApiMock {
             name: "AAPL",
             price: 173.50,
             amount: 10,
-            action: "buy",
+            action: "BUY",
           ),
           InvestmentRecord(
             date: DateTime.now().subtract(const Duration(days: 3)),
             name: "GOOGL",
             price: 141.80,
             amount: 5,
-            action: "buy",
+            action: "BUY",
           ),
           InvestmentRecord(
             date: DateTime.now().subtract(const Duration(days: 1)),
             name: "AAPL",
             price: 178.20,
             amount: 5,
-            action: "sell",
+            action: "SELL",
           ),
         ];
         break;
@@ -43,7 +45,7 @@ class HistoryApiMock {
             name: "MSFT",
             price: 338.45,
             amount: 3,
-            action: "buy",
+            action: "BUY",
           ),
         ];
         break;
@@ -54,7 +56,7 @@ class HistoryApiMock {
             name: "TSLA",
             price: 238.45,
             amount: 5,
-            action: "buy",
+            action: "BUY",
           ),
         ];
         break;

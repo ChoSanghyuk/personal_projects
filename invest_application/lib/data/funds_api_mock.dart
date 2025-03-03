@@ -1,24 +1,21 @@
 import 'package:flutter/material.dart';
 import '../presentation/funds.dart';
+import 'funds_api.dart';
 
-class FundData {
-  final String name;
-  final double value;
-  final Color color;
 
-  FundData(this.name, this.value, this.color);
-}
 
-class FundsApiMock {
+class FundsApiHttpMock implements FundsApi {
+  FundsApiHttpMock();
+  
   static bool _useAlternativeData = false;  // Add switch flag
 
   static void toggleDataSet() {
     _useAlternativeData = !_useAlternativeData;
   }
 
-  static List<FundData> getFundsData(int fundId) {
-    
+  Future<List<FundData>> getFundsData(int fundId) async {
     toggleDataSet();
+
     if (_useAlternativeData) {
       return [
         FundData('안전 자산', 20.0, Colors.orange),
@@ -31,7 +28,7 @@ class FundsApiMock {
     ];
   }
 
-  static List<FundTableData> getFundsTableData(int fundId) {
+  Future<List<FundTableData>> getFundsTableData(int fundId) async {
   
     return [
       FundTableData(

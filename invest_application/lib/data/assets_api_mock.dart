@@ -1,7 +1,10 @@
 import '../presentation/assets.dart';
+import 'assets_api.dart';
 
-class AssetsApiMock {
-  List<Asset> getAssets() {
+class AssetsApiHttpMock implements AssetsApi {
+
+  AssetsApiHttpMock();
+  Future<List<Asset>> getAssets() async {
     return [
       Asset(
         id: '1',
@@ -90,5 +93,23 @@ class AssetsApiMock {
     print('updateAsset: $asset');
     // Mock successful update
     return true;
+  }
+
+  @override
+  Future<List<String>> getCategories() async {
+    return [
+      'Cryptocurrency',
+      '국내주식',
+      // Add more categories as needed
+    ];
+  }
+
+  @override
+  Future<List<String>> getCurrencies() async {
+    return [
+      'USD',
+      'WON',
+      // Add more currencies as needed
+    ];
   }
 }

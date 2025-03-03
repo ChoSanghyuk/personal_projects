@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../data/hist_api.dart';
 import '../data/hist_api_mock.dart';
 
 class InvestmentRecord {
@@ -25,8 +26,9 @@ class HistScreen extends StatefulWidget {
 }
 
 class _HistScreenState extends State<HistScreen> with SingleTickerProviderStateMixin {
+  final HistoryApi historyApi = HistoryApiHttp();
   late TabController _tabController;
-  DateTimeRange? _selectedDateRange;
+  late DateTimeRange _selectedDateRange;
 
   @override
   void initState() {
@@ -103,7 +105,7 @@ class _HistScreenState extends State<HistScreen> with SingleTickerProviderStateM
 
   Widget _buildHistoryList(int fundId) {
     return FutureBuilder<List<InvestmentRecord>>(
-      future: HistoryApiMock().getInvestmentHistory(fundId, _selectedDateRange),
+      future: historyApi.getInvestmentHistory(fundId, _selectedDateRange),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
@@ -134,8 +136,8 @@ class _HistScreenState extends State<HistScreen> with SingleTickerProviderStateM
                   style: Theme.of(context).textTheme.bodyMedium,
                 ),
                 leading: Icon(
-                  record.action == 'buy' ? Icons.arrow_downward : Icons.arrow_upward,
-                  color: record.action == 'buy' ? Colors.green : Colors.red,
+                  record.action == 'BUY' ? Icons.arrow_downward : Icons.arrow_upward,
+                  color: record.action == 'BUY' ? Colors.green : Colors.red,
                 ),
               ),
             );
