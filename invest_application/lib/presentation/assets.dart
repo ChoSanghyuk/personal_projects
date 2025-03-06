@@ -71,8 +71,15 @@ class _AssetsScreenState extends State<AssetsScreen> {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
+        centerTitle: true,
         title: const Text('Assets'),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            onPressed: (){
+              _loadAssets();
+            },
+          ),
           PopupMenuButton<String?>(
             icon: const Icon(Icons.filter_list),
             onSelected: (category) {
@@ -93,6 +100,7 @@ class _AssetsScreenState extends State<AssetsScreen> {
               ),
             ],
           ),
+    
         ],
       ),
       body: ListView.builder(
@@ -336,6 +344,10 @@ class _AssetEditScreenState extends State<AssetEditScreen> {
           );
           Navigator.pop(context);
         }
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Failed to update asset')),
+        );
       }
     } catch (e) {
       if (mounted) {
@@ -353,6 +365,12 @@ class _AssetEditScreenState extends State<AssetEditScreen> {
         automaticallyImplyLeading: false,
         title: Text(widget.asset == null ? 'Add Asset' : 'Edit Asset'),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.cancel),
+            onPressed: (){
+              Navigator.pop(context);
+            },
+          ),
           IconButton(
             icon: const Icon(Icons.save),
             onPressed: _saveAsset,

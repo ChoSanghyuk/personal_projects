@@ -58,7 +58,7 @@ class AssetsApiHttp implements AssetsApi {
     try {
       final url = ConfigLoader.getUrl();
       final isNewAsset = asset.id == "-";
-      
+      print(asset.toString());
       final response = await (isNewAsset ? http.post : http.put)(
         Uri.parse('$url/assets'),
         headers: {'Content-Type': 'application/json'},
@@ -70,11 +70,11 @@ class AssetsApiHttp implements AssetsApi {
           'currency': asset.currency,
           'bottom': asset.bottom,
           'top': asset.top,
-          'buy': asset.buy,
-          'sell': asset.sell,
+          'buy_price': asset.buy,
+          'sel_price': asset.sell,
         }),
       );
-      
+      print(response.body);
       return response.statusCode == 200;
     } catch (e) {
       throw Exception('Failed to update asset: $e');

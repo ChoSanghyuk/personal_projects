@@ -53,6 +53,7 @@ class _FundsState extends State<Funds> with SingleTickerProviderStateMixin {
   int? _selectedSection;
   bool _showDollar = false;
   int _selectedTabIndex = 0;
+  double _totalAmount = 0;
   final DollarAmountFormat = NumberFormat("#,##0.00", "en_US");
   final WonAmountFormat = NumberFormat("#,###0.00", "ko_KR");
 
@@ -104,10 +105,15 @@ class _FundsState extends State<Funds> with SingleTickerProviderStateMixin {
   Future<void> _loadFunds() async {
     final loadedFundsData = await fundsApi.getFundsData(1);
     final loadedTableData = await fundsApi.getFundsTableData(1);
-    
+    double total = 0;
+    loadedTableData.forEach((d) {
+      total += double.parse(d.amount);
+    });
+
     setState(() {
       fundsData = loadedFundsData;
       backupTableData = loadedTableData;
+      _totalAmount = total;
       _sortedData = loadedTableData;
       _sortColumnIndex = 1;
       _sortAscending = false;
@@ -238,6 +244,15 @@ class _FundsState extends State<Funds> with SingleTickerProviderStateMixin {
       // padding: const EdgeInsets.only(bottom: 100), // 바텀 패딩 관련. 필요시 주석 해제
       child: Column(
         children: [
+          const SizedBox(height: 10),
+          Text(
+            'Total: ₩${WonAmountFormat.format(_totalAmount)}', // Display the total value
+            style: const TextStyle(
+              fontSize: 20, 
+              // fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 10),
           SizedBox(
             height: 300,
             child: PieChart(
