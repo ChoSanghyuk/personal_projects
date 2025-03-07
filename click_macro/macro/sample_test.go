@@ -1,4 +1,4 @@
-package main
+package macro
 
 import (
 	"fmt"
@@ -23,6 +23,22 @@ func TestSaveBlog(t *testing.T) {
 }
 
 /******************************************* Individual function Test *************************************************/
+
+func TestLocations(t *testing.T) {
+
+	hook.Register(hook.KeyDown, []string{"enter"}, func(e hook.Event) {
+		x, y := r.Location()
+		fmt.Printf("%d,%d\n", x, y)
+	})
+
+	s := hook.Start()
+	<-hook.Process(s)
+}
+
+func TestMoveClick(t *testing.T) {
+	time.Sleep(2 * time.Second)
+	moveClick(1047, 776)
+}
 
 func TestKeyTap(t *testing.T) {
 

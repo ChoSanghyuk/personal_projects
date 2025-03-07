@@ -1,4 +1,4 @@
-package main
+package macro
 
 import (
 	hook "github.com/robotn/gohook"

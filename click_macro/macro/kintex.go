@@ -1,11 +1,11 @@
-package main
+package macro
 
 import (
 	r "github.com/go-vgo/robotgo"
 	hook "github.com/robotn/gohook"
 )
 
-func kintexcamping() {
+func Kintexcamping() {
 
 	nth := 1
 	isSeq := true
