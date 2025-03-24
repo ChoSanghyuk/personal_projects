@@ -9,6 +9,16 @@ abstract class HistoryApi {
   Future<List<InvestmentRecord>> getInvestmentHistory(int fundId, DateTimeRange dateRange);
 }
 
+class HistoryApiProvider {
+  static HistoryApi getApi() {
+    if (ConfigLoader.useMock()) {
+      return HistoryApiHttpMock();
+    } else {
+      return HistoryApiHttp();
+    }
+  }
+}
+
 class HistoryApiHttp implements HistoryApi {
   HistoryApiHttp();
   final url = ConfigLoader.getUrl();
@@ -30,5 +40,79 @@ class HistoryApiHttp implements HistoryApi {
     } else {
       throw Exception('Failed to load investment history');
     }
+  }
+}
+
+class HistoryApiHttpMock implements HistoryApi{
+
+  // Simulate API delay
+  Future<List<InvestmentRecord>> getInvestmentHistory(
+    int fundId, 
+    DateTimeRange? dateRange
+  ) async {
+    await Future.delayed(const Duration(milliseconds: 800));
+    
+    List<InvestmentRecord> records;
+    switch (fundId) {
+      case 1:
+        records = [
+          InvestmentRecord(
+            date: DateTime.now().subtract(const Duration(days: 5)),
+            name: "AAPL",
+            price: 173.50,
+            amount: 10,
+            action: "BUY",
+          ),
+          InvestmentRecord(
+            date: DateTime.now().subtract(const Duration(days: 3)),
+            name: "GOOGL",
+            price: 141.80,
+            amount: 5,
+            action: "BUY",
+          ),
+          InvestmentRecord(
+            date: DateTime.now().subtract(const Duration(days: 1)),
+            name: "AAPL",
+            price: 178.20,
+            amount: 5,
+            action: "SELL",
+          ),
+        ];
+        break;
+      case 2:
+        records = [
+          InvestmentRecord(
+            date: DateTime.now().subtract(const Duration(days: 2)),
+            name: "MSFT",
+            price: 338.45,
+            amount: 3,
+            action: "BUY",
+          ),
+        ];
+        break;
+      case 3:
+        records = [
+          InvestmentRecord(
+            date: DateTime.now().subtract(const Duration(days: 1)),
+            name: "TSLA",
+            price: 238.45,
+            amount: 5,
+            action: "BUY",
+          ),
+        ];
+        break;
+      default:
+        return [];
+    }
+    
+    // Filter records by date range if provided
+    if (dateRange != null) {
+      return records.where((record) =>
+        record.date.isAfter(dateRange.start.subtract(const Duration(days: 1))) &&
+        record.date.isBefore(dateRange.end.add(const Duration(days: 1)))
+      ).toList();
+    }
+    
+    return records;
   }
 }

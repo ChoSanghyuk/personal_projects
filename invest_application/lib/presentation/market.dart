@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../data/market_api.dart';
-import '../data/market_api_mock.dart';
 import 'package:fl_chart/fl_chart.dart';
 
 class MarketScreen extends StatefulWidget {
@@ -11,10 +10,11 @@ class MarketScreen extends StatefulWidget {
 }
 
 class _MarketScreenState extends State<MarketScreen> {
-  final MarketApi _marketApi = MarketApiHttp();
+  final MarketApi _marketApi = MarketApiProvider.getApi();
   Map<String, dynamic>? _fearGreedData;
   Map<String, dynamic>? _nasdaqData;
   Map<String, dynamic>? _sp500Data;
+  MarketStatus? _currentStatus = MarketStatus.BEAR;
 
   @override
   void initState() {
@@ -31,39 +31,6 @@ class _MarketScreenState extends State<MarketScreen> {
       _sp500Data = loaded['sp500'];
     });
   }
-
-  // Widget _buildTrendGraph(List<dynamic> data, Color color) {
-  //   final spots = List.generate(
-  //     data.length,
-  //     (i) => FlSpot(i.toDouble()+1, data[i].toDouble()),
-  //   );
-
-  //   print(spots);
-  //   return LineChart(
-  //     LineChartData(
-  //       gridData: const FlGridData(show: false),
-  //       titlesData: const FlTitlesData(show: false),
-  //       borderData: FlBorderData(show: false),
-  //       minX: spots.first.x,
-  //     minY: spots.map((e) => e.y).reduce((a, b) => a < b ? a : b), // Find min y-value dynamically
-  //     maxX: spots.last.x,
-  //     maxY: spots.map((e) => e.y).reduce((a, b) => a > b ? a : b), // Find max y-value dynamically
-
-  //       lineBarsData: [
-  //         LineChartBarData(
-  //           spots: spots,
-  //           isCurved: true,
-  //           color: color,
-  //           dotData: const FlDotData(show: false),
-  //           belowBarData: BarAreaData(
-  //             show: true,
-  //             color: color.withOpacity(0.1),
-  //           ),
-  //         ),
-  //       ],
-  //     ),
-  //   );
-  // }
 
   Widget _buildTrendGraph(List<dynamic> data, Color color) {
   final spots = List.generate(
@@ -101,7 +68,95 @@ class _MarketScreenState extends State<MarketScreen> {
     ),
   );
 }
+void _showStatusSelectionDialog(BuildContext context) {
+  MarketStatus? selectedStatus = _currentStatus;
+  
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: const Text('Select Market Status'),
+        content: StatefulBuilder(
+          builder: (BuildContext context, StateSetter setState) {
+            return SizedBox(
+              width: double.maxFinite,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: MarketStatus.values.map((status) {
+                  return RadioListTile<MarketStatus>(
+                    title: Row(
+                      children: [
+                        Container(
+                          width: 16,
+                          height: 16,
+                          decoration: BoxDecoration(
+                            color: status.color,
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Text(status.displayName),
+                      ],
+                    ),
+                    value: status,
+                    groupValue: selectedStatus,
+                    onChanged: (MarketStatus? value) {
+                      setState(() {
+                        selectedStatus = value;
+                      });
+                    },
+                  );
+                }).toList(),
+              ),
+            );
+          },
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () {
+              if (selectedStatus != null) {
+                _updateMarketStatus(selectedStatus!);
+              }
+              Navigator.of(context).pop();
+            },
+            child: const Text('OK'),
+          ),
+        ],
+      );
+    },
+  );
+}
 
+Future<void> _updateMarketStatus(MarketStatus newStatus) async {
+  try {
+    // Show loading indicator (optional)
+    // e.g. setState(() { _isLoading = true; });
+    
+    // await updateMarketStatus(newStatus); // todo
+    
+    // Update local state after successful API call
+    setState(() {
+      _currentStatus = newStatus;
+    });
+    
+    // Show success message (optional)
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Market status updated successfully')),
+    );
+  } catch (e) {
+    // Show error message
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Failed to update market status: ${e.toString()}')),
+    );
+  } finally {
+    // Hide loading indicator (optional)
+    // e.g. setState(() { _isLoading = false; });
+  }
+}
 
   @override
   Widget build(BuildContext context) {
@@ -119,6 +174,56 @@ class _MarketScreenState extends State<MarketScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  Card(
+                    elevation: 4,
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'Current Market Status',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 8), // Add spacing between the lines
+                          if (_currentStatus != null)
+                            Row(
+                              children: [
+                                Container(
+                                  width: 16,
+                                  height: 16,
+                                  decoration: BoxDecoration(
+                                    color: _currentStatus!.color,
+                                    shape: BoxShape.circle,
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                GestureDetector(
+                                  onTap: () => _showStatusSelectionDialog(context),
+                                  child: Row(
+                                    children: [
+                                      Text(
+                                        _currentStatus!.displayName,
+                                        style: TextStyle(
+                                          fontSize: 24,
+                                          fontWeight: FontWeight.bold,
+                                          color: _currentStatus!.color,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 4),
+                                      const Icon(Icons.edit, size: 16),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                        ],
+                      ),
+                    ),
+                  ),
                   Card(
                     child: Padding(
                       padding: const EdgeInsets.all(16.0),
@@ -331,3 +436,5 @@ class _MarketScreenState extends State<MarketScreen> {
     );
   }
 }
+
+

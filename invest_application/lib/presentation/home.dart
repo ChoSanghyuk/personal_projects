@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:invest_application/presentation/action.dart';
 import '../routes/app_routes.dart';
 import 'funds.dart';
 import 'assets.dart';  // Add this import at the top
@@ -181,19 +182,19 @@ Widget build(BuildContext context) {
       onGenerateRoute: (settings) {
         Widget screen;
         switch (settings.name ?? _currentRoute) {
-          case AppRoutes.screen1:
+          case AppRoutes.market:
             screen = const MarketScreen();
             break;
-          case AppRoutes.screen2:
-            screen = const Screen2();
+          case AppRoutes.action:
+            screen = const ActionScreen();
             break;
           case AppRoutes.funds:
             screen = const Funds();
             break;
-          case AppRoutes.screen4:
+          case AppRoutes.asset:
             screen = const AssetsScreen();
             break;
-          case AppRoutes.screen5:
+          case AppRoutes.hist:
             screen = const HistScreen();
             break;
           default:
@@ -217,7 +218,7 @@ Widget build(BuildContext context) {
           ),
           BottomNavigationBarItem(
             icon: _buildNavItem(Icons.looks_two),
-            label: 'Screen 2',
+            label: 'Action',
           ),
           BottomNavigationBarItem(
             icon: _buildNavItem(Icons.home),
@@ -234,19 +235,19 @@ Widget build(BuildContext context) {
         ],
         onTap: (index) {
           _onTabTapped([
-            AppRoutes.screen1,
-            AppRoutes.screen2,
+            AppRoutes.market,
+            AppRoutes.action,
             AppRoutes.funds,
-            AppRoutes.screen4,
-            AppRoutes.screen5
+            AppRoutes.asset,
+            AppRoutes.hist
           ][index]);
         },
         currentIndex: [
-          AppRoutes.screen1,
-          AppRoutes.screen2,
+          AppRoutes.market,
+          AppRoutes.action,
           AppRoutes.funds,
-          AppRoutes.screen4,
-          AppRoutes.screen5
+          AppRoutes.asset,
+          AppRoutes.hist
         ].indexOf(_currentRoute),
       ),
     ),
@@ -274,7 +275,7 @@ Widget _buildNavItem(IconData icon) {
 }
 
 
-
+/*
 class Screen1 extends StatelessWidget {
   const Screen1({super.key});
 
@@ -310,3 +311,4 @@ class Screen5 extends StatelessWidget {
     return const Center(child: Text('Screen 5'));
   }
 }
+*/

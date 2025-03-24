@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../data/assets_api_mock.dart'; 
 import '../data/assets_api.dart';
+
 class Asset {
   final String id;
   final String name;
@@ -11,6 +11,8 @@ class Asset {
   final double top;
   final double buy;
   final double sell;
+  final double ema;
+  final int ndays;
 
   Asset({
     required this.id,
@@ -22,6 +24,8 @@ class Asset {
     required this.top,
     required this.buy,
     required this.sell,
+    required this.ema,
+    required this.ndays,
   });
   
   @override
@@ -37,11 +41,13 @@ class AssetsScreen extends StatefulWidget {
   State<AssetsScreen> createState() => _AssetsScreenState();
 }
 
+
 class _AssetsScreenState extends State<AssetsScreen> {
   String? selectedCategory;
   List<Asset>? assets;
   List<String>? categories;
   List<String>? currencies;
+  AssetsApi? assetsApi;
 
   @override
   void initState() {
@@ -50,11 +56,12 @@ class _AssetsScreenState extends State<AssetsScreen> {
   }
 
   Future<void> _loadAssets() async {
-    final AssetsApi assetsApi = AssetsApiHttp();
-    final loadedAssets = await assetsApi.getAssets();
-    final loadedCategories = await assetsApi.getCategories();
-    final loadedCurrencies = await assetsApi.getCurrencies();
+    final AssetsApi loadedAssetsApi = AssetsApiProvider.getApi();
+    final loadedAssets = await loadedAssetsApi.getAssets();
+    final loadedCategories = await loadedAssetsApi.getCategories();
+    final loadedCurrencies = await loadedAssetsApi.getCurrencies();
     setState(() {
+      assetsApi = loadedAssetsApi;
       assets = loadedAssets;
       categories = loadedCategories;
       currencies = loadedCurrencies;
@@ -104,167 +111,218 @@ class _AssetsScreenState extends State<AssetsScreen> {
         ],
       ),
       body: ListView.builder(
-        // padding: const EdgeInsets.only(bottom: 100), // 바텀 패딩 관련. 필요시 주석 해제
-        itemCount: filteredAssets.length + 1,
-        itemBuilder: (context, index) {
-          if (index == filteredAssets.length) {
-            return GestureDetector(
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => AssetEditScreen(asset: null, categories: categories, currencies: currencies),
-                  ),
-                );
-              },
-              child: Card(
-                margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                elevation: 3,
-                child: SizedBox(
-                  height: 100,
-                  child: Center(
-                    child: Icon(
-                      Icons.add_circle_outline,
-                      size: 40,
-                      color: Colors.grey[600],
-                    ),
-                  ),
-                ),
+  itemCount: filteredAssets.length + 1,
+  itemBuilder: (context, index) {
+    if (index == filteredAssets.length) {
+      return GestureDetector(
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => AssetEditScreen(asset: null, categories: categories, currencies: currencies),
+            ),
+          );
+        },
+        child: Card(
+          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          elevation: 3,
+          child: SizedBox(
+            height: 100,
+            child: Center(
+              child: Icon(
+                Icons.add_circle_outline,
+                size: 40,
+                color: Colors.grey[600],
               ),
+            ),
+          ),
+        ),
+      );
+    }
+
+    final asset = filteredAssets[index];
+
+    return Dismissible(
+      key: Key(asset.code),
+      direction: DismissDirection.endToStart,
+      background: Container(
+        alignment: Alignment.centerRight,
+        padding: const EdgeInsets.symmetric(horizontal: 20),
+        color: Colors.red,
+        child: const Icon(Icons.delete, color: Colors.white),
+      ),
+      confirmDismiss: (direction) async {
+        return await showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text("Confirm Deletion"),
+              content: const Text("Are you sure you want to delete this asset?"),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop(false); // Cancel
+                  },
+                  child: const Text("No"),
+                ),
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop(true); // Confirm
+                  },
+                  child: const Text("Yes"),
+                ),
+              ],
+            );
+          },
+        );
+      },
+      onDismissed: (direction) async { // memo. 삭제 행동. app에서는 삭제시켰는데 반영이 안되면 오류 발생 (mock에서 삭제후 refresh 하면 오류 발생)
+        if (assetsApi != null) {
+          final success = await assetsApi!.deleteAsset(asset);
+          if (success) {
+              _loadAssets();
+              ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('${asset.name} deleted successfully')),
+            );
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Failed to delete ${asset.name}')),
             );
           }
-
-          final asset = filteredAssets[index];
-          return GestureDetector(
-            onDoubleTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => AssetEditScreen(asset: asset, categories: categories, currencies: currencies),
-                ),
-              );
-            },
-            child: Card(
-              margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              elevation: 3,
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+        }
+      },
+      child: GestureDetector(
+        onDoubleTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => AssetEditScreen(asset: asset, categories: categories, currencies: currencies),
+            ),
+          );
+        },
+        child: Card(
+          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          elevation: 3,
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    Expanded(
+                      child: Text(
+                        asset.name,
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: Colors.grey[200],
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: Text(
+                        asset.code,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w500,
+                          color: Colors.black87,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Category: ${asset.category}',
+                  style: TextStyle(color: Colors.grey[700]),
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Expanded(
-                          child: Text(
-                            asset.name,
+                        Text(
+                          'Bottom: ${asset.currency} ${asset.bottom}',
+                          style: TextStyle(color: Colors.grey[600]),
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          'Top: ${asset.currency} ${asset.top}',
+                          style: TextStyle(color: Colors.grey[600]),
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
+                        ),
+                        if (asset.buy.toString().length > 8 || asset.sell.toString().length > 8) ...[
+                          const SizedBox(height: 4),
+                          Text(
+                            'Buy: ${asset.currency} ${asset.buy}',
                             style: const TextStyle(
-                              fontSize: 18,
                               fontWeight: FontWeight.bold,
+                              color: Colors.green,
                             ),
                             overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
                           ),
-                        ),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                          decoration: BoxDecoration(
-                            color: Colors.grey[200],
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                          child: Text(
-                            asset.code,
+                          const SizedBox(height: 4),
+                          Text(
+                            'Sell: ${asset.currency} ${asset.sell}',
                             style: const TextStyle(
-                              fontWeight: FontWeight.w500,
-                              color: Colors.black87,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.green,
                             ),
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
                           ),
-                        ),
+                        ]
                       ],
                     ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'Category: ${asset.category}',
-                      style: TextStyle(color: Colors.grey[700]),
-                    ),
-                    const SizedBox(height: 12),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Bottom: ${asset.currency} ${asset.bottom}',
-                              style: TextStyle(color: Colors.grey[600]),
-                              overflow: TextOverflow.ellipsis,
-                              maxLines: 1,
+                        if (asset.buy.toString().length <= 8 || asset.sell.toString().length <= 8) ...[
+                          Text(
+                            'Buy: ${asset.currency} ${asset.buy}',
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.green,
                             ),
-                            const SizedBox(height: 4),
-                            Text(
-                              'Top: ${asset.currency} ${asset.top}',
-                              style: TextStyle(color: Colors.grey[600]),
-                              overflow: TextOverflow.ellipsis,
-                              maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            'Sell: ${asset.currency} ${asset.sell}',
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.green,
                             ),
-                            if (asset.buy.toString().length > 8 || asset.sell.toString().length > 8) ...[ // overflow 발생 방지
-                              const SizedBox(height: 4),
-                              Text(
-                                'Buy: ${asset.currency} ${asset.buy}',
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.green,
-                                ),
-                                overflow: TextOverflow.ellipsis,
-                                maxLines: 1,
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                'Sell: ${asset.currency} ${asset.sell}',
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.green,
-                                ),
-                                overflow: TextOverflow.ellipsis,
-                                maxLines: 1,
-                              ),
-                            ]
-                          ],
-                        ),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
-                            if (asset.buy.toString().length <= 8 || asset.sell.toString().length <= 8) ...[ // overflow 발생 방지
-                              Text(
-                                'Buy: ${asset.currency} ${asset.buy}',
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.green,
-                                ),
-                                overflow: TextOverflow.ellipsis,
-                                maxLines: 1,
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                'Sell: ${asset.currency} ${asset.sell}',
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.green,
-                                ),
-                                overflow: TextOverflow.ellipsis,
-                                maxLines: 1,
-                              ),
-                            ] 
-                          ],
-                        ),
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
+                          ),
+                        ]
                       ],
                     ),
                   ],
                 ),
-              ),
+              ],
             ),
-          );
-        },
+          ),
+        ),
       ),
+    );
+  },
+),
+
     );
   }
 }
@@ -290,6 +348,8 @@ class _AssetEditScreenState extends State<AssetEditScreen> {
   late TextEditingController topController;
   late TextEditingController buyController;
   late TextEditingController sellController;
+  late TextEditingController emaController;
+  late TextEditingController ndaysController;
 
   @override
   void initState() {
@@ -305,6 +365,8 @@ class _AssetEditScreenState extends State<AssetEditScreen> {
     topController = TextEditingController(text: widget.asset?.top.toString() ?? '');
     buyController = TextEditingController(text: widget.asset?.buy.toString() ?? '');
     sellController = TextEditingController(text: widget.asset?.sell.toString() ?? '');
+    emaController = TextEditingController(text: widget.asset?.ema.toString() ?? '');
+    ndaysController = TextEditingController(text: widget.asset?.ndays.toString() ?? '');
   }
 
   @override
@@ -332,9 +394,11 @@ class _AssetEditScreenState extends State<AssetEditScreen> {
       top: double.tryParse(topController.text) ?? 0.0,
       buy: double.tryParse(buyController.text) ?? 0.0,
       sell: double.tryParse(sellController.text) ?? 0.0,
+      ema: double.tryParse(emaController.text) ?? 0.0,
+      ndays: int.tryParse(ndaysController.text) ?? 0,
     );
 
-    final assetsApi = AssetsApiHttp();
+    final assetsApi = AssetsApiProvider.getApi();
     try {
       final success = await assetsApi.updateAsset(updatedAsset);
       if (success) {
@@ -461,7 +525,19 @@ class _AssetEditScreenState extends State<AssetEditScreen> {
                 decoration: const InputDecoration(labelText: 'Sell'),
                 keyboardType: TextInputType.number,
               ),
-              const SizedBox(height: 32),
+              const SizedBox(height: 16),
+              TextField(
+                controller: emaController,
+                decoration: const InputDecoration(labelText: 'EMA'),
+                keyboardType: TextInputType.number,
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: ndaysController,
+                decoration: const InputDecoration(labelText: 'days'),
+                keyboardType: TextInputType.number,
+              ),
+              const SizedBox(height: 16),
             ],
           ),
         ),

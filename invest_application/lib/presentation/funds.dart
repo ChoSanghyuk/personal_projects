@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../data/funds_api.dart';
-import '../data/funds_api_mock.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:intl/intl.dart';
 
@@ -44,7 +43,7 @@ class Funds extends StatefulWidget {
 }
 
 class _FundsState extends State<Funds> with SingleTickerProviderStateMixin {
-  final FundsApi fundsApi = FundsApiHttp();
+  final FundsApi fundsApi = FundsApiProvider.getApi();
   List<FundData> fundsData = List.empty();
   bool _sortAscending = false;
   int _sortColumnIndex = 1;

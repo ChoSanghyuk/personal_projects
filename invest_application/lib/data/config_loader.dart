@@ -20,4 +20,9 @@ class ConfigLoader {
   static String getUrl() {
     return _config?["url"] ?? "";
   }
+
+  static bool useMock() {
+    return _config?["use_mock"];
+  }
+  
 }

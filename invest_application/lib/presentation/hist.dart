@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../data/hist_api.dart';
-import '../data/hist_api_mock.dart';
 
 class InvestmentRecord {
   final DateTime date;
@@ -26,7 +25,7 @@ class HistScreen extends StatefulWidget {
 }
 
 class _HistScreenState extends State<HistScreen> with SingleTickerProviderStateMixin {
-  final HistoryApi historyApi = HistoryApiHttp();
+  final HistoryApi historyApi = HistoryApiProvider.getApi();
   late TabController _tabController;
   late DateTimeRange _selectedDateRange;
 

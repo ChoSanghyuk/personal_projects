@@ -31,7 +31,7 @@ void main() {
     await ConfigLoader.loadConfig(); 
 
     final api = AssetsApiHttp();
-    final asset = Asset(id: '18', name: 'Test Asset2', category: '국내주식', code: 'TEST', currency: 'USD', bottom: 0, top: 0, buy: 0, sell: 0);
+    final asset = Asset(id: '18', name: 'Test Asset2', category: '국내주식', code: 'TEST', currency: 'USD', bottom: 0, top: 0, buy: 0, sell: 0, ema: 0, ndays: 0);
     final result = await api.updateAsset(asset);
     expect(result, true);
   }); 
