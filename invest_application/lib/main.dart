@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'data/config_loader.dart';
-import 'presentation/home.dart'; // Import your home screen
+import 'presentation/auth.dart'; // Import your home screen
 // import 'services/notifications_service.dart';
 
 void main() async {
@@ -21,7 +21,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: const HomeScreen(), // Use your HomeScreen widget here
+      home: const AuthWrapper(), // Use your HomeScreen widget here
     );
   }
 }
