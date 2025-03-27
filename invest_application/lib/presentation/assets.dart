@@ -7,6 +7,7 @@ class Asset {
   final String category;
   final String code;
   final String currency;
+  double? price;
   final double bottom;
   final double top;
   final double buy;
@@ -20,6 +21,7 @@ class Asset {
     required this.category,
     required this.code,
     required this.currency,
+    this.price,
     required this.bottom,
     required this.top,
     required this.buy,
@@ -212,14 +214,30 @@ class _AssetsScreenState extends State<AssetsScreen> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Expanded(
-                      child: Text(
-                        asset.name,
+                      child: RichText(
+                      overflow: TextOverflow.ellipsis,
+                      text: TextSpan(
                         style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
+                          color: Colors.black, // Base text color
                         ),
-                        overflow: TextOverflow.ellipsis,
+                        children: [
+                          TextSpan(
+                            text: asset.name ,
+                          ),
+                          if (asset.price != null && asset.price != 0)
+                            TextSpan(
+                              text: '  ${asset.price}',
+                              style: const TextStyle(
+                                fontSize: 14,
+                                color: Colors.green, // Highlight color for price
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                        ],
                       ),
+                    ),
                     ),
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -237,12 +255,12 @@ class _AssetsScreenState extends State<AssetsScreen> {
                     ),
                   ],
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: 4),
                 Text(
                   'Category: ${asset.category}',
                   style: TextStyle(color: Colors.grey[700]),
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: 4),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [

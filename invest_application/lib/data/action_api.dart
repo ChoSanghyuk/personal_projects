@@ -1,7 +1,7 @@
 
 
 import 'package:invest_application/presentation/action.dart';
-import 'package:http/http.dart' as http;
+import './auth_api.dart';
 import 'dart:convert';
 import './config_loader.dart';
 
@@ -24,18 +24,22 @@ class ActionApiProvider {
 }
 
 class ActionApiHttp implements ActionApi {
+  final _authService = AuthService();
 
-Future<List<Event>> getEvents() async {
+  @override
+  Future<List<Event>> getEvents() async {
   try {
 
     final url = ConfigLoader.getUrl();
-    final response = await http.get(
+    final client = await _authService.getAuthenticatedClient();
+    final response = await client.get(
       Uri.parse('$url/events'),
       headers: {'Content-Type': 'application/json'},
     );
     
     if (response.statusCode == 200) {
-      final List<dynamic> eventsJson = jsonDecode(response.body);
+      final List<dynamic> eventsJson = jsonDecode(utf8.decode(response.bodyBytes));
+      print(eventsJson);
       return eventsJson.map((json) => Event.fromJson(json)).toList();
     } else {
       throw Exception('Failed to load events: ${response.statusCode}');
@@ -49,7 +53,8 @@ Future<List<Event>> getEvents() async {
   Future<List<AssetInfo>> getAssetInfos() async {
     try {
       final url = ConfigLoader.getUrl();
-      final response = await http.get(Uri.parse('$url/assets'));
+      final client = await _authService.getAuthenticatedClient();
+      final response = await client.get(Uri.parse('$url/assets'));
       
       if (response.statusCode == 200) {
         final List<dynamic> jsonList = json.decode(utf8.decode(response.bodyBytes));
@@ -66,20 +71,22 @@ Future<List<Event>> getEvents() async {
   }
   
   @override
-  Future<bool> recordInvest(int fundId, int assetId, double amount, price) async {
+  Future<bool> recordInvest(int fundId, int assetId, double count, price) async {
 
     try {
       final url = ConfigLoader.getUrl();
-      final response = await http.post(
+      final client = await _authService.getAuthenticatedClient();
+      final response = await client.post(
         Uri.parse('$url/invest'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
           'fund_id': fundId,
           'asset_id': assetId,
-          'amount': amount,
+          'count': count,
           'price': price,
         }),
       );
+      print(response.body);
       return response.statusCode == 200;
     } catch (e) {
       return false;
@@ -90,7 +97,8 @@ Future<List<Event>> getEvents() async {
   Future<bool> runEvent(int eventId) async {
     try {
       final url = ConfigLoader.getUrl();
-      final response = await http.post(
+      final client = await _authService.getAuthenticatedClient();
+      final response = await client.post(
         Uri.parse('$url/events/launch'),
         headers: {'Content-Type': 'application/json'},
       );
@@ -105,7 +113,8 @@ Future<List<Event>> getEvents() async {
 
      try {
       final url = ConfigLoader.getUrl();
-      final response = await http.post(
+      final client = await _authService.getAuthenticatedClient();
+      final response = await client.post(
         Uri.parse('$url/events/switch'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({

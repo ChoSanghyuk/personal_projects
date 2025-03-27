@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import './config_loader.dart';
 
 // JWT Token model
 class AuthToken {
@@ -14,8 +15,9 @@ class AuthToken {
 }
 
 class AuthService {
-  final String baseUrl = 'http://your-backend-url.com/api';
-  final FlutterSecureStorage _storage = const FlutterSecureStorage();
+
+  final String baseUrl = ConfigLoader.getUrl();
+  final FlutterSecureStorage _storage = const FlutterSecureStorage(); // in-device storage
   
   // Key for token storage
   static const String _tokenKey = 'jwt_token';
@@ -68,7 +70,7 @@ class AuthService {
           'password': password,
         }),
       );
-      
+
       if (response.statusCode == 200) {
         final responseData = json.decode(response.body);
         
@@ -83,6 +85,8 @@ class AuthService {
         // Notify UI about auth state change
         authStateChanges.value = true;
         return true;
+      } else {
+         print('Login error: ${response.body}');
       }
       return false;
     } catch (e) {

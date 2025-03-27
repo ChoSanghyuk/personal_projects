@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'data/config_loader.dart';
 import 'presentation/auth.dart'; // Import your home screen
+import 'presentation/home.dart'; // Import your home screen
 // import 'services/notifications_service.dart';
 
 void main() async {
@@ -21,7 +22,38 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: const AuthWrapper(), // Use your HomeScreen widget here
+      initialRoute: '/',
+      
+      // Define named routes
+      routes: {
+        '/': (context) => const AuthWrapper(),
+        '/home': (context) => const HomeScreen(),
+        '/login': (context) => const LoginScreen(),
+      },
+
+      // Optional: Add onGenerateRoute for more complex routing
+      /*
+      onGenerateRoute: (settings) {
+        switch (settings.name) {
+          case '/home':
+            return MaterialPageRoute(builder: (context) => const HomeScreen());
+          case '/login':
+            return MaterialPageRoute(builder: (context) => const LoginScreen());
+          default:
+            return null;
+        }
+      },
+      */
+
+      // Fallback route handler
+      onUnknownRoute: (settings) {
+        return MaterialPageRoute(
+          builder: (context) => Scaffold(
+            appBar: AppBar(title: const Text('Not Found')),
+            body: const Center(child: Text('Page not found')),
+          ),
+        );
+      },
     );
   }
 }

@@ -1,11 +1,12 @@
 import './config_loader.dart';
-import 'package:http/http.dart' as http;
+import './auth_api.dart';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 
 
 abstract class MarketApi {
   Future<bool> updateMarketStatus(MarketStatus status);
+  Future<MarketStatus> getMarketStatus();
   Future<Map<String, dynamic>> getIndexs();
 }
 
@@ -20,6 +21,40 @@ class MarketApiProvider {
 }
 
 class MarketApiHttp implements MarketApi {
+  final _authService = AuthService();
+
+  @override
+  Future<MarketStatus> getMarketStatus() async {
+    try {
+      final url = ConfigLoader.getUrl();
+      final client = await _authService.getAuthenticatedClient();
+      final response = await client.get(Uri.parse('$url/market'));
+      
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        int status = data['Status']; // This will be an int
+        switch(status){
+          case 1:
+            return MarketStatus.MAJOR_BEAR;
+          case 2:
+            return MarketStatus.BEAR;
+          case 3:
+            return MarketStatus.VOLATILE;
+          case 4:
+            return  MarketStatus.BULL;
+          case 5:
+            return MarketStatus.MAJOR_BULL;
+          default:
+          throw Exception('Invalid status');
+    }
+
+      } else {
+        throw Exception('Failed to load assets: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Failed to load assets: $e');
+    }
+  }
   
   @override
   Future<bool> updateMarketStatus(MarketStatus status) async{
@@ -40,12 +75,12 @@ class MarketApiHttp implements MarketApi {
 
     try {
       final url = ConfigLoader.getUrl();
-      final response = await http.post(
+      final client = await _authService.getAuthenticatedClient();
+      final response = await client.post(
         Uri.parse('$url/market'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
           'status': value
-
         }),
       );
       return response.statusCode == 200;
@@ -58,7 +93,8 @@ class MarketApiHttp implements MarketApi {
   Future<Map<String, dynamic>> getIndexs() async {
    try {
       final url = ConfigLoader.getUrl();
-      final response = await http.get(Uri.parse('$url/market/weekly_indicators'));
+      final client = await _authService.getAuthenticatedClient();
+      final response = await client.get(Uri.parse('$url/market/weekly_indicators'));
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
 
@@ -95,6 +131,11 @@ class MarketApiHttp implements MarketApi {
 class MarketApiHttpMock implements MarketApi{
 
   @override
+  Future<MarketStatus> getMarketStatus() async{
+    return MarketStatus.BEAR;
+  }
+  
+  @override
   Future<bool> updateMarketStatus(MarketStatus status) async{
     return true;
   }
@@ -121,33 +162,7 @@ class MarketApiHttpMock implements MarketApi{
     }
     };
   }
-  Future<Map<String, dynamic>> getFearGreedIndex() async {
-    // Simulate network delay
-    await Future.delayed(const Duration(milliseconds: 800));
-    return {
-      'value': 75,
-      'status': 'Greed',
-      'weeklyData': [65, 70, 72, 68, 73, 75, 75], // Mock weekly data
-    };
-  }
-
-  Future<Map<String, dynamic>> getNasdaqData() async {
-    await Future.delayed(const Duration(milliseconds: 800));
-    return {
-      'value': 15055.65,
-      'change': 0.85,
-      'weeklyData': [14800, 14900, 15100, 14950, 15000, 15055.65], // Mock weekly data
-    };
-  }
-
-  Future<Map<String, dynamic>> getSP500Data() async {
-    await Future.delayed(const Duration(milliseconds: 800));
-    return {
-      'value': 15055.65,
-      'change': 0.85,
-      'weeklyData': [14800, 14900, 15100, 14950, 15000, 15055.65], // Mock weekly data
-    };
-  }
+  
 }
 
 enum MarketStatus {

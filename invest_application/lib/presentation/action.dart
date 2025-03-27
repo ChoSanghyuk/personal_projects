@@ -16,7 +16,7 @@ class _ActionScreenState extends State<ActionScreen> with SingleTickerProviderSt
   // Controllers for investment form
   final TextEditingController _fundIdController = TextEditingController();
   final TextEditingController _assetIdController = TextEditingController();
-  final TextEditingController _amountController = TextEditingController();
+  final TextEditingController _countController = TextEditingController();
   final TextEditingController _priceController = TextEditingController();
   
   // Fund ID value
@@ -45,7 +45,7 @@ class _ActionScreenState extends State<ActionScreen> with SingleTickerProviderSt
     _tabController.dispose();
     _fundIdController.dispose();
     _assetIdController.dispose();
-    _amountController.dispose();
+    _countController.dispose();
     _priceController.dispose();
     super.dispose();
   }
@@ -167,10 +167,10 @@ class _ActionScreenState extends State<ActionScreen> with SingleTickerProviderSt
       // Validate form data
       final fundId = int.tryParse(_fundIdController.text);
       final assetId = int.tryParse(_assetIdController.text);
-      final amount = double.tryParse(_amountController.text);
+      final count = double.tryParse(_countController.text);
       final price = double.tryParse(_priceController.text);
       
-      if (fundId == null || assetId == null || amount == null || price == null) {
+      if (fundId == null || assetId == null || count == null || price == null) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Please enter valid values')),
         );
@@ -178,17 +178,19 @@ class _ActionScreenState extends State<ActionScreen> with SingleTickerProviderSt
       }
 
       // For now, just simulate a successful response
-      await actionApi.recordInvest(fundId, assetId, amount, price);
+      var success = await actionApi.recordInvest(fundId, assetId, count, price);
       
       // Clear form
       _fundIdController.clear();
       _assetIdController.clear();
-      _amountController.clear();
+      _countController.clear();
       _priceController.clear();
       
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Investment action recorded successfully')),
-      );
+      if (success) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Investment action recorded successfully')),
+        );
+      }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error: ${e.toString()}')),
@@ -283,9 +285,9 @@ class _ActionScreenState extends State<ActionScreen> with SingleTickerProviderSt
                   
                   const SizedBox(height: 12),
                   TextField(
-                    controller: _amountController,
+                    controller: _countController,
                     decoration: const InputDecoration(
-                      labelText: 'Amount',
+                      labelText: 'Count',
                       border: OutlineInputBorder(),
                     ),
                     keyboardType: const TextInputType.numberWithOptions(decimal: true),
@@ -472,7 +474,7 @@ class Event {
     return Event(
       id: json['id'],
       title: json['title'],
-      status: json['status'],
+      status: json['active']? 'active': 'pending',
       description: json['description'],
     );
   }

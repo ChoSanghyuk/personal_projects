@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'package:http/http.dart' as http;
+import './auth_api.dart';
 import '../presentation/assets.dart';
 import './config_loader.dart';
 
@@ -34,13 +34,15 @@ class AssetsApiProvider {
 
 class AssetsApiHttp implements AssetsApi {
   AssetsApiHttp();
+  final _authService = AuthService();
 
   @override
   Future<List<Asset>> getAssets() async {
     try {
       final url = ConfigLoader.getUrl();
       // print('getAssets: $url/assets');
-      final response = await http.get(Uri.parse('$url/assets'));
+      final client = await _authService.getAuthenticatedClient();
+      final response = await client.get(Uri.parse('$url/assets'));
       
       if (response.statusCode == 200) {
         final List<dynamic> jsonList = json.decode(utf8.decode(response.bodyBytes));
@@ -50,6 +52,7 @@ class AssetsApiHttp implements AssetsApi {
           category: json['category'],
           code: json['code'],
           currency: json['currency'],
+          price: json['bottom'].toDouble(),
           bottom: json['bottom'].toDouble(),
           top: json['top'].toDouble(),
           buy: json['buy'].toDouble(),
@@ -69,9 +72,10 @@ class AssetsApiHttp implements AssetsApi {
   Future<bool> updateAsset(Asset asset) async {
     try {
       final url = ConfigLoader.getUrl();
+      final client = await _authService.getAuthenticatedClient();
       final isNewAsset = asset.id == "-";
 
-      final response = await (isNewAsset ? http.post : http.put)(
+      final response = await (isNewAsset ? client.post : client.put)(
         Uri.parse('$url/assets'),
         headers: {'Content-Type': 'application/json'},
         body: json.encode({
@@ -100,8 +104,8 @@ class AssetsApiHttp implements AssetsApi {
 
     try {
       final url = ConfigLoader.getUrl();
-
-      final response = await (http.delete)(
+      final client = await _authService.getAuthenticatedClient();
+      final response = await (client.delete)(
         Uri.parse('$url/assets'),
         headers: {'Content-Type': 'application/json'},
         body: json.encode({
@@ -115,11 +119,12 @@ class AssetsApiHttp implements AssetsApi {
     }
   }
 
-  
+  @override
   Future<List<String>> getCategories() async {
     try {
       final url = ConfigLoader.getUrl();
-      final response = await http.get(Uri.parse('$url/categories'));  
+      final client = await _authService.getAuthenticatedClient();
+      final response = await client.get(Uri.parse('$url/categories'));  
       if (response.statusCode == 200) {
         final List<dynamic> jsonList = json.decode(utf8.decode(response.bodyBytes));
         return List<String>.from(jsonList);
@@ -131,10 +136,12 @@ class AssetsApiHttp implements AssetsApi {
     }
   }
 
+  @override
   Future<List<String>> getCurrencies() async {
     try {
       final url = ConfigLoader.getUrl();
-      final response = await http.get(Uri.parse('$url/currencies'));
+      final client = await _authService.getAuthenticatedClient();
+      final response = await client.get(Uri.parse('$url/currencies'));
       if (response.statusCode == 200) {
         final List<dynamic> jsonList = json.decode(utf8.decode(response.bodyBytes));
         return List<String>.from(jsonList);
@@ -160,6 +167,7 @@ class AssetsApiHttpMock implements AssetsApi {
         category: 'Cryptocurrency',
         code: 'BTC',
         currency: 'USD',
+        price: 27000,
         bottom: 25000,
         top: 30000,
         buy: 27500,
@@ -173,6 +181,7 @@ class AssetsApiHttpMock implements AssetsApi {
         category: 'Cryptocurrency',
         code: 'ETH',
         currency: 'USD',
+        price: 1900,
         bottom: 1800,
         top: 2200,
         buy: 2000,
@@ -186,6 +195,7 @@ class AssetsApiHttpMock implements AssetsApi {
         category: 'Cryptocurrency',
         code: 'ADA',
         currency: 'USD',
+        price: 0.70,
         bottom: 0.30,
         top: 0.45,
         buy: 0.38,

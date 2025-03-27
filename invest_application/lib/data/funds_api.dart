@@ -1,8 +1,8 @@
 import 'dart:convert';
-import 'package:http/http.dart' as http;
 import '../presentation/funds.dart';
 import './config_loader.dart';
 import 'package:flutter/material.dart';
+import './auth_api.dart';
 
 
 abstract class FundsApi {
@@ -22,13 +22,15 @@ class FundsApiProvider {
 
 
 class FundsApiHttp implements FundsApi {
+  final _authService = AuthService();
   FundsApiHttp();
-
+  
   // New method to get funds data
   Future<List<FundData>> getFundsData(int index) async {
     try {
+      final client = await _authService.getAuthenticatedClient();
       final url = ConfigLoader.getUrl();
-      final response = await http.get(Uri.parse('$url/funds/$index/portion'));
+      final response = await client.get(Uri.parse('$url/funds/$index/portion'));
       
       if (response.statusCode == 200) {
         final Map<String, dynamic> jsonMap = json.decode(utf8.decode(response.bodyBytes));
@@ -47,8 +49,9 @@ class FundsApiHttp implements FundsApi {
   // New method to get funds table data
   Future<List<FundTableData>> getFundsTableData(int index) async {
     try {
+      final client = await _authService.getAuthenticatedClient();
       final url = ConfigLoader.getUrl();
-      final response = await http.get(Uri.parse('$url/funds/$index/assets'));
+      final response = await client.get(Uri.parse('$url/funds/$index/assets'));
       
       if (response.statusCode == 200) {
         final List<dynamic> jsonList = json.decode(utf8.decode(response.bodyBytes));

@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'package:http/http.dart' as http;
+import './auth_api.dart';
 import '../presentation/hist.dart';
 import 'package:flutter/material.dart';
 import './config_loader.dart';
@@ -22,10 +22,11 @@ class HistoryApiProvider {
 class HistoryApiHttp implements HistoryApi {
   HistoryApiHttp();
   final url = ConfigLoader.getUrl();
+  final _authService = AuthService();
 
   Future<List<InvestmentRecord>> getInvestmentHistory(int fundId, DateTimeRange dateRange) async {
-
-    final response = await http.get(Uri.parse('$url/funds/$fundId/hist?start=${DateFormat('yyyy-MM-dd').format(dateRange.start)}&end=${DateFormat('yyyy-MM-dd').format(dateRange.end)}'));
+    final client = await _authService.getAuthenticatedClient();
+    final response = await client.get(Uri.parse('$url/funds/$fundId/hist?start=${DateFormat('yyyy-MM-dd').format(dateRange.start)}&end=${DateFormat('yyyy-MM-dd').format(dateRange.end)}'));
 
     if (response.statusCode == 200) {
       final List<dynamic> data = json.decode(response.body);

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:invest_application/data/auth_api.dart';
-import './home.dart';
+// import './home.dart';
 import '../data/config_loader.dart';
 
 
@@ -13,7 +13,7 @@ class AuthWrapper extends StatefulWidget {
 
 class _AuthWrapperState extends State<AuthWrapper> {
   final AuthService _authService = AuthService();
-  bool _isChecking = true;
+  // bool _isChecking = true;
   bool _isAuthenticated = false;
 
   @override
@@ -24,35 +24,38 @@ class _AuthWrapperState extends State<AuthWrapper> {
 
   Future<void> _checkAuthStatus() async {
     try {
+      _authService.logout();
       final isAuthenticated = await _authService.isAuthenticated();
       setState(() {
         _isAuthenticated = isAuthenticated;
-        _isChecking = false;
+        // _isChecking = false;
       });
+
+      // Navigate based on authentication status
+      if (ConfigLoader.useMock() || _isAuthenticated) { // ConfigLoader.useMock() || 
+        Navigator.of(context).pushReplacementNamed('/home');
+      } else {
+        Navigator.of(context).pushReplacementNamed('/login');
+      }
     } catch (e) {
       setState(() {
         _isAuthenticated = false;
-        _isChecking = false;
+        // _isChecking = false;
       });
+      Navigator.of(context).pushReplacementNamed('/login');
     }
   }
 
   @override
   Widget build(BuildContext context) {
     // Show loading indicator while checking authentication
-    if (_isChecking) {
-      return const Scaffold(
-        body: Center(
-          child: CircularProgressIndicator(),
-        ),
-      );
-    }
-
-    // Decide which screen to show based on authentication status
-    return ConfigLoader.useMock() || _isAuthenticated ? const HomeScreen() : const LoginScreen();
+    return const Scaffold(
+      body: Center(
+        child: CircularProgressIndicator(),
+      ),
+    );
   }
 }
-
 
 // Example Login Screen
 class LoginScreen extends StatefulWidget {
