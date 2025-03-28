@@ -52,7 +52,7 @@ class AssetsApiHttp implements AssetsApi {
           category: json['category'],
           code: json['code'],
           currency: json['currency'],
-          price: json['bottom'].toDouble(),
+          price: json['price'].toDouble(),
           bottom: json['bottom'].toDouble(),
           top: json['top'].toDouble(),
           buy: json['buy'].toDouble(),

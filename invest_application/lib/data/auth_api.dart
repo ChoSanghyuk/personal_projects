@@ -60,13 +60,13 @@ class AuthService {
   }
   
   // Login and get JWT token
-  Future<bool> login(String email, String password) async {
+  Future<bool> login(String user, String password) async {
     try {
       final response = await http.post(
         Uri.parse('$baseUrl/login'),
         headers: {'Content-Type': 'application/json'},
         body: json.encode({
-          'email': email,
+          'user': user,
           'password': password,
         }),
       );

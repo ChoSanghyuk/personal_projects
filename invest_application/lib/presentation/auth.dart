@@ -116,7 +116,7 @@ class _LoginScreenState extends State<LoginScreen> {
           children: [
             TextField(
               controller: _emailController,
-              decoration: InputDecoration(labelText: 'Email'),
+              decoration: InputDecoration(labelText: 'User ID'),
               keyboardType: TextInputType.emailAddress,
             ),
             SizedBox(height: 16),
