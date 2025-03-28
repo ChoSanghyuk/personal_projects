@@ -39,7 +39,7 @@ class ActionApiHttp implements ActionApi {
     
     if (response.statusCode == 200) {
       final List<dynamic> eventsJson = jsonDecode(utf8.decode(response.bodyBytes));
-      print(eventsJson);
+
       return eventsJson.map((json) => Event.fromJson(json)).toList();
     } else {
       throw Exception('Failed to load events: ${response.statusCode}');
@@ -86,7 +86,7 @@ class ActionApiHttp implements ActionApi {
           'price': price,
         }),
       );
-      print(response.body);
+
       return response.statusCode == 200;
     } catch (e) {
       return false;
@@ -101,6 +101,9 @@ class ActionApiHttp implements ActionApi {
       final response = await client.post(
         Uri.parse('$url/events/launch'),
         headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'id': eventId
+        })
       );
       return response.statusCode == 200;
     } catch (e) {

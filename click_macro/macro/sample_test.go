@@ -17,22 +17,30 @@ func TestSample2(t *testing.T) {
 	sample2()
 }
 
-func TestSaveBlog(t *testing.T) {
+func TestWholeProcess(t *testing.T) {
 	time.Sleep(3 * time.Second)
-	saveBlogAsPdf()
+	CampitMac()
 }
 
 /******************************************* Individual function Test *************************************************/
 
 func TestLocations(t *testing.T) {
-
+	done := make(chan struct{})
 	hook.Register(hook.KeyDown, []string{"enter"}, func(e hook.Event) {
 		x, y := r.Location()
 		fmt.Printf("%d,%d\n", x, y)
 	})
 
+	hook.Register(hook.KeyDown, []string{"esc"}, func(e hook.Event) {
+		close(done)
+	})
+
 	s := hook.Start()
-	<-hook.Process(s)
+	go func() {
+		<-hook.Process(s) // Process events
+	}()
+
+	<-done
 }
 
 func TestMoveClick(t *testing.T) {
@@ -49,7 +57,23 @@ func TestKeyTap(t *testing.T) {
 func TestScrollDown(t *testing.T) {
 
 	time.Sleep(2 * time.Second)
-	r.ScrollDir(3, "down") // 한칸 내리기
+	r.ScrollDir(1800, "down") // 한칸 내리기
+}
+
+func TestGrabScrollRight(t *testing.T) {
+
+	time.Sleep(2 * time.Second)
+	x, y := r.Location()
+	r.MouseDown()
+
+	// 3. Move mouse to the right (e.g., +200 pixels) while holding the button
+	r.Move(x-800, y) // optional: adjust speed
+
+	// 4. Optional: Wait a bit if needed
+	time.Sleep(30 * time.Millisecond)
+
+	// 5. Release the mouse button
+	r.MouseUp()
 }
 
 func TestRightClickEvent(t *testing.T) {
