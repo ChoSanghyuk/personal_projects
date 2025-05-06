@@ -95,6 +95,7 @@ class AssetsApiHttp implements AssetsApi {
       // print(response.body);
       return response.statusCode == 200;
     } catch (e) {
+      // print(e);
       throw Exception('Failed to update asset: $e');
     }
   }

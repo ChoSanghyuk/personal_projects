@@ -105,8 +105,10 @@ class ActionApiHttp implements ActionApi {
           'id': eventId
         })
       );
+      print(response.body);
       return response.statusCode == 200;
     } catch (e) {
+       print(e);
       return false;
     }
   }

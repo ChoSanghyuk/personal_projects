@@ -59,7 +59,7 @@ class FundsApiHttp implements FundsApi {
           name: json['name'] ?? "",
           amount: json['amount'] ?? "",
           amountDollar: json['amount_dollar'] == '' ? '0' : json['amount_dollar'],
-          profitRate: json['profitRate'] ?? "",
+          profitRate: json['profit_rate'] ?? "",
           division: json['division'] ?? "",
           quantity: json['quantity'] ?? "0",
           price: json['price'] == '' ? '0' : json['price'],

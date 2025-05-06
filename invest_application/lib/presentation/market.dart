@@ -11,10 +11,10 @@ class MarketScreen extends StatefulWidget {
 
 class _MarketScreenState extends State<MarketScreen> {
   final MarketApi _marketApi = MarketApiProvider.getApi();
-  // Map<String, dynamic>? _indexes;
-  Map<String, dynamic>? _fearGreedData;
-  Map<String, dynamic>? _nasdaqData;
-  Map<String, dynamic>? _sp500Data;
+  Map<String, dynamic>? _indexes;
+  // Map<String, dynamic>? _fearGreedData;
+  // Map<String, dynamic>? _nasdaqData;
+  // Map<String, dynamic>? _sp500Data;
   MarketStatus? _currentStatus ;
 
   @override
@@ -28,9 +28,10 @@ class _MarketScreenState extends State<MarketScreen> {
     final status = await _marketApi.getMarketStatus();
     if (!mounted) return; // memo. loaded가 호출되지 않은 상태에서 다른 화면으로 넘어가면 setState 전에 dispose가 실행 => 불필요 setState로 memory leak 발생
     setState(() {
-      _fearGreedData = loaded['fearGreed'];
-      _nasdaqData = loaded['nasdaq'];
-      _sp500Data = loaded['sp500'];
+      _indexes = loaded;
+      // _fearGreedData = loaded['fearGreed'];
+      // _nasdaqData = loaded['nasdaq'];
+      // _sp500Data = loaded['sp500'];
       _currentStatus = status;
     });
   }
@@ -231,7 +232,8 @@ Widget build(BuildContext context) {
                       ),
                     ),
                   ),
-                  Card(
+                  ..._convertMapToCards(_indexes), 
+                  /*Card(
                     child: Padding(
                       padding: const EdgeInsets.all(16.0),
                       child: _fearGreedData == null
@@ -282,7 +284,7 @@ Widget build(BuildContext context) {
                                   child: _fearGreedData == null
                                       ? const Center(child: CircularProgressIndicator())
                                       : _buildTrendGraph(
-                                          _fearGreedData!['weeklyData'],
+                                          _fearGreedData!['graph'],
                                           Colors.orange,
                                         ),
                                 ),
@@ -327,7 +329,7 @@ Widget build(BuildContext context) {
                                         borderRadius: BorderRadius.circular(4),
                                       ),
                                       child: Text(
-                                        '${_nasdaqData!['change'].toStringAsFixed(2)}%',
+                                        '${_nasdaqData!['status']}',
                                         style: const TextStyle(color: Colors.green),
                                       ),
                                     ),
@@ -344,7 +346,7 @@ Widget build(BuildContext context) {
                                   child: _nasdaqData == null
                                       ? const Center(child: CircularProgressIndicator())
                                       : _buildTrendGraph(
-                                          _nasdaqData!['weeklyData'],
+                                          _nasdaqData!['graph'],
                                           Colors.blue,
                                         ),
                                 ),
@@ -389,7 +391,7 @@ Widget build(BuildContext context) {
                                         borderRadius: BorderRadius.circular(4),
                                       ),
                                       child: Text(
-                                        '${_sp500Data!['change'].toStringAsFixed(2)}%',
+                                        '${_sp500Data!['status']}%',
                                         style: const TextStyle(color: Colors.green),
                                       ),
                                     ),
@@ -406,14 +408,14 @@ Widget build(BuildContext context) {
                                   child: _sp500Data == null
                                       ? const Center(child: CircularProgressIndicator())
                                       : _buildTrendGraph(
-                                          _sp500Data!['weeklyData'],
+                                          _sp500Data!['graph'],
                                           Colors.blue,
                                         ),
                                 ),
                               ],
                             ),
                     ),
-                  ),
+                  ),*/
                 ],
               ),
             ),
@@ -423,19 +425,26 @@ Widget build(BuildContext context) {
     );
   }
 
+final List<Color> colors = [
+  Colors.orange,
+  Colors.blue,
+  Colors.green,
+  Colors.purple,
+];
 
-/*
-memo. map 을 card로 변환시키는 것을 일반화시켜서 진행하고자 시도. 각자가 가지고 있을 필드들이 다 다를 예정이라 미사용 결정
+//memo. map 을 card로 변환시키는 것을 일반화시켜서 진행하고자 시도. 각자가 가지고 있을 필드들이 다 다를 예정이라 미사용 결정
 List<Widget> _convertMapToCards(Map<String, dynamic>? map) {
   if (map == null) {
     return [const Center(child: CircularProgressIndicator())]; // Show loading indicator if map is null
   }
 
+  int counter = -1;
   return map.entries.map((entry) {
+    counter++;
     final valueData = entry.value; // Get the value for the current entry
 
     // Check if valueData is a Map and contains the expected keys
-    if (valueData is Map<String, dynamic> && valueData.containsKey('value') && valueData.containsKey('status')) {
+    if (valueData is Map<String, dynamic>) {
       return Card(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -453,11 +462,10 @@ List<Widget> _convertMapToCards(Map<String, dynamic>? map) {
               Row(
                 children: [
                   Text(
-                    '${valueData['value']}', // Access the value safely
+                    valueData['value'], // Access the value safely
                     style: const TextStyle(
-                      fontSize: 24,
+                      fontSize: 20,
                       fontWeight: FontWeight.bold,
-                      color: Colors.green,
                     ),
                   ),
                   const SizedBox(width: 8),
@@ -471,12 +479,16 @@ List<Widget> _convertMapToCards(Map<String, dynamic>? map) {
                         color: Colors.green.withOpacity(0.1),
                         borderRadius: BorderRadius.circular(4),
                       ),
-                      child: Text(valueData['status']), // Access the status safely
+                      child: Text(
+                        valueData['status'],
+                        style: const TextStyle(color: Colors.green),
+                      ), // Access the status safely
                     ),
                   ]
                 ],
               ),
               const SizedBox(height: 16),
+              if (valueData['graph'] != null) ...[
               Container(
                 height: 100,
                 width: double.infinity,
@@ -485,10 +497,11 @@ List<Widget> _convertMapToCards(Map<String, dynamic>? map) {
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: _buildTrendGraph(
-                  valueData['weeklyData'], // Ensure this key exists
-                  Colors.orange,
+                  valueData['graph'], // Ensure this key exists
+                  colors[counter%colors.length]
                 ),
               ),
+            ]
             ],
           ),
         ),
@@ -504,5 +517,5 @@ List<Widget> _convertMapToCards(Map<String, dynamic>? map) {
     }
   }).toList();
 }
-*/
+
 }

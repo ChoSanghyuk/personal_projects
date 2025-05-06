@@ -96,29 +96,30 @@ class MarketApiHttp implements MarketApi {
       final client = await _authService.getAuthenticatedClient();
       final response = await client.get(Uri.parse('$url/market/weekly_indicators'));
       if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-
-        final fearGreedWeek = List<int>.from(data['fear_greed']);
-        final nasdaqWeek = List<double>.from(data['nasdaq'].map((e) => (e as num).toDouble()));
-        final sp500Week = List<double>.from(data['sp500'].map((e) => (e as num).toDouble()));
-
-        return {     
-          'fearGreed': {
-            'value': fearGreedWeek[6],
-            'status': fearGreedWeek[6] > 50? 'GREED' : 'FEAR',
-            'weeklyData': fearGreedWeek
-          },
-          'nasdaq' : {
-            'value': nasdaqWeek[6],
-            'change': 100 * ((nasdaqWeek[6]-nasdaqWeek[5]) / nasdaqWeek[6]) ,
-            'weeklyData': nasdaqWeek
-          },
-          'sp500' : {
-            'value': sp500Week[6],
-            'change': 100 * ((sp500Week[6]-sp500Week[5]) / sp500Week[6]) ,
-            'weeklyData': sp500Week
-          }
-        };
+        Map<String, dynamic> data = json.decode(response.body);
+        return data;
+        
+        // final fearGreedWeek = List<int>.from(data['fear_greed']);
+        // final nasdaqWeek = List<double>.from(data['nasdaq'].map((e) => (e as num).toDouble()));
+        // final sp500Week = List<double>.from(data['sp500'].map((e) => (e as num).toDouble()));
+        // return {     
+        //   'Fear & Greed Index': {
+        //     'value': fearGreedWeek[6].toString(),
+        //     'status': fearGreedWeek[6] > 50? 'GREED' : 'FEAR',
+        //     'graph': fearGreedWeek
+        //   },
+        //   'NASDAQ' : {
+        //     'value': nasdaqWeek[6].toString(),
+        //     'status': (100 * ((nasdaqWeek[6]-nasdaqWeek[5]) / nasdaqWeek[6])).toStringAsFixed(2)+'%' ,
+        //     'graph': nasdaqWeek
+        //   },
+        //   'S&P 500' : {
+        //     'value': sp500Week[6].toString(),
+        //     'status': (100 * ((sp500Week[6]-sp500Week[5]) / sp500Week[6])).toStringAsFixed(2)+'%' ,
+        //     'graph': sp500Week
+        //   }
+        // };
+        
       } else {
         throw Exception('Failed to load index: ${response.statusCode}');
       }
@@ -152,12 +153,12 @@ class MarketApiHttpMock implements MarketApi{
       },
       'nasdaq' : {
         'value': 15055.65,
-        'change': 0.85,
+        'status': '0.85%',
         'weeklyData': [14800, 14900, 15100, 14950, 15000, 15055.65], // Mock weekly data
       },
       'sp500' : {
         'value': 15055.65,
-        'change': 0.85,
+        'status': '0.85%',
         'weeklyData': [14800, 14900, 15100, 14950, 15000, 15055.65], // Mock weekly data
     }
     };

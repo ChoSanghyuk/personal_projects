@@ -53,8 +53,10 @@ class _FundsState extends State<Funds> with SingleTickerProviderStateMixin {
   bool _showDollar = false;
   int _selectedTabIndex = 0;
   double _totalAmount = 0;
+  bool _isBlurred = true;
   final DollarAmountFormat = NumberFormat("#,##0.00", "en_US");
-  final WonAmountFormat = NumberFormat("#,###0.00", "ko_KR");
+  final WonAmountFormat = NumberFormat("#,##0.00", "ko_KR");
+  // final WonAmountFormat = NumberFormat("#,###0.00", "ko_KR");
 
   List<PieChartSectionData> getSections() {
     return fundsData.asMap().entries.map((entry) {
@@ -157,7 +159,14 @@ class _FundsState extends State<Funds> with SingleTickerProviderStateMixin {
           default:
             return 0;
         }
-        
+
+        if (aValue == '') {
+          aValue = '0';
+        }
+        if (bValue == '') {
+          bValue = '0';
+        }
+
         return ascending
             ? double.parse(aValue).compareTo(double.parse(bValue))
             : double.parse(bValue).compareTo(double.parse(aValue));
@@ -168,7 +177,14 @@ class _FundsState extends State<Funds> with SingleTickerProviderStateMixin {
   void _onTabChanged(int index) async {
     final loadedFundData = await fundsApi.getFundsData(index + 1);
     final loeadedFundTable = await fundsApi.getFundsTableData(index + 1);
+    double total = 0;
+    loeadedFundTable.forEach((d) {
+      total += double.parse(d.amount);
+    });
     setState(()  {
+
+      _totalAmount = total;
+      
       _selectedTabIndex = index;
       fundsData = loadedFundData;
       _sortedData = loeadedFundTable;
@@ -203,7 +219,7 @@ class _FundsState extends State<Funds> with SingleTickerProviderStateMixin {
               onPressed: () async {
                 final loeadedFundTable = await fundsApi.getFundsTableData(_selectedTabIndex + 1);
                 final loadedFundData = await fundsApi.getFundsData(_selectedTabIndex + 1);
-                setState(() async {
+                setState(()  {
                   backupTableData = loeadedFundTable;
                   _sortedData = backupTableData;
                   fundsData = loadedFundData;
@@ -244,12 +260,32 @@ class _FundsState extends State<Funds> with SingleTickerProviderStateMixin {
       child: Column(
         children: [
           const SizedBox(height: 10),
-          Text(
-            'Total: ₩${WonAmountFormat.format(_totalAmount)}', // Display the total value
-            style: const TextStyle(
-              fontSize: 20, 
-              // fontWeight: FontWeight.bold,
-            ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Switch(
+                value: !_isBlurred,
+                onChanged: (value) {
+                  setState(() {
+                    _isBlurred = !value;
+                  });
+                },
+              ),
+              Expanded(
+                child: Center(
+                  child: Text(
+                    _isBlurred ? '₩*********' : '₩${WonAmountFormat.format(_totalAmount)}',
+                    style: const TextStyle(
+                      fontSize: 20,
+                    ),
+                    // textAlign: TextAlign.center,
+                  ),
+                ),
+              ),
+              SizedBox(
+      width: 60, // Approximate width of a Switch widget
+    ),
+            ],
           ),
           const SizedBox(height: 10),
           SizedBox(
@@ -302,10 +338,10 @@ class _FundsState extends State<Funds> with SingleTickerProviderStateMixin {
                     label: const Text('Quantity'),
                     onSort: (columnIndex, ascending) => _sort(columnIndex, ascending),
                   ),
-                  DataColumn(
-                    label: const Text('Price'),
-                    onSort: (columnIndex, ascending) => _sort(columnIndex, ascending),
-                  ),
+                  // DataColumn(
+                  //   label: const Text('Price'),
+                  //   onSort: (columnIndex, ascending) => _sort(columnIndex, ascending),
+                  // ),
                 ],
                 rows: _sortedData.map((data) => DataRow(
                   color: MaterialStateProperty.all(
@@ -327,23 +363,23 @@ class _FundsState extends State<Funds> with SingleTickerProviderStateMixin {
                         ),
                       ),
                     ),
-                    DataCell(Text('${data.profitRate}%')),
+                    DataCell(Text(data.profitRate == ''? '-' : '${data.profitRate}%')),
                     DataCell(Text(data.division)),
                     DataCell(Text(data.quantity)),
-                    DataCell(
-                      InkWell(
-                        onTap: () {
-                          if (double.parse(data.priceDollar) > 0) {
-                            setState(() => _showDollar = !_showDollar);
-                          }
-                        },
-                        child: Text(
-                          double.parse(_showDollar ? data.priceDollar : data.price) == 0
-                              ? '-'
-                              : (_showDollar ? '\$${double.parse(data.priceDollar).toStringAsFixed(2)}' : '₩${double.parse(data.price).toStringAsFixed(2)}')
-                        ),
-                      ),
-                    ),
+                    // DataCell(
+                    //   InkWell(
+                    //     onTap: () {
+                    //       if (double.parse(data.priceDollar) > 0) {
+                    //         setState(() => _showDollar = !_showDollar);
+                    //       }
+                    //     },
+                    //     child: Text(
+                    //       double.parse(_showDollar ? data.priceDollar : data.price) == 0
+                    //           ? '-'
+                    //           : (_showDollar ? '\$${double.parse(data.priceDollar).toStringAsFixed(2)}' : '₩${double.parse(data.price).toStringAsFixed(2)}')
+                    //     ),
+                    //   ),
+                    // ),
                   ],
                 )).toList(),
               ),

@@ -62,12 +62,14 @@ class _AssetsScreenState extends State<AssetsScreen> {
     final loadedAssets = await loadedAssetsApi.getAssets();
     final loadedCategories = await loadedAssetsApi.getCategories();
     final loadedCurrencies = await loadedAssetsApi.getCurrencies();
-    setState(() {
-      assetsApi = loadedAssetsApi;
-      assets = loadedAssets;
-      categories = loadedCategories;
-      currencies = loadedCurrencies;
-    });
+    if (mounted) { // memo. Unhandled Exception: setState() called after dispose() 해결
+      setState(() {
+        assetsApi = loadedAssetsApi;
+        assets = loadedAssets;
+        categories = loadedCategories;
+        currencies = loadedCurrencies;
+      });
+    }
   }
 
   List<Asset> get filteredAssets {
@@ -428,7 +430,7 @@ class _AssetEditScreenState extends State<AssetEditScreen> {
         }
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Failed to update asset')),
+          const SnackBar(content: Text('Failed to update assets')),
         );
       }
     } catch (e) {
