@@ -72,7 +72,7 @@ class ActionApiHttp implements ActionApi {
   
   @override
   Future<bool> recordInvest(int fundId, int assetId, double count, price) async {
-
+    
     try {
       final url = ConfigLoader.getUrl();
       final client = await _authService.getAuthenticatedClient();
@@ -169,7 +169,7 @@ class ActionApiHttpMock implements ActionApi {
   
   @override
   Future<bool> recordInvest(int fundId, int assetId, double amount, price) async {
-
+    print(assetId);
     return true;
   }
 

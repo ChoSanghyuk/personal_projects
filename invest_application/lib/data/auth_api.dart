@@ -81,16 +81,13 @@ class AuthService {
         
         // Save to secure storage
         await _saveToken(token, expiryDate);
-        
         // Notify UI about auth state change
         authStateChanges.value = true;
         return true;
       } else {
-         print('Login error: ${response.body}');
+        return false;
       }
-      return false;
     } catch (e) {
-      print('Login error: $e');
       return false;
     }
   }
