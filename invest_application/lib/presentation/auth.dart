@@ -14,7 +14,7 @@ class AuthWrapper extends StatefulWidget {
 class _AuthWrapperState extends State<AuthWrapper> {
   final AuthService _authService = AuthService();
   // bool _isChecking = true;
-  bool _isAuthenticated = true; // todo. 나중에 로그인 기능 살리고자할때 false로 바꾸기
+  bool _isAuthenticated = false;
 
   @override
   void initState() {

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import './config_loader.dart';
+import 'package:http/browser_client.dart';
 
 // JWT Token model
 class AuthToken {
@@ -126,7 +127,7 @@ class AuthService {
   // Get authenticated HTTP client with token
   Future<http.Client> getAuthenticatedClient() async {
     final token = await getToken();
-    final client = http.Client();
+    final client =  BrowserClient(); // http.Client(); // todo. web-server용 client
     
     if (token != null && token.isValid) {
       return _AuthenticatedClient(client, token.token);
