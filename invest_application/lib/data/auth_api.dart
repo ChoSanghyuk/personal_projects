@@ -3,8 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import './config_loader.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:flutter/foundation.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 // import 'package:http/browser_client.dart';
-// import 'package:shared_preferences/shared_preferences.dart';
 
 
 
@@ -18,37 +19,12 @@ class AuthToken {
   bool get isValid => DateTime.now().isBefore(expiryDate);
 }
 
-// abstract class AppStorage {
-//   Future<void> write({required String key, required String value});
-//   Future<String?> read({required String key});
-//   Future<void> delete({required String key});
-// }
-
-// class SharedPrefsStorage implements AppStorage {
-//   @override
-//   Future<void> write({required String key, required String value}) async {
-//     final prefs = await SharedPreferences.getInstance();
-//     await prefs.setString(key, value);
-//   }
-
-//   @override
-//   Future<String?> read({required String key}) async {
-//     final prefs = await SharedPreferences.getInstance();
-//     return prefs.getString(key);
-//   }
-
-//   @override
-//   Future<void> delete({required String key}) async {
-//     final prefs = await SharedPreferences.getInstance();
-//     await prefs.remove(key);
-//   }
-// }
-
 class AuthService {
 
   final String baseUrl = ConfigLoader.getUrl();
-  final FlutterSecureStorage _storage = const FlutterSecureStorage(); // in-device storage
-  // final AppStorage _storage =  SharedPrefsStorage();
+  final FlutterSecureStorage _secureStorage = const FlutterSecureStorage(); // in-device storage
+  
+
   
   // Key for token storage
   static const String _tokenKey = 'jwt_token';
@@ -90,7 +66,6 @@ class AuthService {
     }
   }
   
-  // Login and get JWT token
   Future<bool> login(String user, String password) async {
     try {
       final response = await http.post(
@@ -110,30 +85,50 @@ class AuthService {
         final expiryTimeStamp = responseData['expiry']; // Unix timestamp
         final expiryDate = DateTime.fromMillisecondsSinceEpoch(expiryTimeStamp * 1000);
         
-        // Save to secure storage
+        // Save token based on platform
         await _saveToken(token, expiryDate);
+        
         // Notify UI about auth state change
         authStateChanges.value = true;
         return true;
       } else {
+        print('Login failed: ${response.statusCode} - ${response.body}');
         return false;
       }
     } catch (e) {
+      print('Login exception: $e');
       return false;
     }
   }
-  
-  // Save token to secure storage
+
   Future<void> _saveToken(String token, DateTime expiryDate) async {
-    await _storage.write(key: _tokenKey, value: token);
-    await _storage.write(key: _tokenExpiryKey, value: expiryDate.millisecondsSinceEpoch.toString());
+    if (kIsWeb) {
+      // For web platform, use shared_preferences
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(_tokenKey, token);
+      await prefs.setString(_tokenExpiryKey, expiryDate.millisecondsSinceEpoch.toString());
+    } else {
+      // For mobile platforms, use secure storage
+      await _secureStorage.write(key: _tokenKey, value: token);
+      await _secureStorage.write(key: _tokenExpiryKey, value: expiryDate.millisecondsSinceEpoch.toString());
+    }
   }
   
   // Get token from secure storage
   Future<AuthToken?> getToken() async {
-    final token = await _storage.read(key: _tokenKey);
-    final expiryString = await _storage.read(key: _tokenExpiryKey);
+    dynamic token;
+    dynamic expiryString;
+
+    if (kIsWeb) {
+      final prefs = await SharedPreferences.getInstance();
+      token = prefs.getString(_tokenKey);
+      expiryString =  prefs.getString(_tokenExpiryKey);
+    } else {
+    token = await _secureStorage.read(key: _tokenKey);
+    expiryString = await _secureStorage.read(key: _tokenExpiryKey);
     
+    }
+
     if (token != null && expiryString != null) {
       final expiryDate = DateTime.fromMillisecondsSinceEpoch(int.parse(expiryString));
       return AuthToken(token: token, expiryDate: expiryDate);
@@ -149,10 +144,18 @@ class AuthService {
   
   // Logout - remove token from storage
   Future<void> logout() async {
-    await _storage.delete(key: _tokenKey);
-    await _storage.delete(key: _tokenExpiryKey);
+    if (kIsWeb) {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove(_tokenKey);
+      await prefs.remove(_tokenExpiryKey);
+    } else {
+      await _secureStorage.delete(key: _tokenKey);
+      await _secureStorage.delete(key: _tokenExpiryKey);
+    }
+    
     authStateChanges.value = false;
   }
+  
   
   // Get authenticated HTTP client with token
   Future<http.Client> getAuthenticatedClient() async {

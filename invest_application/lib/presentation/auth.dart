@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:invest_application/data/auth_api.dart';
-// import './home.dart';
 import '../data/config_loader.dart';
 
 
