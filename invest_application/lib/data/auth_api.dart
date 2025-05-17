@@ -4,7 +4,7 @@ import 'package:http/http.dart' as http;
 import './config_loader.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter/foundation.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+
 // import 'package:http/browser_client.dart';
 
 
@@ -23,6 +23,7 @@ class AuthService {
 
   final String baseUrl = ConfigLoader.getUrl();
   final FlutterSecureStorage _secureStorage = const FlutterSecureStorage(); // in-device storage
+  static final Map<String, String> _webStorage = {};
   
 
   
@@ -104,9 +105,8 @@ class AuthService {
   Future<void> _saveToken(String token, DateTime expiryDate) async {
     if (kIsWeb) {
       // For web platform, use shared_preferences
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setString(_tokenKey, token);
-      await prefs.setString(_tokenExpiryKey, expiryDate.millisecondsSinceEpoch.toString());
+      _webStorage[_tokenKey] = token;
+      _webStorage[_tokenExpiryKey] = expiryDate.millisecondsSinceEpoch.toString();
     } else {
       // For mobile platforms, use secure storage
       await _secureStorage.write(key: _tokenKey, value: token);
@@ -120,9 +120,8 @@ class AuthService {
     dynamic expiryString;
 
     if (kIsWeb) {
-      final prefs = await SharedPreferences.getInstance();
-      token = prefs.getString(_tokenKey);
-      expiryString =  prefs.getString(_tokenExpiryKey);
+      token =  _webStorage[_tokenKey];
+      expiryString =  _webStorage[_tokenExpiryKey];
     } else {
     token = await _secureStorage.read(key: _tokenKey);
     expiryString = await _secureStorage.read(key: _tokenExpiryKey);
@@ -145,9 +144,8 @@ class AuthService {
   // Logout - remove token from storage
   Future<void> logout() async {
     if (kIsWeb) {
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.remove(_tokenKey);
-      await prefs.remove(_tokenExpiryKey);
+      _webStorage.remove(_tokenKey);
+      _webStorage.remove(_tokenExpiryKey);
     } else {
       await _secureStorage.delete(key: _tokenKey);
       await _secureStorage.delete(key: _tokenExpiryKey);
