@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'data/config_loader.dart';
-import 'presentation/auth.dart'; // Import your home screen
+// import 'presentation/auth.dart'; // Import your home screen // check login 제거
 import 'presentation/home.dart'; // Import your home screen
 // import 'services/notifications_service.dart';
 
@@ -22,13 +22,13 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      initialRoute: '/',
+      initialRoute: '/home', // check. login 제거
       
       // Define named routes
       routes: {
-        '/': (context) => const AuthWrapper(),
+        // '/': (context) => const AuthWrapper(),
         '/home': (context) => const HomeScreen(),
-        '/login': (context) => const LoginScreen(),
+        // '/login': (context) => const LoginScreen(),
       },
 
       // Optional: Add onGenerateRoute for more complex routing

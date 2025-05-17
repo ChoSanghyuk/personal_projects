@@ -2,9 +2,9 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import './config_loader.dart';
-// import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:http/browser_client.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+// import 'package:http/browser_client.dart';
+// import 'package:shared_preferences/shared_preferences.dart';
 
 
 
@@ -18,37 +18,37 @@ class AuthToken {
   bool get isValid => DateTime.now().isBefore(expiryDate);
 }
 
-abstract class AppStorage {
-  Future<void> write({required String key, required String value});
-  Future<String?> read({required String key});
-  Future<void> delete({required String key});
-}
+// abstract class AppStorage {
+//   Future<void> write({required String key, required String value});
+//   Future<String?> read({required String key});
+//   Future<void> delete({required String key});
+// }
 
-class SharedPrefsStorage implements AppStorage {
-  @override
-  Future<void> write({required String key, required String value}) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(key, value);
-  }
+// class SharedPrefsStorage implements AppStorage {
+//   @override
+//   Future<void> write({required String key, required String value}) async {
+//     final prefs = await SharedPreferences.getInstance();
+//     await prefs.setString(key, value);
+//   }
 
-  @override
-  Future<String?> read({required String key}) async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getString(key);
-  }
+//   @override
+//   Future<String?> read({required String key}) async {
+//     final prefs = await SharedPreferences.getInstance();
+//     return prefs.getString(key);
+//   }
 
-  @override
-  Future<void> delete({required String key}) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove(key);
-  }
-}
+//   @override
+//   Future<void> delete({required String key}) async {
+//     final prefs = await SharedPreferences.getInstance();
+//     await prefs.remove(key);
+//   }
+// }
 
 class AuthService {
 
   final String baseUrl = ConfigLoader.getUrl();
-  // final FlutterSecureStorage _storage = const FlutterSecureStorage(); // in-device storage
-  final AppStorage _storage =  SharedPrefsStorage();
+  final FlutterSecureStorage _storage = const FlutterSecureStorage(); // in-device storage
+  // final AppStorage _storage =  SharedPrefsStorage();
   
   // Key for token storage
   static const String _tokenKey = 'jwt_token';
@@ -157,7 +157,7 @@ class AuthService {
   // Get authenticated HTTP client with token
   Future<http.Client> getAuthenticatedClient() async {
     final token = await getToken();
-    final client =  BrowserClient(); //http.Client(); // todo. web-server용 client
+    final client =  http.Client(); // BrowserClient(); 
     
     if (token != null && token.isValid) {
       return _AuthenticatedClient(client, token.token);
@@ -211,7 +211,7 @@ class _AuthenticatedClient extends http.BaseClient {
   
   @override
   Future<http.StreamedResponse> send(http.BaseRequest request) {
-    request.headers['Authorization'] = 'Bearer $_token';
+    // request.headers['Authorization'] = 'Bearer $_token'; // check. login 제거
     return _inner.send(request);
   }
 }
