@@ -28,22 +28,24 @@ func main() {
 
 	// 책 설정 값
 	start := 1
-	end := 660
-	name := "시작하세요_도커_쿠버네티스"
+	end := 426
+	name := "일본어_한자암기박사"
 
 	// 캡처 설정 값. TestCapture에서 값 확인
-	spots := [][2]int{{270, 160}, {910, 160}}
-	w := 550 //530
-	h := 840 //820
+	// (220, 120) , (920, 120)
+	spots := [][2]int{{220, 140}, {920, 140}}
+	w := 580 //530
+	h := 920 //820
 
 	// 코드 시작
 	ok := hook.AddEvent(robotgo.Enter)
 	if ok {
 		fmt.Println("Event Start")
 	}
+	time.Sleep(1 * time.Second)
 
 	for i := start; i <= end; i += 2 {
-		if i%50 == 1 && i != start {
+		if i%30 == 1 && i != start {
 			refresh()
 		}
 
@@ -69,14 +71,17 @@ func capture(spot [2]int, w, h int, name string) {
 func refresh() {
 	robotgo.KeyTap("r", "cmd")
 	time.Sleep(10 * time.Second)
-	robotgo.MoveClick(876, 504)
+	robotgo.MoveClick(850, 504)
 	time.Sleep(1 * time.Second)
-	robotgo.MoveClick(1235, 159)
+	robotgo.MoveClick(1220, 159)
 	time.Sleep(1 * time.Second)
+	robotgo.MoveClick(850, 504)
+	robotgo.Move(1700, 573)
 }
 
 func move() {
-	robotgo.MoveClick(1613, 573)
+	// robotgo.MoveClick(1613, 573)
+	robotgo.KeyPress(robotgo.Right)
 	time.Sleep(1 * time.Second)
 }
 

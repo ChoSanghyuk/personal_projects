@@ -18,7 +18,8 @@ import (
 
 func TestRefresh(t *testing.T) {
 	time.Sleep(3 * time.Second)
-	robotgo.KeyTap("r", "cmd")
+	// robotgo.KeyTap("r", "cmd")
+	refresh()
 }
 
 func TestLocation(t *testing.T) {
@@ -37,17 +38,20 @@ func TestLocation(t *testing.T) {
 }
 
 /*
-시작점 : (230, 150) , (990, 150)
-w : 630
-h : 850
+시작점 : (220, 120) , (920, 120)
+w : 580 630
+h : 900 850
 */
 
 func TestCapture(t *testing.T) {
 	time.Sleep(2 * time.Second)
 
-	spots := [][]int{{230, 180}, {990, 180}}
-	w := 520
-	h := 820
+	// spots := [][]int{{230, 180}, {990, 180}}
+	// w := 520
+	// h := 820
+	spots := [][2]int{{220, 120}, {920, 120}}
+	w := 580 //530
+	h := 900 //820
 
 	for i := range spots {
 		bit := robotgo.CaptureScreen(spots[i][0], spots[i][1], w, h)
