@@ -85,7 +85,7 @@ class AuthService {
       }
       return false;
     } catch (e) {
-      print('Registration error: $e');
+      // print('Registration error: $e');
       return false;
     }
   }
@@ -168,38 +168,38 @@ class AuthService {
   }
   
   // Make authenticated request
-  Future<http.Response> authenticatedRequest(
-    String method,
-    String endpoint, {
-    Map<String, String>? headers,
-    Object? body,
-  }) async {
-    final token = await getToken();
+  // Future<http.Response> authenticatedRequest(
+  //   String method,
+  //   String endpoint, {
+  //   Map<String, String>? headers,
+  //   Object? body,
+  // }) async {
+  //   final token = await getToken();
     
-    if (token == null || !token.isValid) {
-      throw Exception('Not authenticated');
-    }
+  //   if (token == null || !token.isValid) {
+  //     throw Exception('Not authenticated');
+  //   }
     
-    final url = Uri.parse('$baseUrl$endpoint');
-    final requestHeaders = {
-      'Content-Type': 'application/json',
-      'Authorization': 'Bearer ${token.token}',
-      ...?headers,
-    };
+  //   final url = Uri.parse('$baseUrl$endpoint');
+  //   final requestHeaders = {
+  //     'Content-Type': 'application/json',
+  //     'Authorization': 'Bearer ${token.token}',
+  //     ...?headers,
+  //   };
     
-    switch (method.toUpperCase()) {
-      case 'GET':
-        return http.get(url, headers: requestHeaders);
-      case 'POST':
-        return http.post(url, headers: requestHeaders, body: body);
-      case 'PUT':
-        return http.put(url, headers: requestHeaders, body: body);
-      case 'DELETE':
-        return http.delete(url, headers: requestHeaders);
-      default:
-        throw Exception('Unsupported HTTP method: $method');
-    }
-  }
+  //   switch (method.toUpperCase()) {
+  //     case 'GET':
+  //       return http.get(url, headers: requestHeaders);
+  //     case 'POST':
+  //       return http.post(url, headers: requestHeaders, body: body);
+  //     case 'PUT':
+  //       return http.put(url, headers: requestHeaders, body: body);
+  //     case 'DELETE':
+  //       return http.delete(url, headers: requestHeaders);
+  //     default:
+  //       throw Exception('Unsupported HTTP method: $method');
+  //   }
+  // }
 }
 
 // Custom HTTP client that adds Authorization header
@@ -211,7 +211,8 @@ class _AuthenticatedClient extends http.BaseClient {
   
   @override
   Future<http.StreamedResponse> send(http.BaseRequest request) {
-    // request.headers['Authorization'] = 'Bearer $_token'; // check. login 제거
+    request.headers['Authorization'] = 'Bearer $_token'; 
+    // check 여기 hdeader에 credentials: 'include' 넣어야 하나??
     return _inner.send(request);
   }
 }
