@@ -44,8 +44,10 @@ func TestLocations(t *testing.T) {
 }
 
 func TestMoveClick(t *testing.T) {
-	time.Sleep(2 * time.Second)
-	moveClick(1047, 776)
+	time.Sleep(3 * time.Second)
+	// r.KeyPress("f5")
+	r.KeyTap("r", "cmd")
+	// moveClick(1047, 776)
 }
 
 func TestKeyTap(t *testing.T) {
@@ -127,4 +129,33 @@ func TestRegisterEnter(t *testing.T) {
 	<-hook.Process(s)
 
 	time.Sleep(10 * time.Second)
+}
+
+func TestServerTime(t *testing.T) {
+
+	start := time.Now()
+	time.Sleep(2 * time.Second)
+	serverTime, err := getServerTime("https://waiting-site.yanolja.com/leisure/R53OE/")
+	if err != nil {
+		fmt.Printf("Error: %v\n", err)
+		return
+	}
+	diff := serverTime.Sub(start)
+
+	fmt.Printf("Server time: %v\n", serverTime)
+	fmt.Printf("Local time:  %v\n", start)
+	fmt.Printf("Diff:  %v\n", serverTime.Sub(start))
+	if diff > 1*time.Second {
+		println(int(diff.Seconds())) // 이정도 만큼 더 빨리 새로고침
+	}
+}
+
+func TestTime(t *testing.T) {
+	openTime, _ := time.ParseInLocation("2006-01-02 15:04", "2025-09-24 08:56", time.Local)
+	now := time.Now()
+
+	fmt.Printf("Now time: %v\n", now)
+	fmt.Printf("Open time: %v\n", openTime)
+
+	println(now.After(openTime))
 }

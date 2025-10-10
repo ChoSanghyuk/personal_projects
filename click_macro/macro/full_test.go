@@ -16,3 +16,7 @@ func TestCatchMacroMac(t *testing.T) {
 
 	CatchMacroMac(false)
 }
+
+func TestHwadam(t *testing.T) {
+	HwaDamMac()
+}
